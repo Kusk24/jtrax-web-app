@@ -3,15 +3,32 @@ import { Avatar } from "./Avatar";
 import { CreditBar } from "./CreditBar";
 import type { Child, ClassSession } from "@/lib/parent-data";
 
-export function ClassCard({ session, child }: { session: ClassSession; child: Child }) {
+export function ClassCard({
+  session,
+  child,
+  hideStudentPanel = false,
+  action,
+}: {
+  session: ClassSession;
+  child: Child;
+  /** Student portal: the viewer is the student, so skip the left identity panel. */
+  hideStudentPanel?: boolean;
+  action?: React.ReactNode;
+}) {
   const low = child.lowCredits;
   return (
-    <div className="flex overflow-hidden rounded-card border border-navy/30 bg-card shadow-sm">
-      <div className="flex w-24 shrink-0 flex-col items-center justify-center gap-1.5 bg-navy-soft/60 px-2 py-4 sm:w-28">
-        <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-14" />
-        <p className={`text-sm font-bold ${low ? "text-brick" : "text-ink"}`}>{child.name}</p>
-        <p className="text-[10px] text-muted">ID: {child.studentId}</p>
-      </div>
+    <div
+      className={`flex overflow-hidden rounded-card border border-navy/30 bg-card shadow-sm ${
+        hideStudentPanel ? "border-l-4 border-l-navy" : ""
+      }`}
+    >
+      {!hideStudentPanel && (
+        <div className="flex w-24 shrink-0 flex-col items-center justify-center gap-1.5 bg-navy-soft/60 px-2 py-4 sm:w-28">
+          <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-14" />
+          <p className={`text-sm font-bold ${low ? "text-brick" : "text-ink"}`}>{child.name}</p>
+          <p className="text-[10px] text-muted">ID: {child.studentId}</p>
+        </div>
+      )}
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-bold text-navy">
@@ -45,6 +62,7 @@ export function ClassCard({ session, child }: { session: ClassSession; child: Ch
               {child.credits.remaining}/{child.credits.total} credits
             </span>
           </div>
+          {action && <div className="mt-3 flex justify-end">{action}</div>}
         </div>
       </div>
     </div>
