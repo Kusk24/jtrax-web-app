@@ -1,11 +1,11 @@
-import { ParentHeader } from "@/components/ParentHeader";
+import { StudentHeader } from "@/components/StudentHeader";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
-import { notifications } from "@/lib/parent-data";
+import { notifications } from "@/lib/student-data";
 
-export default function NotificationsPage() {
+export default function StudentNotificationsPage() {
   return (
     <div className="flex flex-col gap-6">
-      <ParentHeader />
+      <StudentHeader />
       <NotificationsPanel items={notifications} />
     </div>
   );
