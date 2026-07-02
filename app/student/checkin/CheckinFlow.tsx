@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, School, Check } from "lucide-react";
+import { ArrowLeft, School, Check, QrCode } from "lucide-react";
 import { attendanceSession } from "@/lib/student-data";
 
-export type CheckinPhase = "verifying" | "success" | "not-started";
+export type CheckinPhase = "enter-code" | "verifying" | "success" | "not-started";
 
 const VERIFY_DURATION_MS = 3000;
 
@@ -19,12 +19,23 @@ const pieces = [
 
 export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
   const [phase, setPhase] = useState(initialPhase);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (phase !== "verifying") return;
     const timer = setTimeout(() => setPhase("success"), VERIFY_DURATION_MS);
     return () => clearTimeout(timer);
   }, [phase]);
+
+  function submitCode() {
+    if (code === attendanceSession.code) {
+      setError(false);
+      setPhase("verifying");
+    } else {
+      setError(true);
+    }
+  }
 
   const notStarted = phase === "not-started";
 
@@ -49,6 +60,62 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
           </p>
         </div>
       </header>
+
+      {phase === "enter-code" && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-8">
+          <span className="flex size-28 items-center justify-center rounded-full bg-navy-soft/70">
+            <QrCode className="size-12 text-navy" />
+          </span>
+          <div className="w-full max-w-md text-center">
+            <h2 className="font-bold text-ink">Enter the class code</h2>
+            <p className="mt-1 text-xs text-muted">
+              Type the 6-digit code shown on the classroom screen.
+            </p>
+            <input
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                setError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && code.length === 6) submitCode();
+              }}
+              inputMode="numeric"
+              autoFocus
+              placeholder="••••••"
+              aria-label="6-digit class code"
+              className={`mt-4 w-56 rounded-xl border-2 bg-card py-3 text-center text-2xl font-extrabold tracking-[0.4em] text-navy outline-none placeholder:text-line ${
+                error ? "border-brick" : "border-navy/40 focus:border-navy"
+              }`}
+            />
+            {error && (
+              <p className="mt-2 text-xs font-semibold text-brick">
+                That code didn&apos;t match. Check the classroom screen and try again.
+              </p>
+            )}
+            <button
+              onClick={submitCode}
+              disabled={code.length !== 6}
+              className="mt-4 block w-full rounded-xl bg-navy py-3 font-semibold text-white shadow-sm hover:bg-navy-deep disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Check In
+            </button>
+            <div className="my-5 flex items-center gap-3 text-xs text-muted">
+              <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
+            </div>
+            <button
+              onClick={() => setPhase("verifying")}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-navy/40 bg-card py-3 font-semibold text-navy hover:bg-navy-soft/30"
+            >
+              <QrCode className="size-5" /> Scan QR Code
+            </button>
+            <p className="mt-2 text-[10px] text-muted">
+              Camera scanning arrives with the mobile build — simulated for now. Demo
+              code: {attendanceSession.code}
+            </p>
+          </div>
+        </div>
+      )}
 
       {phase === "verifying" && (
         <div className="flex flex-1 flex-col items-center justify-center gap-10">
@@ -104,7 +171,7 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
         </div>
       )}
 
-      {phase !== "verifying" && (
+      {(phase === "success" || notStarted) && (
         <Link
           href="/student"
           className="mx-auto mb-2 block w-full max-w-md rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-sm hover:bg-navy-deep"

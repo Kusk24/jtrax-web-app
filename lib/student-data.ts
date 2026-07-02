@@ -64,12 +64,14 @@ export const upcomingToday: ClassSession = {
 /**
  * Mock state of the teacher-controlled attendance session for today's class.
  * Flip `active` to false to see the "not started" screen (or use ?state=not-started).
+ * `code` stands in for the rotating QR/6-digit token the backend will issue (ADR 0002).
  */
 export const attendanceSession = {
   active: true,
   course: "Beginner Chess",
   section: "Section 101",
   checkinTime: "02:10 PM",
+  code: "482913",
 };
 
 export const scheduleWeek = [
