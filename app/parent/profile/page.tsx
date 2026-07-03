@@ -15,7 +15,7 @@ export default function ParentProfilePage() {
     <div className="flex flex-col gap-5">
       <h1 className="text-center text-2xl font-extrabold text-navy">My Profile</h1>
 
-      <div className="flex items-center gap-4 rounded-card border border-line bg-card p-4 shadow-sm">
+      <div className="flex items-center gap-4 rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <Avatar name={parent.name} colorClass={parent.avatarColor} sizeClass="size-14" />
         <div>
           <p className="font-bold text-ink">{parent.name}</p>
@@ -42,7 +42,7 @@ export default function ParentProfilePage() {
         </ul>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
           <ContactRound className="size-5 text-navy" /> Contact Information
         </h2>
@@ -68,7 +68,7 @@ export default function ParentProfilePage() {
         </ul>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
           <Info className="size-5 text-navy" /> More
         </h2>

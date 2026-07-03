@@ -48,7 +48,7 @@ export default function TeacherProfilePage() {
     <div className="flex flex-col gap-5">
       <h1 className="text-center text-2xl font-extrabold text-navy">My Profile</h1>
 
-      <section className="flex items-center gap-4 rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="flex items-center gap-4 rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <Avatar name={teacher.name} colorClass={teacher.avatarColor} sizeClass="size-14" />
         <div>
           <p className="font-bold text-ink">Ms. {teacher.name}</p>
@@ -65,7 +65,7 @@ export default function TeacherProfilePage() {
           {overviewTiles.map(({ icon: Icon, value, label, frame, iconColor }) => (
             <div
               key={label}
-              className={`flex items-center gap-3 rounded-card border-2 bg-card p-4 shadow-sm ${frame}`}
+              className={`flex items-center gap-3 rounded-card border-2 bg-card p-4 shadow-clay ${frame}`}
             >
               <Icon className={`size-6 shrink-0 ${iconColor}`} />
               <div>
@@ -77,7 +77,7 @@ export default function TeacherProfilePage() {
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-bold text-navy">
           <BookMarked className="size-4" /> Assigned Branches
         </h2>
@@ -100,7 +100,7 @@ export default function TeacherProfilePage() {
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-bold text-navy">
           <IdCard className="size-4" /> Contact Information
         </h2>

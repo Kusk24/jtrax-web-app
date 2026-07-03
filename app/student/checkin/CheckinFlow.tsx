@@ -96,7 +96,7 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
             <button
               onClick={submitCode}
               disabled={code.length !== 6}
-              className="mt-4 block w-full rounded-xl bg-navy py-3 font-semibold text-white shadow-sm hover:bg-navy-deep disabled:cursor-not-allowed disabled:opacity-40"
+              className="mt-4 block w-full rounded-xl bg-navy py-3 font-semibold text-white shadow-clay hover:bg-navy-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
               Check In
             </button>
@@ -174,7 +174,7 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
       {(phase === "success" || notStarted) && (
         <Link
           href="/student"
-          className="mx-auto mb-2 block w-full max-w-md rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-sm hover:bg-navy-deep"
+          className="mx-auto mb-2 block w-full max-w-md rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-clay hover:bg-navy-deep"
         >
           Back To Homepage
         </Link>

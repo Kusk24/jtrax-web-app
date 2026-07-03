@@ -18,7 +18,7 @@ export function ClassCard({
   const low = child.lowCredits;
   return (
     <div
-      className={`flex overflow-hidden rounded-card border border-navy/30 bg-card shadow-sm ${
+      className={`flex overflow-hidden rounded-card border-2 border-navy/20 bg-card shadow-clay ${
         hideStudentPanel ? "border-l-4 border-l-navy" : ""
       }`}
     >
