@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   ContactRound,
   Phone,
@@ -6,26 +7,29 @@ import {
   Info,
   Settings,
   ChevronRight,
+  Languages,
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { parent, children } from "@/lib/parent-data";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export default function ParentProfilePage() {
+  const t = useTranslations();
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-center text-2xl font-extrabold text-navy">My Profile</h1>
+      <h1 className="text-center text-2xl font-extrabold text-navy">{t("profile.myProfile")}</h1>
 
       <div className="flex items-center gap-4 rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <Avatar name={parent.name} colorClass={parent.avatarColor} sizeClass="size-14" />
         <div>
           <p className="font-bold text-ink">{parent.name}</p>
-          <p className="text-xs text-muted">ID: {parent.parentId}</p>
-          <p className="text-xs text-muted">{parent.role}</p>
+          <p className="text-xs text-muted">{t("common.idLabel", { id: parent.parentId })}</p>
+          <p className="text-xs text-muted">{t("common.parentBadge")}</p>
         </div>
       </div>
 
       <section>
-        <h2 className="font-extrabold text-ink">My Children ({children.length})</h2>
+        <h2 className="font-extrabold text-ink">{t("home.myChildren")} ({children.length})</h2>
         <ul className="mt-3 flex flex-wrap gap-6">
           {children.map((child) => (
             <li key={child.id}>
@@ -44,7 +48,7 @@ export default function ParentProfilePage() {
 
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
-          <ContactRound className="size-5 text-navy" /> Contact Information
+          <ContactRound className="size-5 text-navy" /> {t("profile.contactInfo")}
         </h2>
         <ul className="mt-4 flex flex-col gap-4">
           <li className="flex items-center gap-3">
@@ -52,7 +56,7 @@ export default function ParentProfilePage() {
               <Phone className="size-4 text-olive" />
             </span>
             <div>
-              <p className="text-[11px] text-muted">Phone</p>
+              <p className="text-[11px] text-muted">{t("profile.phone")}</p>
               <p className="text-sm text-ink">{parent.phone}</p>
             </div>
           </li>
@@ -61,7 +65,7 @@ export default function ParentProfilePage() {
               <Mail className="size-4 text-navy" />
             </span>
             <div>
-              <p className="text-[11px] text-muted">Email</p>
+              <p className="text-[11px] text-muted">{t("profile.email")}</p>
               <p className="text-sm text-ink">{parent.email}</p>
             </div>
           </li>
@@ -70,18 +74,22 @@ export default function ParentProfilePage() {
 
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
-          <Info className="size-5 text-navy" /> More
+          <Info className="size-5 text-navy" /> {t("profile.more")}
         </h2>
         <ul className="mt-2">
+          <li className="flex items-center gap-3 px-1 py-2.5 text-sm text-ink">
+            <Languages className="size-4 text-navy" /> {t("common.language")}
+            <LanguageToggle className="ml-auto" />
+          </li>
           <li>
             <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
-              <Phone className="size-4 text-navy" /> Contact School
+              <Phone className="size-4 text-navy" /> {t("profile.contactSchool")}
               <ChevronRight className="ml-auto size-4 text-muted" />
             </button>
           </li>
           <li>
             <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
-              <Settings className="size-4 text-navy" /> Settings
+              <Settings className="size-4 text-navy" /> {t("profile.settings")}
               <ChevronRight className="ml-auto size-4 text-muted" />
             </button>
           </li>
