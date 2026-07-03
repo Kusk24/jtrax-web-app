@@ -25,7 +25,7 @@ export default function StudentProfilePage() {
     <div className="flex flex-col gap-5">
       <h1 className="text-center text-2xl font-extrabold text-navy">My Profile</h1>
 
-      <div className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <div className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <div className="flex items-center gap-4">
           <Avatar name={student.name} colorClass={student.avatarColor} sizeClass="size-14" />
           <div>
@@ -58,7 +58,7 @@ export default function StudentProfilePage() {
         </div>
       </div>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
           <Users className="size-5 text-navy" /> Parents Contact
         </h2>
@@ -89,7 +89,7 @@ export default function StudentProfilePage() {
         </ul>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
           <GraduationCap className="size-5 text-navy" /> Enrolled Classes
         </h2>
@@ -131,7 +131,7 @@ export default function StudentProfilePage() {
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
           <Info className="size-5 text-navy" /> More
         </h2>

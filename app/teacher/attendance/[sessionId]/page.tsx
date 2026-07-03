@@ -49,7 +49,7 @@ export default function AttendanceSummaryPage({
         </div>
         <button
           onClick={() => toggle(student.id)}
-          className={`w-20 shrink-0 rounded-card text-sm font-semibold text-white shadow-sm hover:brightness-110 ${
+          className={`w-20 shrink-0 rounded-card text-sm font-semibold text-white shadow-clay hover:brightness-110 ${
             isPresent ? "bg-brick" : "bg-olive"
           }`}
         >

@@ -52,7 +52,7 @@ export default async function ChildProfilePage({
         <h1 className="text-2xl font-extrabold text-navy">{child.name}&apos;s Profile</h1>
       </div>
 
-      <div className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <div className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <div className="flex items-center gap-4">
           <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-14" />
           <div>
@@ -83,7 +83,7 @@ export default async function ChildProfilePage({
         </div>
       </div>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
           <GraduationCap className="size-5 text-navy" /> Enrolled Classes
         </h2>
@@ -123,7 +123,7 @@ export default async function ChildProfilePage({
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-extrabold text-ink">
             <History className="size-5 text-navy" /> Attendance History

@@ -29,7 +29,7 @@ export function NotificationsPanel({ items }: { items: NotificationItem[] }) {
               className={`rounded-full px-5 py-1 text-xs font-semibold capitalize ${
                 filter === f
                   ? "bg-navy text-white"
-                  : "border border-line bg-card text-muted"
+                  : "border-2 border-line bg-card text-muted"
               }`}
             >
               {f}

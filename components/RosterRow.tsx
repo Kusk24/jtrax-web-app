@@ -10,7 +10,7 @@ export function RosterRow({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-card border border-line bg-card p-3 shadow-sm">
+    <div className="flex items-center gap-3 rounded-card border-2 border-line bg-card p-3 shadow-clay">
       <Avatar
         name={student.name}
         colorClass={student.avatarColor}

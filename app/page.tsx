@@ -37,7 +37,7 @@ export default function RoleSelectPage() {
           <Link
             key={href}
             href={href}
-            className="group flex items-center gap-4 rounded-card border border-line bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-navy/40 hover:shadow-md sm:flex-col sm:items-start sm:gap-3 sm:p-6"
+            className="group flex items-center gap-4 rounded-card border-2 border-line bg-card p-5 shadow-clay transition hover:-translate-y-0.5 hover:border-navy/40 hover:shadow-md sm:flex-col sm:items-start sm:gap-3 sm:p-6"
           >
             <span className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${accent}`}>
               <Icon className="size-6" />

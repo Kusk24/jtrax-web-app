@@ -33,7 +33,7 @@ export default function ManualCheckinPage() {
 
       <SessionProgress count={presentIds.size} total={roster.length} />
 
-      <label className="flex items-center gap-2 rounded-full border border-line bg-card px-4 py-2.5 shadow-sm">
+      <label className="flex items-center gap-2 rounded-full border-2 border-line bg-card px-4 py-2.5 shadow-clay">
         <Search className="size-4 shrink-0 text-muted" />
         <input
           type="search"
@@ -47,13 +47,13 @@ export default function ManualCheckinPage() {
       <div className="flex items-center justify-between gap-3">
         <button
           onClick={() => setPresentIds(new Set())}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-brick px-4 py-2 text-sm font-semibold text-white shadow-sm hover:brightness-110"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-brick px-4 py-2 text-sm font-semibold text-white shadow-clay hover:brightness-110"
         >
           <XCircle className="size-4" /> All Absent
         </button>
         <button
           onClick={() => setPresentIds(new Set(roster.map((s) => s.id)))}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-olive px-4 py-2 text-sm font-semibold text-white shadow-sm hover:brightness-110"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-olive px-4 py-2 text-sm font-semibold text-white shadow-clay hover:brightness-110"
         >
           <CheckCircle2 className="size-4" /> All Present
         </button>

@@ -32,7 +32,7 @@ export default async function TeacherStudentProfilePage({
     <div className="flex flex-col gap-4">
       <CheckinHeader title="Student Profile" subtitle="" backHref="/teacher/attendance" />
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <div className="flex items-center gap-3">
           <Avatar name={student.name} colorClass={student.avatarColor} sizeClass="size-14" />
           <div>
@@ -65,7 +65,7 @@ export default async function TeacherStudentProfilePage({
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-bold text-navy">
           <ShieldAlert className="size-4" /> Parents Contact
         </h2>
@@ -96,7 +96,7 @@ export default async function TeacherStudentProfilePage({
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-bold text-navy">
           <GraduationCap className="size-4" /> Enrolled Classes
         </h2>
@@ -127,7 +127,7 @@ export default async function TeacherStudentProfilePage({
         </div>
       </section>
 
-      <section className="rounded-card border border-line bg-card p-4 shadow-sm">
+      <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-bold text-navy">
             <History className="size-4" /> Attendance History

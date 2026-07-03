@@ -23,7 +23,7 @@ export default function SchedulePage() {
               onClick={() => setSelected(day.date)}
               className={`relative flex w-14 shrink-0 flex-col items-center rounded-xl border px-2 pb-2 pt-3 sm:w-16 ${
                 active
-                  ? "border-navy bg-card shadow-sm"
+                  ? "border-navy bg-card shadow-clay"
                   : "border-transparent bg-navy-soft/70"
               }`}
             >

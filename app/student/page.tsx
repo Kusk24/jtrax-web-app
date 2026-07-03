@@ -31,7 +31,7 @@ export default function StudentHome() {
             action={
               <Link
                 href="/student/checkin"
-                className="flex items-center gap-1 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-navy-deep"
+                className="flex items-center gap-1 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white shadow-clay hover:bg-navy-deep"
               >
                 Check-in <ChevronRight className="size-4" />
               </Link>

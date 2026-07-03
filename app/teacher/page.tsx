@@ -68,7 +68,7 @@ export default function TeacherHome() {
           {myClasses.map((cls) => (
             <div
               key={cls.id}
-              className="overflow-hidden rounded-card border border-navy/30 bg-card shadow-sm"
+              className="overflow-hidden rounded-card border-2 border-navy/20 bg-card shadow-clay"
             >
               <div className="flex h-24 items-center justify-center bg-gradient-to-br from-olive-soft to-peach">
                 <Crown className="size-9 text-olive" />

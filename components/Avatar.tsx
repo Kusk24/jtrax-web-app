@@ -14,7 +14,7 @@ export function Avatar({
   return (
     <span className={`relative inline-flex shrink-0 ${sizeClass}`}>
       <span
-        className={`flex size-full items-center justify-center rounded-full font-semibold ${colorClass} ${textClass}`}
+        className={`flex size-full items-center justify-center rounded-full font-bold ring-2 ring-card ${colorClass} ${textClass}`}
       >
         {name.charAt(0)}
       </span>

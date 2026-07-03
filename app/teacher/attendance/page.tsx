@@ -24,7 +24,7 @@ export default function TeacherAttendancePage() {
                 <Link
                   key={session.id}
                   href={`/teacher/attendance/${session.id}`}
-                  className="flex items-center gap-3 rounded-card border border-navy/30 bg-card p-4 shadow-sm transition-colors hover:border-navy/60"
+                  className="flex items-center gap-3 rounded-card border-2 border-navy/20 bg-card p-4 shadow-clay transition-colors hover:border-navy/60"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-navy">

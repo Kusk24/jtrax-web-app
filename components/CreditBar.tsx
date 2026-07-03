@@ -11,7 +11,7 @@ export function CreditBar({
 }) {
   const pct = Math.max(4, Math.round((remaining / total) * 100));
   return (
-    <div className={`h-1.5 w-full overflow-hidden rounded-full ${trackClass}`}>
+    <div className={`h-2 w-full overflow-hidden rounded-full ${trackClass}`}>
       <div
         className={`h-full rounded-full ${low ? "bg-brick" : "bg-olive"}`}
         style={{ width: `${pct}%` }}

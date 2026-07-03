@@ -25,7 +25,7 @@ export default function AttendancePage() {
               return (
                 <div
                   key={record.id}
-                  className="flex items-center gap-3 rounded-card border border-navy/30 bg-card p-4 shadow-sm"
+                  className="flex items-center gap-3 rounded-card border-2 border-navy/20 bg-card p-4 shadow-clay"
                 >
                   <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-11" />
                   <div className="min-w-0 flex-1">
