@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Nfc } from "lucide-react";
 import { CheckinHeader } from "@/components/CheckinHeader";
@@ -10,11 +11,13 @@ import { roster, upcomingClass } from "@/lib/teacher-data";
 
 type Scan = { studentId: string; at: number };
 
-function ago(at: number, now: number) {
+type AgoT = (key: string, values?: Record<string, number>) => string;
+
+function ago(at: number, now: number, t: AgoT) {
   const s = Math.max(0, Math.round((now - at) / 1000));
-  if (s < 2) return "now";
-  if (s < 60) return `${s}s ago`;
-  return `${Math.floor(s / 60)}m ago`;
+  if (s < 2) return t("justNow");
+  if (s < 60) return t("secondsAgo", { s });
+  return t("minutesAgo", { m: Math.floor(s / 60) });
 }
 
 /**
@@ -22,6 +25,7 @@ function ago(at: number, now: number) {
  * provides a real device event stream.
  */
 export default function ScanCheckinPage() {
+  const t = useTranslations("checkin");
   const [scans, setScans] = useState<Scan[]>([
     { studentId: "kat", at: Date.now() - 3000 },
     { studentId: "uri", at: Date.now() },
@@ -62,13 +66,13 @@ export default function ScanCheckinPage() {
       </div>
 
       <SessionProgress
-        label="Students scanned in"
+        labelKey="checkin.scannedIn"
         count={scans.length}
         total={roster.length}
       />
 
       <section>
-        <h2 className="text-sm font-extrabold text-ink">Recent scans</h2>
+        <h2 className="text-sm font-extrabold text-ink">{t("recentScans")}</h2>
         <div className="mt-2 flex flex-col gap-2.5">
           {recent.slice(0, 6).map((scan) => {
             const student = roster.find((s) => s.id === scan.studentId)!;
@@ -78,7 +82,7 @@ export default function ScanCheckinPage() {
                 student={student}
                 action={
                   <span className="text-xs font-semibold text-olive">
-                    {ago(scan.at, now)}
+                    {ago(scan.at, now, t)}
                   </span>
                 }
               />
@@ -91,7 +95,7 @@ export default function ScanCheckinPage() {
         href="/teacher/attendance/may10-sec101"
         className="sticky bottom-20 z-10 mt-2 rounded-2xl bg-navy py-3 text-center font-bold text-white shadow-clay-lg hover:bg-navy-deep lg:bottom-6"
       >
-        Finish Attendance
+        {t("finish")}
       </Link>
     </div>
   );
