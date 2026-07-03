@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { CalendarDays, MapPin, UserSquare2, CheckCircle2 } from "lucide-react";
 import { Avatar } from "./Avatar";
 import { CreditBar } from "./CreditBar";
@@ -15,6 +16,7 @@ export function ClassCard({
   hideStudentPanel?: boolean;
   action?: React.ReactNode;
 }) {
+  const t = useTranslations("common");
   const low = child.lowCredits;
   return (
     <div
@@ -26,7 +28,7 @@ export function ClassCard({
         <div className="flex w-24 shrink-0 flex-col items-center justify-center gap-1.5 bg-navy-soft/60 px-2 py-4 sm:w-28">
           <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-14" />
           <p className={`text-sm font-bold ${low ? "text-brick" : "text-ink"}`}>{child.name}</p>
-          <p className="text-[10px] text-muted">ID: {child.studentId}</p>
+          <p className="text-[10px] text-muted">{t("idLabel", { id: child.studentId })}</p>
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-4">
@@ -36,7 +38,7 @@ export function ClassCard({
           </h3>
           {session.status === "present" && (
             <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-olive">
-              <CheckCircle2 className="size-4 fill-olive text-card" /> Present
+              <CheckCircle2 className="size-4 fill-olive text-card" /> {t("present")}
             </span>
           )}
         </div>
@@ -57,9 +59,14 @@ export function ClassCard({
             low={low}
           />
           <div className="mt-1.5 flex items-center justify-between text-xs">
-            <span className="text-muted">Valid until {child.credits.validUntil}</span>
+            <span className="text-muted">
+              {t("validUntil", { date: child.credits.validUntil })}
+            </span>
             <span className={`font-semibold ${low ? "text-brick" : "text-navy"}`}>
-              {child.credits.remaining}/{child.credits.total} credits
+              {t("creditsOf", {
+                remaining: child.credits.remaining,
+                total: child.credits.total,
+              })}
             </span>
           </div>
           {action && <div className="mt-3 flex justify-end">{action}</div>}

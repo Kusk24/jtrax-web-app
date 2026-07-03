@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertTriangle, Check, Hourglass } from "lucide-react";
 import type { NotificationItem } from "@/lib/types";
 
@@ -14,25 +15,26 @@ const kindStyles: Record<
 };
 
 export function NotificationsPanel({ items }: { items: NotificationItem[] }) {
+  const t = useTranslations("notifications");
   const [filter, setFilter] = useState<"all" | "unread">("unread");
   const visible = items.filter((n) => filter === "all" || n.unread);
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-extrabold text-ink">Notifications</h2>
+        <h2 className="text-lg font-extrabold text-ink">{t("title")}</h2>
         <div className="flex gap-2">
           {(["all", "unread"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`rounded-full px-5 py-1 text-xs font-semibold capitalize ${
+              className={`rounded-full px-5 py-1 text-xs font-semibold ${
                 filter === f
                   ? "bg-navy text-white"
                   : "border-2 border-line bg-card text-muted"
               }`}
             >
-              {f}
+              {t(f)}
             </button>
           ))}
         </div>
@@ -55,7 +57,7 @@ export function NotificationsPanel({ items }: { items: NotificationItem[] }) {
         })}
         {visible.length === 0 && (
           <li className="bg-card/70 px-4 py-10 text-center text-sm text-muted">
-            No notifications.
+            {t("empty")}
           </li>
         )}
       </ul>

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Avatar } from "./Avatar";
 import type { RosterStudent } from "@/lib/types";
 
@@ -9,6 +10,7 @@ export function RosterRow({
   student: RosterStudent;
   action?: React.ReactNode;
 }) {
+  const t = useTranslations();
   return (
     <div className="flex items-center gap-3 rounded-card border-2 border-line bg-card p-3 shadow-clay">
       <Avatar
@@ -20,12 +22,19 @@ export function RosterRow({
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold text-ink">{student.name}</p>
         <p className="text-[11px] text-muted">
-          ID: {student.studentId} • {student.sessionsUsed}/{student.sessionsTotal} sessions
+          {t("common.idLabel", { id: student.studentId })} •{" "}
+          {t("roster.sessions", {
+            used: student.sessionsUsed,
+            total: student.sessionsTotal,
+          })}
         </p>
         <p
           className={`text-[11px] ${student.lowCredits ? "font-semibold text-brick" : "text-muted"}`}
         >
-          {student.creditsRemaining} credits remaining | expire on {student.expiresOn}
+          {t("roster.creditsLine", {
+            count: student.creditsRemaining,
+            date: student.expiresOn,
+          })}
         </p>
       </div>
       {action && <div className="shrink-0">{action}</div>}

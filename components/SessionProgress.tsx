@@ -1,18 +1,21 @@
+import { useTranslations } from "next-intl";
+
 export function SessionProgress({
-  label = "Session Progress",
+  labelKey = "attendance.sessionProgress",
   count,
   total,
 }: {
-  label?: string;
+  labelKey?: string;
   count: number;
   total: number;
 }) {
+  const t = useTranslations();
   const pct = total === 0 ? 0 : Math.round((count / total) * 100);
   return (
     <div className="rounded-card bg-navy-soft/40 px-4 py-3">
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <span className="size-2 rounded-full bg-olive" /> {label}
+          <span className="size-2 rounded-full bg-olive" /> {t(labelKey)}
         </p>
         <p className="text-sm text-muted">
           <span className="text-lg font-extrabold text-ink">{count}</span>/{total}
