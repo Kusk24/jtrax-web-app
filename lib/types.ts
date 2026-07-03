@@ -33,6 +33,55 @@ export type NotificationItem = {
   unread: boolean;
 };
 
+export type Teacher = {
+  id: string;
+  name: string;
+  teacherId: string;
+  experienceYears: number;
+  avatarColor: string;
+  phone: string;
+  email: string;
+};
+
+/** A class as the teacher sees it — roster-level, not tied to one student. */
+export type TeacherClass = {
+  id: string;
+  course: string;
+  section: string;
+  day: string;
+  time: string;
+  studentsEnrolled: number;
+  capacity: number;
+  location: string;
+  room: string;
+};
+
+/** One student row in a teacher's roster / attendance list. */
+export type RosterStudent = {
+  id: string;
+  name: string;
+  studentId: string;
+  avatarColor: string;
+  sessionsUsed: number;
+  sessionsTotal: number;
+  creditsRemaining: number;
+  expiresOn: string;
+  lowCredits: boolean;
+};
+
+/** A finished (or in-progress) attendance session for one class meeting. */
+export type TeacherAttendanceSession = {
+  id: string;
+  date: string;
+  classId: string;
+  course: string;
+  section: string;
+  time: string;
+  location: string;
+  presentIds: string[];
+  absentIds: string[];
+};
+
 export type AttendanceRecord = {
   id: string;
   childId: string;
