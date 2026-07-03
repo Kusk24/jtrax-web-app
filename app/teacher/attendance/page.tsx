@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { CalendarDays, MapPin, ChevronRight } from "lucide-react";
 import { sessionHistory } from "@/lib/teacher-data";
 
 export default function TeacherAttendancePage() {
+  const t = useTranslations();
   const byDate = new Map<string, typeof sessionHistory>();
   for (const session of sessionHistory) {
     const list = byDate.get(session.date) ?? [];
@@ -12,7 +14,9 @@ export default function TeacherAttendancePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-center text-2xl font-extrabold text-navy">Attendance History</h1>
+      <h1 className="text-center text-2xl font-extrabold text-navy">
+        {t("attendance.teacherHistoryTitle")}
+      </h1>
 
       {[...byDate.entries()].map(([date, sessions]) => (
         <section key={date}>
@@ -40,7 +44,10 @@ export default function TeacherAttendancePage() {
                     </p>
                   </div>
                   <span className="shrink-0 text-sm font-bold text-navy">
-                    {session.presentIds.length}/{total} present
+                    {t("attendance.presentOf", {
+                      present: session.presentIds.length,
+                      total,
+                    })}
                   </span>
                   <ChevronRight className="size-4 shrink-0 text-navy" />
                 </Link>

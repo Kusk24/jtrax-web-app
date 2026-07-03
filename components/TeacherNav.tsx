@@ -4,20 +4,20 @@ import { Home, CalendarDays, History, User } from "lucide-react";
 import { PortalBottomNav, PortalSideNav, type PortalTab } from "./PortalNav";
 
 const tabs: PortalTab[] = [
-  { href: "/teacher", label: "Home", icon: Home, exact: true },
+  { href: "/teacher", labelKey: "home", icon: Home, exact: true },
   {
     href: "/teacher/schedule",
-    label: "Schedule",
+    labelKey: "teacherSchedule",
     icon: CalendarDays,
     activeAliases: ["/teacher/checkin"],
   },
   {
     href: "/teacher/attendance",
-    label: "Attendances",
+    labelKey: "teacherAttendances",
     icon: History,
     activeAliases: ["/teacher/students"],
   },
-  { href: "/teacher/profile", label: "Profile", icon: User },
+  { href: "/teacher/profile", labelKey: "profile", icon: User },
 ];
 
 export function TeacherBottomNav() {
@@ -25,5 +25,5 @@ export function TeacherBottomNav() {
 }
 
 export function TeacherSideNav() {
-  return <PortalSideNav tabs={tabs} portalLabel="Teacher portal" />;
+  return <PortalSideNav tabs={tabs} portalLabelKey="teacherPortal" />;
 }

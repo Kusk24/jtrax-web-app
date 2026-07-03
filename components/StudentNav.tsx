@@ -6,19 +6,19 @@ import { PortalBottomNav, PortalSideNav, type PortalTab } from "./PortalNav";
 const tabs: PortalTab[] = [
   {
     href: "/student",
-    label: "Home",
+    labelKey: "home",
     icon: Home,
     exact: true,
     activeAliases: ["/student/notifications"],
   },
   {
     href: "/student/schedule",
-    label: "Schedule",
+    labelKey: "schedule",
     icon: CalendarDays,
     activeAliases: ["/student/checkin"],
   },
-  { href: "/student/attendance", label: "Attendances", icon: History },
-  { href: "/student/profile", label: "Profile", icon: User },
+  { href: "/student/attendance", labelKey: "attendances", icon: History },
+  { href: "/student/profile", labelKey: "profile", icon: User },
 ];
 
 export function StudentBottomNav() {
@@ -26,5 +26,5 @@ export function StudentBottomNav() {
 }
 
 export function StudentSideNav() {
-  return <PortalSideNav tabs={tabs} portalLabel="Student portal" />;
+  return <PortalSideNav tabs={tabs} portalLabelKey="studentPortal" />;
 }

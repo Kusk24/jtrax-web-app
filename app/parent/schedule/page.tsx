@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ClassCard } from "@/components/ClassCard";
 import { scheduleWeek, scheduleByDate, getChild } from "@/lib/parent-data";
 
 export default function SchedulePage() {
+  const t = useTranslations();
   const [selected, setSelected] = useState(scheduleWeek.find((d) => d.isToday)!.date);
   const sessions = scheduleByDate[selected] ?? [];
   const isToday = scheduleWeek.find((d) => d.date === selected)?.isToday;
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-center text-2xl font-extrabold text-navy">My Schedule</h1>
+      <h1 className="text-center text-2xl font-extrabold text-navy">{t("schedule.title")}</h1>
 
       <div className="overflow-x-auto pb-1">
         <div className="mx-auto flex w-max gap-2 px-1 pt-3 sm:gap-3">
@@ -29,11 +31,11 @@ export default function SchedulePage() {
             >
               {day.isToday && (
                 <span className="absolute -top-2.5 rounded-md bg-navy px-2 py-0.5 text-[10px] font-semibold text-white">
-                  Today
+                  {t("days.today")}
                 </span>
               )}
               <span className="text-lg font-extrabold text-navy">{day.date}</span>
-              <span className="text-[11px] font-medium text-muted">{day.label}</span>
+              <span className="text-[11px] font-medium text-muted">{t(`days.${day.label}`)}</span>
             </button>
           );
           })}
@@ -42,7 +44,9 @@ export default function SchedulePage() {
 
       <section>
         <h2 className="text-lg font-extrabold text-ink">
-          {isToday ? "Today Class" : "Classes"} ({sessions.length})
+          {isToday
+            ? t("schedule.todayClass", { count: sessions.length })
+            : t("schedule.classes", { count: sessions.length })}
         </h2>
         <div className="mt-3 grid gap-4 lg:grid-cols-2">
           {sessions.map((session) => {
@@ -53,7 +57,7 @@ export default function SchedulePage() {
         </div>
         {sessions.length === 0 && (
           <p className="mt-6 rounded-card bg-card/70 px-4 py-10 text-center text-sm text-muted">
-            No classes scheduled for this day.
+            {t("schedule.empty")}
           </p>
         )}
       </section>

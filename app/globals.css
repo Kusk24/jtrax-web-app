@@ -23,8 +23,8 @@
   /* Cute restyle: chunky clay-style rounding + soft double shadow, same palette. */
   --radius-card: 1.25rem;
 
-  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fredoka), var(--font-nunito), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-nunito), var(--font-mitr), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fredoka), var(--font-mitr), ui-sans-serif, sans-serif;
 
   --shadow-clay: 0 4px 12px rgb(43 67 128 / 0.08), 0 1px 2px rgb(43 67 128 / 0.06);
   --shadow-clay-lg: 0 8px 20px rgb(43 67 128 / 0.12), 0 2px 4px rgb(43 67 128 / 0.06);
@@ -53,6 +53,17 @@ h2,
 h3 {
   font-family: var(--font-display);
   letter-spacing: 0.01em;
+}
+
+/* Thai script: no tracking, roomier lines for above/below vowel marks. */
+html[lang="th"] h1,
+html[lang="th"] h2,
+html[lang="th"] h3 {
+  letter-spacing: 0;
+}
+
+html[lang="th"] body {
+  line-height: 1.65;
 }
 
 /* Squishy press feedback on anything tappable — the "cute" interaction. */

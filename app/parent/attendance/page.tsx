@@ -1,8 +1,10 @@
+import { useTranslations } from "next-intl";
 import { CalendarDays, MapPin, CheckCircle2, XCircle } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { attendanceHistory, getChild } from "@/lib/parent-data";
 
 export default function AttendancePage() {
+  const t = useTranslations();
   const byDate = new Map<string, typeof attendanceHistory>();
   for (const record of attendanceHistory) {
     const list = byDate.get(record.date) ?? [];
@@ -12,7 +14,9 @@ export default function AttendancePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-center text-2xl font-extrabold text-navy">Attendance History</h1>
+      <h1 className="text-center text-2xl font-extrabold text-navy">
+        {t("attendance.historyTitle")}
+      </h1>
 
       {[...byDate.entries()].map(([date, records]) => (
         <section key={date}>
@@ -52,7 +56,7 @@ export default function AttendancePage() {
                       ) : (
                         <XCircle className="size-4 fill-brick text-card" />
                       )}
-                      {present ? "Present" : "Absent"}
+                      {present ? t("common.present") : t("common.absent")}
                     </span>
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${

@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil } from "lucide-react";
@@ -17,6 +18,7 @@ export default function AttendanceSummaryPage({
 }: {
   params: Promise<{ sessionId: string }>;
 }) {
+  const t = useTranslations();
   const { sessionId } = use(params);
   const session = sessionHistory.find((s) => s.id === sessionId);
   if (!session) notFound();
@@ -53,7 +55,7 @@ export default function AttendanceSummaryPage({
             isPresent ? "bg-brick" : "bg-olive"
           }`}
         >
-          {isPresent ? "Absent" : "Present"}
+          {isPresent ? t("common.absent") : t("common.present")}
         </button>
       </div>
     ) : (
@@ -65,7 +67,7 @@ export default function AttendanceSummaryPage({
   return (
     <div className="flex flex-col gap-4">
       <CheckinHeader
-        title="Attendance Summary"
+        titleKey="attendance.summaryTitle"
         subtitle={`${session.course} - Section ${session.section.replace("Sec ", "")}`}
         backHref="/teacher/attendance"
       />
@@ -74,10 +76,12 @@ export default function AttendanceSummaryPage({
 
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="font-extrabold text-ink">Present Students ({present.length})</h2>
+          <h2 className="font-extrabold text-ink">
+            {t("attendance.presentStudents", { count: present.length })}
+          </h2>
           <div className="flex items-center gap-3 text-sm font-semibold text-navy">
             <button onClick={() => setShowAll((v) => !v)} className="hover:text-navy-deep">
-              {showAll ? "Show Less" : "View All"}
+              {showAll ? t("common.showLess") : t("common.viewAll")}
             </button>
             <button
               onClick={() => setEditing((v) => !v)}
@@ -86,7 +90,7 @@ export default function AttendanceSummaryPage({
                 editing ? "bg-navy text-white" : "bg-navy-soft/60 hover:bg-navy-soft"
               }`}
             >
-              <Pencil className="size-3.5" /> {editing ? "Done" : "Edit"}
+              <Pencil className="size-3.5" /> {editing ? t("common.done") : t("common.edit")}
             </button>
           </div>
         </div>
@@ -96,12 +100,14 @@ export default function AttendanceSummaryPage({
       </section>
 
       <section>
-        <h2 className="font-extrabold text-ink">Absent Students ({absent.length})</h2>
+        <h2 className="font-extrabold text-ink">
+          {t("attendance.absentStudents", { count: absent.length })}
+        </h2>
         <div className="mt-3 flex flex-col gap-2.5">
           {absent.map((s) => row(s, false))}
           {absent.length === 0 && (
             <p className="rounded-card bg-card/70 px-4 py-6 text-center text-sm text-muted">
-              Everyone was present.
+              {t("attendance.everyonePresent")}
             </p>
           )}
         </div>

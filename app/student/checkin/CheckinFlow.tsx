@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, School, Check, QrCode } from "lucide-react";
 import { attendanceSession } from "@/lib/student-data";
 
@@ -18,6 +19,7 @@ const pieces = [
 ];
 
 export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
+  const t = useTranslations("checkin");
   const [phase, setPhase] = useState(initialPhase);
   const [code, setCode] = useState("");
   const [error, setError] = useState(false);
@@ -44,19 +46,19 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
       <header className="flex items-start gap-3">
         <Link
           href="/student"
-          aria-label="Back to homepage"
+          aria-label={t("backHome")}
           className="mt-0.5 rounded-full p-1 text-navy hover:bg-navy-soft/40"
         >
           <ArrowLeft className="size-6" />
         </Link>
         <div>
           <h1 className="text-xl font-extrabold text-navy">
-            {notStarted ? "Attendance" : "Self Check-in"}
+            {notStarted ? t("attendance") : t("selfTitle")}
           </h1>
           <p className="mt-0.5 text-xs text-muted">
             {notStarted
               ? `${attendanceSession.course} - ${attendanceSession.section}`
-              : "Check-in once you are in the classroom."}
+              : t("selfSubtitle")}
           </p>
         </div>
       </header>
@@ -67,9 +69,9 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
             <QrCode className="size-12 text-navy" />
           </span>
           <div className="w-full max-w-md text-center">
-            <h2 className="font-bold text-ink">Enter the class code</h2>
+            <h2 className="font-bold text-ink">{t("enterCode")}</h2>
             <p className="mt-1 text-xs text-muted">
-              Type the 6-digit code shown on the classroom screen.
+              {t("codeHint")}
             </p>
             <input
               value={code}
@@ -83,14 +85,14 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
               inputMode="numeric"
               autoFocus
               placeholder="••••••"
-              aria-label="6-digit class code"
+              aria-label={t("codeAria")}
               className={`mt-4 w-56 rounded-xl border-2 bg-card py-3 text-center text-2xl font-extrabold tracking-[0.4em] text-navy outline-none placeholder:text-line ${
                 error ? "border-brick" : "border-navy/40 focus:border-navy"
               }`}
             />
             {error && (
               <p className="mt-2 text-xs font-semibold text-brick">
-                That code didn&apos;t match. Check the classroom screen and try again.
+                {t("codeError")}
               </p>
             )}
             <button
@@ -98,20 +100,19 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
               disabled={code.length !== 6}
               className="mt-4 block w-full rounded-xl bg-navy py-3 font-semibold text-white shadow-clay hover:bg-navy-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Check In
+              {t("checkInBtn")}
             </button>
             <div className="my-5 flex items-center gap-3 text-xs text-muted">
-              <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
+              <span className="h-px flex-1 bg-line" /> {t("or")} <span className="h-px flex-1 bg-line" />
             </div>
             <button
               onClick={() => setPhase("verifying")}
               className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-navy/40 bg-card py-3 font-semibold text-navy hover:bg-navy-soft/30"
             >
-              <QrCode className="size-5" /> Scan QR Code
+              <QrCode className="size-5" /> {t("scanQr")}
             </button>
             <p className="mt-2 text-[10px] text-muted">
-              Camera scanning arrives with the mobile build — simulated for now. Demo
-              code: {attendanceSession.code}
+              {t("scanNote", { code: attendanceSession.code })}
             </p>
           </div>
         </div>
@@ -127,7 +128,7 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
             </span>
           </span>
           <div className="flex flex-col items-center gap-6">
-            <p className="font-semibold text-ink">Verifying you are in the classroom...</p>
+            <p className="font-semibold text-ink">{t("verifying")}</p>
             <div className="flex gap-4 text-2xl">
               {pieces.map((p, i) => (
                 <span
@@ -151,14 +152,14 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
             </span>
           </span>
           <div className="text-center">
-            <h2 className="text-xl font-extrabold text-ink">Checked in successfully !</h2>
+            <h2 className="text-xl font-extrabold text-ink">{t("successTitle")}</h2>
             <p className="mt-1 text-sm text-muted">
-              Welcome to {attendanceSession.course} {attendanceSession.section}.
+              {t("welcomeTo", { course: `${attendanceSession.course} ${attendanceSession.section}` })}
             </p>
           </div>
           <div className="flex w-full max-w-md items-center justify-between rounded-xl border border-olive/40 bg-olive-soft/60 px-4 py-3 text-sm">
-            <span className="text-ink">Checked in at {attendanceSession.checkinTime}</span>
-            <span className="font-bold text-brick">-1 credit</span>
+            <span className="text-ink">{t("checkedInAt", { time: attendanceSession.checkinTime })}</span>
+            <span className="font-bold text-brick">{t("minusCredit")}</span>
           </div>
         </div>
       )}
@@ -166,7 +167,7 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
       {notStarted && (
         <div className="flex flex-1 items-center justify-center">
           <p className="max-w-xs text-center text-2xl font-semibold leading-relaxed text-navy">
-            Teacher has not started attendance session yet !
+            {t("notStarted")}
           </p>
         </div>
       )}
@@ -176,7 +177,7 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
           href="/student"
           className="mx-auto mb-2 block w-full max-w-md rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-clay hover:bg-navy-deep"
         >
-          Back To Homepage
+          {t("backHome")}
         </Link>
       )}
     </div>

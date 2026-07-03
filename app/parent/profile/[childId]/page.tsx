@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -29,6 +30,7 @@ export default async function ChildProfilePage({
 }: {
   params: Promise<{ childId: string }>;
 }) {
+  const t = await getTranslations();
   const { childId } = await params;
   const child = getChild(childId);
   if (!child) notFound();
@@ -44,12 +46,12 @@ export default async function ChildProfilePage({
       <div className="relative flex items-center justify-center">
         <Link
           href="/parent/profile"
-          aria-label="Back to my profile"
+          aria-label={t("common.back")}
           className="absolute left-0 rounded-full p-1.5 text-navy hover:bg-navy-soft/40"
         >
           <ArrowLeft className="size-6" />
         </Link>
-        <h1 className="text-2xl font-extrabold text-navy">{child.name}&apos;s Profile</h1>
+        <h1 className="text-2xl font-extrabold text-navy">{t("profile.childProfile", { name: child.name })}</h1>
       </div>
 
       <div className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
@@ -57,15 +59,15 @@ export default async function ChildProfilePage({
           <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-14" />
           <div>
             <p className="font-bold text-ink">{child.name}</p>
-            <p className="text-xs text-muted">ID: {child.studentId}</p>
+            <p className="text-xs text-muted">{t("common.idLabel", { id: child.studentId })}</p>
             <p className="text-xs text-muted">
-              {child.level} | {child.age} years old
+              {t("profile.levelAge", { level: child.level, age: child.age })}
             </p>
           </div>
         </div>
         <div className={`mt-4 rounded-xl p-4 ${low ? "bg-brick-soft/70" : "bg-olive-soft/70"}`}>
           <div className="flex items-baseline justify-between">
-            <p className={`font-bold ${low ? "text-brick" : "text-ink"}`}>Remaining Credits</p>
+            <p className={`font-bold ${low ? "text-brick" : "text-ink"}`}>{t("profile.remainingCredits")}</p>
             <p className={`text-lg font-extrabold ${low ? "text-brick" : "text-ink"}`}>
               {remaining}
               <span className="text-xs font-semibold text-muted">/{child.credits.total}</span>
@@ -79,13 +81,13 @@ export default async function ChildProfilePage({
               trackClass="bg-white/70"
             />
           </div>
-          <p className="mt-1.5 text-[11px] text-muted">Valid until {child.credits.validUntil}</p>
+          <p className="mt-1.5 text-[11px] text-muted">{t("common.validUntil", { date: child.credits.validUntil })}</p>
         </div>
       </div>
 
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <h2 className="flex items-center gap-2 font-extrabold text-ink">
-          <GraduationCap className="size-5 text-navy" /> Enrolled Classes
+          <GraduationCap className="size-5 text-navy" /> {t("profile.enrolledClasses")}
         </h2>
         {classes.map((session) => (
           <div key={session.id} className="mt-4 flex items-center gap-4">
@@ -110,14 +112,14 @@ export default async function ChildProfilePage({
             <CalendarCheck className="size-5 shrink-0 text-navy" />
             <p className="text-xs">
               <span className="font-bold text-ink">{attended}/{child.credits.total}</span>
-              <span className="block text-muted">classes attended</span>
+              <span className="block text-muted">{t("profile.classesAttended")}</span>
             </p>
           </div>
           <div className="flex items-center justify-center gap-2 px-3">
             <ClipboardList className="size-5 shrink-0 text-navy" />
             <p className="text-xs">
               <span className="font-bold text-ink">{remaining}</span>
-              <span className="block text-muted">classes remaining</span>
+              <span className="block text-muted">{t("profile.classesRemaining")}</span>
             </p>
           </div>
         </div>
@@ -126,10 +128,10 @@ export default async function ChildProfilePage({
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-extrabold text-ink">
-            <History className="size-5 text-navy" /> Attendance History
+            <History className="size-5 text-navy" /> {t("profile.attendanceHistory")}
           </h2>
           <Link href="/parent/attendance" className="text-xs font-bold text-navy">
-            View All
+            {t("common.viewAll")}
           </Link>
         </div>
         <ul className="mt-3 flex flex-col gap-3">
@@ -149,7 +151,7 @@ export default async function ChildProfilePage({
                 <span
                   className={`text-xs font-semibold ${present ? "text-olive" : "text-brick"}`}
                 >
-                  {present ? "Present" : "Absent"}
+                  {present ? t("common.present") : t("common.absent")}
                 </span>
               </li>
             );

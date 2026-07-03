@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Search, XCircle, CheckCircle2, Check } from "lucide-react";
 import { CheckinHeader } from "@/components/CheckinHeader";
@@ -9,6 +10,7 @@ import { RosterRow } from "@/components/RosterRow";
 import { roster, upcomingClass } from "@/lib/teacher-data";
 
 export default function ManualCheckinPage() {
+  const t = useTranslations("checkin");
   const [presentIds, setPresentIds] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
 
@@ -39,7 +41,7 @@ export default function ManualCheckinPage() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search Students.."
+          placeholder={t("searchStudents")}
           className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted"
         />
       </label>
@@ -49,13 +51,13 @@ export default function ManualCheckinPage() {
           onClick={() => setPresentIds(new Set())}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-brick px-4 py-2 text-sm font-semibold text-white shadow-clay hover:brightness-110"
         >
-          <XCircle className="size-4" /> All Absent
+          <XCircle className="size-4" /> {t("allAbsent")}
         </button>
         <button
           onClick={() => setPresentIds(new Set(roster.map((s) => s.id)))}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-olive px-4 py-2 text-sm font-semibold text-white shadow-clay hover:brightness-110"
         >
-          <CheckCircle2 className="size-4" /> All Present
+          <CheckCircle2 className="size-4" /> {t("allPresent")}
         </button>
       </div>
 
@@ -69,7 +71,11 @@ export default function ManualCheckinPage() {
               action={
                 <button
                   onClick={() => toggle(student.id)}
-                  aria-label={`Mark ${student.name} ${present ? "absent" : "present"}`}
+                  aria-label={
+                    present
+                      ? t("markAbsent", { name: student.name })
+                      : t("markPresent", { name: student.name })
+                  }
                   aria-pressed={present}
                   className={`flex size-11 items-center justify-center rounded-xl border-2 transition-colors ${
                     present
@@ -85,7 +91,7 @@ export default function ManualCheckinPage() {
         })}
         {visible.length === 0 && (
           <p className="rounded-card bg-card/70 px-4 py-8 text-center text-sm text-muted">
-            No students match “{query}”.
+            {t("noMatch", { query })}
           </p>
         )}
       </div>
@@ -94,7 +100,7 @@ export default function ManualCheckinPage() {
         href="/teacher/attendance/may10-sec101"
         className="sticky bottom-20 z-10 mt-2 rounded-2xl bg-navy py-3 text-center font-bold text-white shadow-clay-lg hover:bg-navy-deep lg:bottom-6"
       >
-        Finish Attendance
+        {t("finish")}
       </Link>
     </div>
   );

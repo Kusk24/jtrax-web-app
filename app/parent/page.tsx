@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
 import { ParentHeader } from "@/components/ParentHeader";
 import { Avatar } from "@/components/Avatar";
@@ -6,6 +7,7 @@ import { ClassCard } from "@/components/ClassCard";
 import { children, upcomingClasses, getChild } from "@/lib/parent-data";
 
 export default function ParentHome() {
+  const t = useTranslations("home");
   const lowCreditChild = children.find((c) => c.lowCredits);
   return (
     <div className="flex flex-col gap-6">
@@ -16,17 +18,15 @@ export default function ParentHome() {
           <AlertTriangle className="size-7 shrink-0 fill-peach-ink text-peach" />
           <div>
             <p className="font-bold text-ink">
-              {lowCreditChild.name} have low credits in one course!
+              {t("lowCreditsTitleChild", { name: lowCreditChild.name })}
             </p>
-            <p className="text-xs text-muted">
-              To continue the class, please contact the office to top up.
-            </p>
+            <p className="text-xs text-muted">{t("lowCreditsBody")}</p>
           </div>
         </div>
       )}
 
       <section>
-        <h2 className="text-lg font-extrabold text-ink">My Children</h2>
+        <h2 className="text-lg font-extrabold text-ink">{t("myChildren")}</h2>
         <ul className="mt-3 flex flex-wrap gap-6">
           {children.map((child) => (
             <li key={child.id}>
@@ -51,7 +51,7 @@ export default function ParentHome() {
       </section>
 
       <section>
-        <h2 className="text-lg font-extrabold text-ink">Upcoming Classes</h2>
+        <h2 className="text-lg font-extrabold text-ink">{t("upcomingClasses")}</h2>
         <div className="mt-3 grid gap-4 lg:grid-cols-2">
           {upcomingClasses.map((session) => {
             const child = getChild(session.childId);
