@@ -89,7 +89,7 @@ export default function ScanCheckinPage() {
 
       <Link
         href="/teacher/attendance/may10-sec101"
-        className="mt-2 rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-sm hover:bg-navy-deep"
+        className="sticky bottom-20 z-10 mt-2 rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-lg hover:bg-navy-deep md:bottom-6"
       >
         Finish Attendance
       </Link>
