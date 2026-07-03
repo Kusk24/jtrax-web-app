@@ -1,0 +1,54 @@
+import Link from "next/link";
+import { CalendarDays, MapPin, Users, ClipboardCheck, Nfc } from "lucide-react";
+import type { TeacherClass } from "@/lib/types";
+
+/** Round manual + scan attendance launchers shown on today's class. */
+export function AttendanceActions() {
+  return (
+    <div className="flex shrink-0 items-center gap-2.5">
+      <Link
+        href="/teacher/checkin/manual"
+        aria-label="Take attendance manually"
+        className="flex size-11 items-center justify-center rounded-full bg-navy text-white shadow-sm hover:bg-navy-deep"
+      >
+        <ClipboardCheck className="size-5" />
+      </Link>
+      <Link
+        href="/teacher/checkin/scan"
+        aria-label="Take attendance by scan"
+        className="flex size-11 items-center justify-center rounded-full bg-peach text-peach-ink shadow-sm hover:brightness-95"
+      >
+        <Nfc className="size-5" />
+      </Link>
+    </div>
+  );
+}
+
+/** Today's class with schedule details and attendance launchers. */
+export function TeacherClassCard({
+  session,
+  withActions = false,
+}: {
+  session: TeacherClass;
+  withActions?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-card border border-navy/30 border-l-4 border-l-navy bg-card p-4 shadow-sm">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <h3 className="font-bold text-navy">
+          {session.course} ({session.section})
+        </h3>
+        <p className="flex items-center gap-2 text-sm text-ink">
+          <CalendarDays className="size-4 shrink-0 text-navy" /> {session.time}
+        </p>
+        <p className="flex items-center gap-2 text-sm text-ink">
+          <Users className="size-4 shrink-0 text-navy" /> {session.studentsEnrolled} students
+        </p>
+        <p className="flex items-center gap-2 text-sm text-ink">
+          <MapPin className="size-4 shrink-0 text-navy" /> {session.location} - {session.room}
+        </p>
+      </div>
+      {withActions && <AttendanceActions />}
+    </div>
+  );
+}
