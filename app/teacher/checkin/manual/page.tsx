@@ -97,7 +97,7 @@ export default function ManualCheckinPage() {
       </div>
 
       <Link
-        href="/teacher/attendance/may10-sec101"
+        href="/teacher/dismissal/may10-sec101"
         className="sticky bottom-20 z-10 mt-2 rounded-2xl bg-navy py-3 text-center font-bold text-white shadow-clay-lg hover:bg-navy-deep lg:bottom-6"
       >
         {t("finish")}

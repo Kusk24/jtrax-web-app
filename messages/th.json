@@ -120,6 +120,23 @@
     "markPresent": "เช็คชื่อ {name} มาเรียน",
     "markAbsent": "เช็คชื่อ {name} ขาดเรียน"
   },
+  "dismissal": {
+    "title": "ปล่อยนักเรียนกลับ",
+    "progress": "ปล่อยกลับแล้ว",
+    "dismissAll": "ปล่อยกลับทั้งหมด",
+    "pickedUpAt": "รับกลับเมื่อ {time}",
+    "markDismissed": "ปล่อย {name} กลับ",
+    "undoDismissed": "ยกเลิกการปล่อยกลับของ {name}",
+    "finishClass": "จบคลาสเรียน",
+    "remaining": "เหลืออีก {count} คนที่ยังไม่ได้ปล่อยกลับ",
+    "confirmTitle": "ยืนยันการจบคลาส?",
+    "confirmBody": "นักเรียนทั้ง {count} คนถูกปล่อยกลับและบันทึกเวลารับกลับเรียบร้อยแล้ว คลาสนี้จะถูกปิด",
+    "cancel": "ยกเลิก",
+    "doneTitle": "จบคลาสเรียนแล้ว !",
+    "doneBody": "คลาส {course} ปิดเรียบร้อย นักเรียนถูกรับกลับ {count} คน",
+    "viewSummary": "ดูสรุปการเช็คชื่อ",
+    "ongoing": "กำลังดำเนินอยู่"
+  },
   "roster": {
     "sessions": "{used}/{total} คาบ",
     "creditsLine": "เหลือ {count} เครดิต | หมดอายุ {date}"

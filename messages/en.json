@@ -120,6 +120,23 @@
     "markPresent": "Mark {name} present",
     "markAbsent": "Mark {name} absent"
   },
+  "dismissal": {
+    "title": "Dismissal",
+    "progress": "Students Dismissed",
+    "dismissAll": "Dismiss All",
+    "pickedUpAt": "Picked up {time}",
+    "markDismissed": "Mark {name} as dismissed",
+    "undoDismissed": "Undo dismissal for {name}",
+    "finishClass": "Finish Class",
+    "remaining": "{count, plural, one {# student} other {# students}} not dismissed yet",
+    "confirmTitle": "Finish this class?",
+    "confirmBody": "All {count} students are dismissed and their pickup times are recorded. The class will be closed.",
+    "cancel": "Cancel",
+    "doneTitle": "Class finished !",
+    "doneBody": "{course} is closed — {count} students picked up.",
+    "viewSummary": "View Attendance Summary",
+    "ongoing": "Ongoing"
+  },
   "roster": {
     "sessions": "{used}/{total} sessions",
     "creditsLine": "{count} credits remaining | expire on {date}"
