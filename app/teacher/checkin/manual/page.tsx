@@ -92,7 +92,7 @@ export default function ManualCheckinPage() {
 
       <Link
         href="/teacher/attendance/may10-sec101"
-        className="sticky bottom-20 z-10 mt-2 rounded-xl bg-navy py-3 text-center font-semibold text-white shadow-lg hover:bg-navy-deep md:bottom-6"
+        className="sticky bottom-20 z-10 mt-2 rounded-2xl bg-navy py-3 text-center font-bold text-white shadow-clay-lg hover:bg-navy-deep lg:bottom-6"
       >
         Finish Attendance
       </Link>
