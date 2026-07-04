@@ -164,7 +164,7 @@ export default function DismissalPage({
 
       <div className="sticky bottom-20 z-10 mt-2 flex flex-col gap-1.5 lg:bottom-6">
         {!allDismissed && (
-          <p className="text-center text-xs font-semibold text-muted">
+          <p className="self-center rounded-full border-2 border-line bg-card px-3 py-1 text-center text-xs font-semibold text-muted shadow-clay">
             {t("remaining", { count: remaining })}
           </p>
         )}
