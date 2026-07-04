@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { CheckinHeader } from "@/components/CheckinHeader";
+import { CreditSummaryCard } from "@/components/CreditSummaryCard";
 import { roster, studentDetail } from "@/lib/teacher-data";
 
 export default async function TeacherStudentProfilePage({
@@ -45,23 +46,14 @@ export default async function TeacherStudentProfilePage({
             </p>
           </div>
         </div>
-        <div
-          className={`mt-3 rounded-xl px-4 py-3 ${
-            student.lowCredits ? "bg-brick-soft" : "bg-olive-soft"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <p
-              className={`text-sm font-bold ${student.lowCredits ? "text-brick" : "text-olive"}`}
-            >
-              {t("profile.remainingCredits")}
-            </p>
-            <p className={`font-extrabold ${student.lowCredits ? "text-brick" : "text-olive"}`}>
-              {student.creditsRemaining}
-              <span className="text-xs font-semibold">/{student.sessionsTotal}</span>
-            </p>
-          </div>
-          <p className="mt-0.5 text-xs text-muted">{t("common.validUntil", { date: detail.credits.validUntil })}</p>
+        <div className="mt-3">
+          <CreditSummaryCard
+            remaining={student.creditsRemaining}
+            total={student.sessionsTotal}
+            validUntil={detail.credits.validUntil}
+            daysLeft={12}
+            low={student.lowCredits}
+          />
         </div>
       </section>
 

@@ -179,7 +179,10 @@
     "creditConsumed": "เครดิตที่ใช้ไป",
     "assignedBranches": "สาขาที่รับผิดชอบ",
     "callTo": "โทรหา {name}",
-    "emailTo": "ส่งอีเมลถึง {name}"
+    "emailTo": "ส่งอีเมลถึง {name}",
+    "validUntilLabel": "ใช้ได้ถึง",
+    "daysLeft": "เหลืออีก {count} วัน",
+    "creditsExpireNote": "เครดิตจะหมดอายุวันที่ {date} และไม่สามารถใช้หลังจากวันดังกล่าว"
   },
   "ongoingPage": {
     "title": "คลาสที่กำลังเรียน",

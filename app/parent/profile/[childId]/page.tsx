@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { PawnIcon } from "@/components/PawnIcon";
-import { CreditBar } from "@/components/CreditBar";
+import { CreditSummaryCard } from "@/components/CreditSummaryCard";
 import {
   children,
   getChild,
@@ -66,23 +66,14 @@ export default async function ChildProfilePage({
             </p>
           </div>
         </div>
-        <div className={`mt-4 rounded-xl p-4 ${low ? "bg-brick-soft/70" : "bg-olive-soft/70"}`}>
-          <div className="flex items-baseline justify-between">
-            <p className={`font-bold ${low ? "text-brick" : "text-ink"}`}>{t("profile.remainingCredits")}</p>
-            <p className={`text-lg font-extrabold ${low ? "text-brick" : "text-ink"}`}>
-              {remaining}
-              <span className="text-xs font-semibold text-muted">/{child.credits.total}</span>
-            </p>
-          </div>
-          <div className="mt-2">
-            <CreditBar
-              remaining={remaining}
-              total={child.credits.total}
-              low={low}
-              trackClass="bg-white/70"
-            />
-          </div>
-          <p className="mt-1.5 text-[11px] text-muted">{t("common.validUntil", { date: child.credits.validUntil })}</p>
+        <div className="mt-4">
+          <CreditSummaryCard
+            remaining={remaining}
+            total={child.credits.total}
+            validUntil={child.credits.validUntil}
+            daysLeft={12}
+            low={low}
+          />
         </div>
       </div>
 

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { PawnIcon } from "@/components/PawnIcon";
-import { CreditBar } from "@/components/CreditBar";
+import { CreditSummaryCard } from "@/components/CreditSummaryCard";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import {
   student,
@@ -46,27 +46,14 @@ export default function StudentProfilePage() {
             </p>
           </div>
         </div>
-        <div className={`mt-4 rounded-xl p-4 ${low ? "bg-brick-soft/70" : "bg-olive-soft/70"}`}>
-          <div className="flex items-baseline justify-between">
-            <p className={`font-bold ${low ? "text-brick" : "text-ink"}`}>
-              {t("profile.remainingCredits")}
-            </p>
-            <p className={`text-lg font-extrabold ${low ? "text-brick" : "text-ink"}`}>
-              {student.credits.remaining}
-              <span className="text-xs font-semibold text-muted">/{student.credits.total}</span>
-            </p>
-          </div>
-          <div className="mt-2">
-            <CreditBar
-              remaining={student.credits.remaining}
-              total={student.credits.total}
-              low={low}
-              trackClass="bg-white/70"
-            />
-          </div>
-          <p className="mt-1.5 text-[11px] text-muted">
-            {t("common.validUntil", { date: student.credits.validUntil })}
-          </p>
+        <div className="mt-4">
+          <CreditSummaryCard
+            remaining={student.credits.remaining}
+            total={student.credits.total}
+            validUntil={student.credits.validUntil}
+            daysLeft={12}
+            low={low}
+          />
         </div>
       </div>
 
