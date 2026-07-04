@@ -33,6 +33,11 @@ export default function TeacherAttendancePage() {
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-navy">
                       {session.course} ({session.section})
+                      {session.status === "ongoing" && (
+                        <span className="ml-2 inline-block rounded-full bg-peach px-2 py-0.5 align-middle text-[10px] font-bold text-peach-ink">
+                          {t("dismissal.ongoing")}
+                        </span>
+                      )}
                     </p>
                     <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
                       <span className="flex items-center gap-1">

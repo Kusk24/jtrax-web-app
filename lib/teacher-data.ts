@@ -145,6 +145,8 @@ export const sessionHistory: TeacherAttendanceSession[] = [
     location: "Bangkok",
     presentIds: roster.filter((s) => s.id !== "uri").map((s) => s.id),
     absentIds: ["uri"],
+    status: "ongoing",
+    dismissedAt: {},
   },
   {
     id: "may9-sec301",
@@ -156,6 +158,12 @@ export const sessionHistory: TeacherAttendanceSession[] = [
     location: "Onnut",
     presentIds: roster.slice(0, 12).map((s) => s.id),
     absentIds: [],
+    status: "finished",
+    dismissedAt: Object.fromEntries(
+      roster
+        .slice(0, 12)
+        .map((s, i) => [s.id, `10:${String(2 + i).padStart(2, "0")} AM`]),
+    ),
   },
 ];
 

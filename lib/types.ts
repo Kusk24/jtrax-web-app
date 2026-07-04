@@ -80,6 +80,10 @@ export type TeacherAttendanceSession = {
   location: string;
   presentIds: string[];
   absentIds: string[];
+  /** "ongoing" = attendance taken but students not yet all dismissed. */
+  status: "ongoing" | "finished";
+  /** studentId → pickup time, recorded when the teacher marks the dismissal. */
+  dismissedAt: Record<string, string>;
 };
 
 export type AttendanceRecord = {

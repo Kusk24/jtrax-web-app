@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil } from "lucide-react";
+import { Clock, Pencil } from "lucide-react";
 import { CheckinHeader } from "@/components/CheckinHeader";
 import { SessionProgress } from "@/components/SessionProgress";
 import { RosterRow } from "@/components/RosterRow";
@@ -60,7 +60,19 @@ export default function AttendanceSummaryPage({
       </div>
     ) : (
       <Link key={student.id} href={`/teacher/students/${student.id}`}>
-        <RosterRow student={student} />
+        <RosterRow
+          student={student}
+          action={
+            isPresent && session.dismissedAt[student.id] ? (
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-olive">
+                <Clock className="size-3" />
+                {t("dismissal.pickedUpAt", {
+                  time: session.dismissedAt[student.id],
+                })}
+              </span>
+            ) : undefined
+          }
+        />
       </Link>
     );
 
