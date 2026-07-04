@@ -19,7 +19,8 @@
     "studentPortal": "Student portal",
     "parentPortal": "Parent portal",
     "teacherPortal": "Teacher portal",
-    "switchRole": "Switch role"
+    "switchRole": "Switch role",
+    "ongoing": "Ongoing"
   },
   "common": {
     "hi": "Hi, {name} !",
@@ -179,5 +180,14 @@
     "assignedBranches": "Assigned Branches",
     "callTo": "Call {name}",
     "emailTo": "Email {name}"
+  },
+  "ongoingPage": {
+    "title": "Ongoing Classes",
+    "subtitle": "Classes in progress — dismiss students when they are picked up.",
+    "empty": "No classes are running right now.",
+    "emptyHint": "Start a class from your schedule to take attendance.",
+    "dismissedOf": "{done}/{total} dismissed",
+    "goToSchedule": "Go to Schedule",
+    "dismissBtn": "Dismiss Students"
   }
 }

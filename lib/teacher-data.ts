@@ -167,6 +167,11 @@ export const sessionHistory: TeacherAttendanceSession[] = [
   },
 ];
 
+/** Sessions where attendance is taken but the class isn't closed yet. */
+export const ongoingSessions = sessionHistory.filter(
+  (s) => s.status === "ongoing",
+);
+
 /** Extra detail for the teacher's view of one student (mirrors student portal data). */
 export const studentDetail = {
   id: "penny",

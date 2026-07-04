@@ -85,7 +85,7 @@ export default function DismissalPage({
       <CheckinHeader
         titleKey="dismissal.title"
         subtitle={tck("classSubtitle", { course: session.course, section: session.section.replace("Sec ", "") })}
-        backHref="/teacher"
+        backHref="/teacher/ongoing"
       />
 
       <SessionProgress
