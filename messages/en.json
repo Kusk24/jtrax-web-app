@@ -179,7 +179,10 @@
     "creditConsumed": "Credit Consumed",
     "assignedBranches": "Assigned Branches",
     "callTo": "Call {name}",
-    "emailTo": "Email {name}"
+    "emailTo": "Email {name}",
+    "validUntilLabel": "Valid Until",
+    "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+    "creditsExpireNote": "Credits expire on {date} and cannot be used after this date."
   },
   "ongoingPage": {
     "title": "Ongoing Classes",
