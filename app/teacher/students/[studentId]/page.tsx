@@ -10,12 +10,15 @@ import {
   ShieldAlert,
   History,
   CheckCircle2,
+  XCircle,
   Crown,
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { CheckinHeader } from "@/components/CheckinHeader";
 import { CreditSummaryCard } from "@/components/CreditSummaryCard";
 import { roster, studentDetail } from "@/lib/teacher-data";
+/* Shared mock records until the backend serves per-student history. */
+import { attendanceHistory } from "@/lib/student-data";
 
 export default async function TeacherStudentProfilePage({
   params,
@@ -125,22 +128,37 @@ export default async function TeacherStudentProfilePage({
             <History className="size-4" /> {t("profile.attendanceHistory")}
           </h2>
           <Link
-            href="/teacher/attendance"
+            href={`/teacher/students/${student.id}/attendance`}
             className="text-sm font-semibold text-navy hover:text-navy-deep"
           >
             {t("common.viewAll")}
           </Link>
         </div>
-        <div className="mt-3 flex items-center gap-3">
-          <CheckCircle2 className="size-5 shrink-0 fill-olive text-card" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-ink">
-              {detail.lastAttendance.course} ({detail.lastAttendance.section})
-            </p>
-            <p className="text-xs text-muted">{detail.lastAttendance.when}</p>
-          </div>
-          <span className="text-xs font-semibold text-olive">{t("common.present")}</span>
-        </div>
+        {attendanceHistory.slice(0, 2).map((record) => {
+          const present = record.status === "present";
+          return (
+            <div key={record.id} className="mt-3 flex items-center gap-3">
+              {present ? (
+                <CheckCircle2 className="size-5 shrink-0 fill-olive text-card" />
+              ) : (
+                <XCircle className="size-5 shrink-0 fill-brick text-card" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-ink">
+                  {record.course} ({record.section})
+                </p>
+                <p className="text-xs text-muted">
+                  {record.date} · {record.time}
+                </p>
+              </div>
+              <span
+                className={`text-xs font-semibold ${present ? "text-olive" : "text-brick"}`}
+              >
+                {present ? t("common.present") : t("common.absent")}
+              </span>
+            </div>
+          );
+        })}
       </section>
     </div>
   );

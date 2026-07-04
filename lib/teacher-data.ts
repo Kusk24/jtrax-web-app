@@ -200,10 +200,4 @@ export const studentDetail = {
     of: 20,
     pct: 90,
   },
-  lastAttendance: {
-    course: "Beginner Chess",
-    section: "Sec 101",
-    when: "Mon 9:00 AM - 10:00 AM",
-    status: "present" as const,
-  },
 };
