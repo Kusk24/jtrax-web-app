@@ -39,7 +39,7 @@ export default function ParentProfilePage() {
               >
                 <Avatar name={child.name} colorClass={child.avatarColor} sizeClass="size-14" />
                 <span className="text-sm font-bold text-ink">{child.name}</span>
-                <span className="text-[10px] text-muted">ID: {child.studentId}</span>
+                <span className="text-[10px] text-muted">{t("common.idLabel", { id: child.studentId })}</span>
               </Link>
             </li>
           ))}

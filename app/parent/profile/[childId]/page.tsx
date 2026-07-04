@@ -13,6 +13,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
+import { PawnIcon } from "@/components/PawnIcon";
 import { CreditBar } from "@/components/CreditBar";
 import {
   children,
@@ -91,8 +92,8 @@ export default async function ChildProfilePage({
         </h2>
         {classes.map((session) => (
           <div key={session.id} className="mt-4 flex items-center gap-4">
-            <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-olive-soft text-2xl">
-              ♟️
+            <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-olive-soft text-olive">
+              <PawnIcon className="size-8" />
             </span>
             <div>
               <p className="font-bold text-ink">

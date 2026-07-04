@@ -47,7 +47,7 @@ export const enrolledClasses: ClassSession[] = [
   },
 ];
 
-export const classStats = { attended: 18, remaining: 2 };
+export const classStats = { attended: 18, total: 20, remaining: 2 };
 
 export const upcomingToday: ClassSession = {
   id: "today-chess",

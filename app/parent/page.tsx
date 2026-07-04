@@ -8,6 +8,7 @@ import { children, upcomingClasses, getChild } from "@/lib/parent-data";
 
 export default function ParentHome() {
   const t = useTranslations("home");
+  const tc = useTranslations("common");
   const lowCreditChild = children.find((c) => c.lowCredits);
   return (
     <div className="flex flex-col gap-6">
@@ -43,7 +44,7 @@ export default function ParentHome() {
                 <span className={`text-sm font-bold ${child.lowCredits ? "text-brick" : "text-ink"}`}>
                   {child.name}
                 </span>
-                <span className="text-[10px] text-muted">ID: {child.studentId}</span>
+                <span className="text-[10px] text-muted">{tc("idLabel", { id: child.studentId })}</span>
               </Link>
             </li>
           ))}
