@@ -19,7 +19,8 @@
     "studentPortal": "สำหรับนักเรียน",
     "parentPortal": "สำหรับผู้ปกครอง",
     "teacherPortal": "สำหรับคุณครู",
-    "switchRole": "เปลี่ยนบทบาท"
+    "switchRole": "เปลี่ยนบทบาท",
+    "ongoing": "กำลังเรียน"
   },
   "common": {
     "hi": "สวัสดี คุณ{name} !",
@@ -38,7 +39,10 @@
     "language": "ภาษา",
     "studentBadge": "นักเรียน",
     "parentBadge": "ผู้ปกครอง",
-    "teacherBadge": "คุณครู"
+    "teacherBadge": "คุณครู",
+    "mother": "แม่",
+    "father": "พ่อ",
+    "guardian": "ผู้ปกครอง"
   },
   "days": {
     "MON": "จ.",
@@ -118,7 +122,8 @@
     "secondsAgo": "{s} วินาทีที่แล้ว",
     "minutesAgo": "{m} นาทีที่แล้ว",
     "markPresent": "เช็คชื่อ {name} มาเรียน",
-    "markAbsent": "เช็คชื่อ {name} ขาดเรียน"
+    "markAbsent": "เช็คชื่อ {name} ขาดเรียน",
+    "classSubtitle": "{course} - เซกชัน {section}"
   },
   "dismissal": {
     "title": "ปล่อยนักเรียนกลับ",
@@ -175,5 +180,14 @@
     "assignedBranches": "สาขาที่รับผิดชอบ",
     "callTo": "โทรหา {name}",
     "emailTo": "ส่งอีเมลถึง {name}"
+  },
+  "ongoingPage": {
+    "title": "คลาสที่กำลังเรียน",
+    "subtitle": "คลาสที่กำลังดำเนินอยู่ — ปล่อยนักเรียนกลับเมื่อมีผู้มารับ",
+    "empty": "ยังไม่มีคลาสที่กำลังเรียนอยู่",
+    "emptyHint": "เริ่มคลาสจากตารางสอนเพื่อเช็คชื่อ",
+    "dismissedOf": "ปล่อยกลับแล้ว {done}/{total}",
+    "goToSchedule": "ไปที่ตารางสอน",
+    "dismissBtn": "ปล่อยนักเรียนกลับ"
   }
 }

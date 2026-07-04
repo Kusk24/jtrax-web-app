@@ -1,6 +1,9 @@
 import {
+  ChevronRight,
   ClipboardList,
+  Info,
   Languages,
+  Settings,
   Users,
   BarChart3,
   CircleDollarSign,
@@ -82,8 +85,8 @@ export default function TeacherProfilePage() {
       </section>
 
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
-        <h2 className="flex items-center gap-2 font-bold text-navy">
-          <BookMarked className="size-4" /> {t("profile.assignedBranches")}
+        <h2 className="flex items-center gap-2 font-extrabold text-ink">
+          <BookMarked className="size-5 text-navy" /> {t("profile.assignedBranches")}
         </h2>
         <div className="mt-3 flex flex-col gap-3">
           {branches.map((branch) => (
@@ -105,8 +108,8 @@ export default function TeacherProfilePage() {
       </section>
 
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
-        <h2 className="flex items-center gap-2 font-bold text-navy">
-          <IdCard className="size-4" /> {t("profile.contactInfo")}
+        <h2 className="flex items-center gap-2 font-extrabold text-ink">
+          <IdCard className="size-5 text-navy" /> {t("profile.contactInfo")}
         </h2>
         <div className="mt-3 flex flex-col gap-3">
           <div className="flex items-center gap-3">
@@ -130,12 +133,27 @@ export default function TeacherProfilePage() {
         </div>
       </section>
       <section className="rounded-card border-2 border-line bg-card p-4 shadow-clay">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 font-bold text-navy">
-            <Languages className="size-4" /> {t("common.language")}
-          </h2>
-          <LanguageToggle />
-        </div>
+        <h2 className="flex items-center gap-2 font-extrabold text-ink">
+          <Info className="size-5 text-navy" /> {t("profile.more")}
+        </h2>
+        <ul className="mt-2">
+          <li className="flex items-center gap-3 px-1 py-2.5 text-sm text-ink">
+            <Languages className="size-4 text-navy" /> {t("common.language")}
+            <LanguageToggle className="ml-auto" />
+          </li>
+          <li>
+            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
+              <Phone className="size-4 text-navy" /> {t("profile.contactSchool")}
+              <ChevronRight className="ml-auto size-4 text-muted" />
+            </button>
+          </li>
+          <li>
+            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
+              <Settings className="size-4 text-navy" /> {t("profile.settings")}
+              <ChevronRight className="ml-auto size-4 text-muted" />
+            </button>
+          </li>
+        </ul>
       </section>
     </div>
   );

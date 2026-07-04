@@ -75,7 +75,7 @@ export default async function TeacherStudentProfilePage({
               <Avatar name={parent.name} colorClass={parent.avatarColor} sizeClass="size-10" textClass="text-base" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-ink">{parent.name}</p>
-                <p className="text-xs text-muted">{parent.relation}</p>
+                <p className="text-xs text-muted">{t(`common.${parent.relationKey}`)}</p>
               </div>
               <a
                 href={`tel:${parent.phone}`}

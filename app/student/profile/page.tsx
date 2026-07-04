@@ -11,8 +11,10 @@ import {
   CalendarCheck,
   ClipboardList,
   Languages,
+  Settings,
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
+import { PawnIcon } from "@/components/PawnIcon";
 import { CreditBar } from "@/components/CreditBar";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import {
@@ -78,7 +80,7 @@ export default function StudentProfilePage() {
               <Avatar name={contact.name} colorClass={contact.avatarColor} sizeClass="size-11" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-navy">{contact.name}</p>
-                <p className="text-xs text-muted">{contact.relation}</p>
+                <p className="text-xs text-muted">{t(`common.${contact.relationKey}`)}</p>
               </div>
               <a
                 href={`tel:${contact.phone}`}
@@ -105,8 +107,8 @@ export default function StudentProfilePage() {
         </h2>
         {enrolledClasses.map((session) => (
           <div key={session.id} className="mt-4 flex items-center gap-4">
-            <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-olive-soft text-2xl">
-              ♟️
+            <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-olive-soft text-olive">
+              <PawnIcon className="size-8" />
             </span>
             <div>
               <p className="font-bold text-ink">
@@ -126,7 +128,7 @@ export default function StudentProfilePage() {
             <CalendarCheck className="size-5 shrink-0 text-navy" />
             <p className="text-xs">
               <span className="font-bold text-ink">
-                {classStats.attended}/{student.credits.total}
+                {classStats.attended}/{classStats.total}
               </span>
               <span className="block text-muted">{t("profile.classesAttended")}</span>
             </p>
@@ -153,6 +155,12 @@ export default function StudentProfilePage() {
           <li>
             <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
               <Phone className="size-4 text-navy" /> {t("profile.contactSchool")}
+              <ChevronRight className="ml-auto size-4 text-muted" />
+            </button>
+          </li>
+          <li>
+            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
+              <Settings className="size-4 text-navy" /> {t("profile.settings")}
               <ChevronRight className="ml-auto size-4 text-muted" />
             </button>
           </li>

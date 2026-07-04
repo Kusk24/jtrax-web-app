@@ -13,6 +13,8 @@ export type PortalTab = {
   exact?: boolean;
   /** Extra path prefixes that should also highlight this tab. */
   activeAliases?: string[];
+  /** Live count shown as a badge (e.g. ongoing classes); hidden when 0. */
+  badgeCount?: number;
 };
 
 function isActive(pathname: string, tab: PortalTab) {
@@ -29,16 +31,22 @@ export function PortalBottomNav({ tabs }: { tabs: PortalTab[] }) {
         {tabs.map((tab) => {
           const active = isActive(pathname, tab);
           const Icon = tab.icon;
+          const badge = tab.badgeCount ?? 0;
           return (
             <li key={tab.href}>
               <Link
                 href={tab.href}
-                className={`flex flex-col items-center gap-0.5 rounded-2xl px-4 py-1.5 text-[10px] ${
+                className={`relative flex flex-col items-center gap-0.5 rounded-2xl px-4 py-1.5 text-[10px] ${
                   active ? "animate-pop bg-navy-soft/50 font-bold text-navy" : "text-muted"
                 }`}
               >
                 <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />
                 {t(tab.labelKey)}
+                {badge > 0 && (
+                  <span className="absolute -right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-brick text-[9px] font-bold text-white">
+                    {badge}
+                  </span>
+                )}
               </Link>
             </li>
           );
@@ -79,6 +87,11 @@ export function PortalSideNav({
               >
                 <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />
                 {t(tab.labelKey)}
+                {(tab.badgeCount ?? 0) > 0 && (
+                  <span className="ml-auto grid size-5 place-items-center rounded-full bg-brick text-[10px] font-bold text-white">
+                    {tab.badgeCount}
+                  </span>
+                )}
               </Link>
             </li>
           );
