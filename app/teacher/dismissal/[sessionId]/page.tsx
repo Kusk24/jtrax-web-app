@@ -84,7 +84,7 @@ export default function DismissalPage({
     <div className="flex flex-col gap-4">
       <CheckinHeader
         titleKey="dismissal.title"
-        subtitle={`${session.course} - Section ${session.section.replace("Sec ", "")}`}
+        subtitle={tck("classSubtitle", { course: session.course, section: session.section.replace("Sec ", "") })}
         backHref="/teacher"
       />
 

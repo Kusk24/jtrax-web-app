@@ -38,7 +38,10 @@
     "language": "ภาษา",
     "studentBadge": "นักเรียน",
     "parentBadge": "ผู้ปกครอง",
-    "teacherBadge": "คุณครู"
+    "teacherBadge": "คุณครู",
+    "mother": "แม่",
+    "father": "พ่อ",
+    "guardian": "ผู้ปกครอง"
   },
   "days": {
     "MON": "จ.",
@@ -118,7 +121,8 @@
     "secondsAgo": "{s} วินาทีที่แล้ว",
     "minutesAgo": "{m} นาทีที่แล้ว",
     "markPresent": "เช็คชื่อ {name} มาเรียน",
-    "markAbsent": "เช็คชื่อ {name} ขาดเรียน"
+    "markAbsent": "เช็คชื่อ {name} ขาดเรียน",
+    "classSubtitle": "{course} - เซกชัน {section}"
   },
   "dismissal": {
     "title": "ปล่อยนักเรียนกลับ",

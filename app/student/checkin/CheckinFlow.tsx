@@ -3,7 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, School, Check, QrCode } from "lucide-react";
+import {
+  ArrowLeft,
+  ChessBishop,
+  ChessKing,
+  ChessKnight,
+  ChessPawn,
+  ChessRook,
+  School,
+  Check,
+  QrCode,
+} from "lucide-react";
 import { attendanceSession } from "@/lib/student-data";
 
 export type CheckinPhase = "enter-code" | "verifying" | "success" | "not-started";
@@ -11,11 +21,11 @@ export type CheckinPhase = "enter-code" | "verifying" | "success" | "not-started
 const VERIFY_DURATION_MS = 3000;
 
 const pieces = [
-  { glyph: "♟", color: "text-navy", delay: "0ms" },
-  { glyph: "♞", color: "text-amber-500", delay: "120ms" },
-  { glyph: "♝", color: "text-orange-600", delay: "240ms" },
-  { glyph: "♜", color: "text-teal-400", delay: "360ms" },
-  { glyph: "♚", color: "text-emerald-600", delay: "480ms" },
+  { Icon: ChessPawn, color: "text-navy", delay: "0ms" },
+  { Icon: ChessKnight, color: "text-amber-500", delay: "120ms" },
+  { Icon: ChessBishop, color: "text-orange-600", delay: "240ms" },
+  { Icon: ChessRook, color: "text-teal-400", delay: "360ms" },
+  { Icon: ChessKing, color: "text-emerald-600", delay: "480ms" },
 ];
 
 export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
@@ -129,15 +139,13 @@ export function CheckinFlow({ initialPhase }: { initialPhase: CheckinPhase }) {
           </span>
           <div className="flex flex-col items-center gap-6">
             <p className="font-semibold text-ink">{t("verifying")}</p>
-            <div className="flex gap-4 text-2xl">
-              {pieces.map((p, i) => (
-                <span
+            <div className="flex gap-4">
+              {pieces.map(({ Icon, color, delay }, i) => (
+                <Icon
                   key={i}
-                  className={`animate-bounce ${p.color}`}
-                  style={{ animationDelay: p.delay }}
-                >
-                  {p.glyph}
-                </span>
+                  className={`size-7 animate-bounce ${color}`}
+                  style={{ animationDelay: delay }}
+                />
               ))}
             </div>
           </div>

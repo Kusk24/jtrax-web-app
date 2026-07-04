@@ -80,7 +80,7 @@ export default function AttendanceSummaryPage({
     <div className="flex flex-col gap-4">
       <CheckinHeader
         titleKey="attendance.summaryTitle"
-        subtitle={`${session.course} - Section ${session.section.replace("Sec ", "")}`}
+        subtitle={t("checkin.classSubtitle", { course: session.course, section: session.section.replace("Sec ", "") })}
         backHref="/teacher/attendance"
       />
 

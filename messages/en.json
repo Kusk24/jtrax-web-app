@@ -38,7 +38,10 @@
     "language": "Language",
     "studentBadge": "Student",
     "parentBadge": "Parent",
-    "teacherBadge": "Teacher"
+    "teacherBadge": "Teacher",
+    "mother": "Mother",
+    "father": "Father",
+    "guardian": "Guardian"
   },
   "days": {
     "MON": "MON",
@@ -118,7 +121,8 @@
     "secondsAgo": "{s}s ago",
     "minutesAgo": "{m}m ago",
     "markPresent": "Mark {name} present",
-    "markAbsent": "Mark {name} absent"
+    "markAbsent": "Mark {name} absent",
+    "classSubtitle": "{course} - Section {section}"
   },
   "dismissal": {
     "title": "Dismissal",

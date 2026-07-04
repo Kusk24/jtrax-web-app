@@ -80,7 +80,7 @@ export default function StudentProfilePage() {
               <Avatar name={contact.name} colorClass={contact.avatarColor} sizeClass="size-11" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-navy">{contact.name}</p>
-                <p className="text-xs text-muted">{contact.relation}</p>
+                <p className="text-xs text-muted">{t(`common.${contact.relationKey}`)}</p>
               </div>
               <a
                 href={`tel:${contact.phone}`}
