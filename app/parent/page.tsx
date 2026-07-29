@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Bell, CheckSquare } from "lucide-react";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
+import { TournamentBanner } from "@/components/parent/TournamentBanner";
+import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import {
   announcementsV2,
   childrenV2,
@@ -60,15 +62,15 @@ export default function ParentHomeV2() {
           <Link
             href="/parent/profile"
             aria-label={t("myProfile")}
-            className="size-[42px] flex-none overflow-hidden rounded-full bg-pp-soft shadow-[0_6px_16px_rgba(46,92,184,.35)]"
+            className="size-[42px] flex-none overflow-hidden rounded-full shadow-[0_6px_16px_rgba(46,92,184,.35)]"
           >
-            <Image src="/parent/sandy.png" alt="Sandy Jones" width={42} height={42} className="size-full object-cover" />
+            <ParentAvatar className="size-full text-lg" />
           </Link>
         </div>
       </div>
 
       {/* Announcements + tournament */}
-      <div className="flex flex-col gap-3.5 lg:col-span-2">
+      <div className="flex min-w-0 flex-col gap-3.5 lg:col-span-2">
         <div className="flex items-center justify-between">
           <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
             {t("announcements")}
@@ -130,13 +132,7 @@ export default function ParentHomeV2() {
         </span>
         <div className="max-w-[520px] overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_rgba(35,53,94,.12)]">
           <div className="relative">
-            <Image
-              src={tournamentV2.image}
-              alt={tournamentV2.name}
-              width={520}
-              height={226}
-              className="h-[158px] w-full object-cover"
-            />
+            <TournamentBanner className="h-[158px] w-full" />
             <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
               <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
                 {t("registerCloses")}
