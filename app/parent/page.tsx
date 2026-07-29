@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Bell, CheckSquare, Clock3, Paperclip, UserRound, X } from "lucide-react";
+import { Bell, CheckSquare } from "lucide-react";
+import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import {
   announcementsV2,
   childrenV2,
@@ -295,77 +296,7 @@ export default function ParentHomeV2() {
         </div>
       </div>
 
-      {/* Announcement modal */}
-      {modal && (
-        <div
-          onClick={() => setModalId(null)}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(28,25,40,.5)] p-5"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="flex max-h-[80vh] w-full max-w-[420px] flex-col gap-3 overflow-y-auto rounded-xl bg-white p-6 shadow-[0_30px_70px_rgba(28,25,40,.3)]"
-          >
-            <div className="flex items-center justify-between gap-2.5">
-              <span className="min-w-0 flex-1 font-pp-display text-xl font-semibold leading-snug text-pp-ink">
-                {modal.title}
-              </span>
-              <button
-                onClick={() => setModalId(null)}
-                aria-label={t("cancel")}
-                className="flex size-[30px] flex-none cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-pp-line bg-white text-pp-ink"
-              >
-                <X className="size-3.5" />
-              </button>
-            </div>
-            <span className="text-[13.5px] leading-relaxed text-pp-sub">{modal.msg}</span>
-            {modal.attachmentImg && (
-              <Image
-                src={modal.attachmentImg}
-                alt=""
-                width={420}
-                height={280}
-                className="w-full rounded-[14px]"
-              />
-            )}
-            <div className="flex items-center gap-2 border-t border-pp-line pt-2">
-              <span
-                className="flex size-8 flex-none items-center justify-center rounded-full"
-                style={{
-                  background: SENDER_STYLE[modal.sender].bg,
-                  color: SENDER_STYLE[modal.sender].c,
-                }}
-              >
-                <UserRound className="size-[15px]" strokeWidth={2} />
-              </span>
-              <div className="flex min-w-0 flex-col">
-                <span className="text-[13px] font-semibold text-pp-ink">{modal.senderName}</span>
-                <span className="text-[11px] text-pp-muted">
-                  {t(SENDER_STYLE[modal.sender].labelKey)}
-                  {modal.cls ? ` · ${modal.cls}` : ""}
-                </span>
-              </div>
-            </div>
-            {modal.child && (
-              <span className="flex items-center gap-1.5 text-xs text-pp-muted">
-                <UserRound className="size-[13px]" strokeWidth={2} />
-                {t("forChild", { name: modal.child })}
-              </span>
-            )}
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1.5 text-[11px] text-pp-faint">
-                <Clock3 className="size-3" strokeWidth={2} />
-                {modal.time}
-              </span>
-              {modal.attachment && (
-                <span className="flex items-center gap-1.5 text-[11px] text-pp-blue">
-                  <Paperclip className="size-3" strokeWidth={2} />
-                  {t("oneAttachment")}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {modal && <AnnouncementModal a={modal} onClose={() => setModalId(null)} />}
     </div>
   );
 }
