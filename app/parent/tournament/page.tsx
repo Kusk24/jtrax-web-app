@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -17,6 +16,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { childrenV2, tournamentV2 } from "@/lib/parent-v2-data";
+import { TournamentBanner } from "@/components/parent/TournamentBanner";
 
 type Step = "detail" | "register" | "payment" | "done";
 
@@ -219,13 +219,7 @@ export default function TournamentFlow() {
   return (
     <div className="flex max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
       <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
-      <Image
-        src={tournamentV2.image}
-        alt={tournamentV2.name}
-        width={620}
-        height={270}
-        className="w-full rounded-xl shadow-[0_8px_24px_rgba(35,53,94,.10)]"
-      />
+      <TournamentBanner className="h-[200px] w-full rounded-xl shadow-[0_8px_24px_rgba(35,53,94,.10)]" />
       <span className="font-pp-display text-xl font-semibold leading-snug text-pp-ink">
         {tournamentV2.name}
       </span>

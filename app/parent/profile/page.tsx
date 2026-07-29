@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
 import { childrenV2 } from "@/lib/parent-v2-data";
+import { ParentAvatar } from "@/components/parent/ParentAvatar";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-white";
@@ -66,8 +67,8 @@ export default function ParentProfileV2() {
         {t("myProfile")}
       </div>
       <div className="relative z-[1] -mt-[54px] flex flex-col items-center gap-3 lg:col-span-2">
-        <div className="size-[102px] flex-none overflow-hidden rounded-full border-[3px] border-white bg-pp-soft shadow-[0_10px_24px_rgba(46,92,184,.32)]">
-          <Image src="/parent/sandy.png" alt="Sandy Jones" width={102} height={102} className="size-full object-cover" />
+        <div className="size-[102px] flex-none overflow-hidden rounded-full border-[3px] border-white shadow-[0_10px_24px_rgba(46,92,184,.32)]">
+          <ParentAvatar className="size-full text-4xl" />
         </div>
         <span className="font-pp-display text-[22px] font-semibold">Sandy Jones</span>
       </div>

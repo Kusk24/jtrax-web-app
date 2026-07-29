@@ -190,7 +190,6 @@ export const notifsV2: NotifV2[] = [
 
 export const tournamentV2 = {
   name: "Wellington College Chess Championship 2026",
-  image: "/parent/chess-championship-2025.png",
   venue: "Wellington College International School Bangkok",
   date: "Saturday, 7 June 2026",
   timeRange: "9:00 AM – 5:00 PM",

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ClipboardCheck, Home, UserRound, type LucideIcon } from "lucide-react";
+import { ParentAvatar } from "@/components/parent/ParentAvatar";
 
 type Tab = {
   href: string;
@@ -80,15 +81,7 @@ export function ParentSideNav() {
         href="/parent/profile"
         className="flex w-full items-center gap-2.5 rounded-xl bg-[#efeefa] px-3 py-2.5"
       >
-        <span className="size-8 flex-none overflow-hidden rounded-full bg-pp-soft">
-          <Image
-            src="/parent/sandy.png"
-            alt="Sandy Jones"
-            width={32}
-            height={32}
-            className="size-full object-cover"
-          />
-        </span>
+        <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
         <span className="flex min-w-0 flex-col">
           <span className="text-[12.5px] font-semibold text-pp-ink">Sandy Jones</span>
           <span className="text-[10px] text-pp-muted">{t("roleParent")} · p10012</span>
