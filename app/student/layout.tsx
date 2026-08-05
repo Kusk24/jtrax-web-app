@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { StudentBottomNav, StudentSideNav } from "@/components/StudentNav";
+import { Chewy, Comic_Relief } from "next/font/google";
+
+const chewy = Chewy({ weight: "400", subsets: ["latin"], variable: "--font-chewy" });
+const comic = Comic_Relief({ weight: ["400", "700"], subsets: ["latin"], variable: "--font-comic" });
 
 export const metadata: Metadata = {
   title: "JTrax — Student",
@@ -9,12 +12,10 @@ export default function StudentLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="min-h-dvh lg:pl-56">
-      <StudentSideNav />
-      <main className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 md:px-8 lg:pb-10 lg:pt-8">
-        {children}
-      </main>
-      <StudentBottomNav />
+    <div
+      className={`${chewy.variable} ${comic.variable} flex min-h-dvh w-full items-center justify-center bg-[rgb(224,220,210)] font-sv-body sm:py-6`}
+    >
+      {children}
     </div>
   );
 }

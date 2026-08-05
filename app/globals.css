@@ -23,6 +23,23 @@
   /* Cute restyle: chunky clay-style rounding + soft double shadow, same palette. */
   --radius-card: 1.25rem;
 
+  /* Student game redesign (JTrax Chess.dc.html) — warm Mochi palette. */
+  --color-sv-brown: rgb(109, 61, 52);
+  --color-sv-cream: rgb(248, 246, 235);
+  --color-sv-paper: rgb(249, 248, 245);
+  --color-sv-gold: rgb(249, 230, 173);
+  --color-sv-peach: rgb(255, 179, 157);
+  --color-sv-peach-line: rgb(192, 120, 98);
+  --color-sv-tan: rgb(208, 158, 97);
+  --color-sv-board-dark: rgb(196, 165, 165);
+  --color-sv-highlight: rgb(255, 227, 135);
+  --color-sv-mint: rgb(207, 245, 231);
+  --color-sv-mint-line: rgb(137, 187, 169);
+  --color-sv-mint-ink: rgb(61, 108, 79);
+  --color-sv-coral: rgb(224, 122, 96);
+  --color-sv-purple: rgb(180, 140, 214);
+  --color-sv-amber: rgb(207, 132, 40);
+
   --font-sans: var(--font-nunito), var(--font-mitr), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fredoka), var(--font-mitr), ui-sans-serif, sans-serif;
 
@@ -90,4 +107,33 @@ button:active {
   button:active {
     transform: none;
   }
+}
+
+/* Runtime next/font vars must be inline or Tailwind prunes them from :root. */
+@theme inline {
+  --font-sv-body: var(--font-comic), var(--font-mitr), ui-sans-serif, sans-serif;
+  --font-sv-display: var(--font-chewy), var(--font-mitr), ui-sans-serif, sans-serif;
+}
+
+/* Student game animations (from JTrax Chess.dc.html). */
+@keyframes sv-fish-zoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.35); }
+}
+@keyframes sv-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sv-pop-in {
+  0% { opacity: 0; transform: scale(0.7); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes sv-confetti-fall {
+  from { transform: translateY(0) rotate(0deg); opacity: 1; }
+  to { transform: translateY(780px) rotate(360deg); opacity: 0; }
+}
+@keyframes sv-cat-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-14px) scale(1.06); }
+  60% { transform: translateY(0) scale(0.98); }
 }
