@@ -23,6 +23,27 @@
   /* Cute restyle: chunky clay-style rounding + soft double shadow, same palette. */
   --radius-card: 1.25rem;
 
+  /* Parent portal redesign (JTrax Parent.dc.html) — clean blue design system. */
+  --color-pp-ink: #1a2b4a;
+  --color-pp-blue: #2e5cb8;
+  --color-pp-deep: #234a9f;
+  --color-pp-navy: #1e3a70;
+  --color-pp-line: #e7ebf3;
+  --color-pp-soft: #e8eefa;
+  --color-pp-mist: #f0f4fc;
+  --color-pp-bg: #fafbfd;
+  --color-pp-muted: #64708c;
+  --color-pp-faint: #8ca0c4;
+  --color-pp-sub: #4a5578;
+  --color-pp-green: #4caf7d;
+  --color-pp-green-soft: #e6f4ec;
+  --color-pp-green-dot: #4a9d6b;
+  --color-pp-red: #e0645f;
+  --color-pp-red-soft: #fbeaea;
+  --color-pp-amber: #c97a2e;
+  --color-pp-amber-soft: #fbeedf;
+  --color-pp-danger: #c24b4b;
+
   /* Student game redesign (JTrax Chess.dc.html) — warm Mochi palette. */
   --color-sv-brown: rgb(109, 61, 52);
   --color-sv-cream: rgb(248, 246, 235);
@@ -56,6 +77,12 @@
       transform: scale(1);
     }
   }
+}
+
+/* Runtime next/font vars must be inline or Tailwind prunes them from :root. */
+@theme inline {
+  --font-pp-sans: var(--font-dmsans), var(--font-mitr), ui-sans-serif, system-ui, sans-serif;
+  --font-pp-display: var(--font-poppins), var(--font-mitr), ui-sans-serif, sans-serif;
 }
 
 body {
