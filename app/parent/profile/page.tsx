@@ -62,11 +62,11 @@ export default function ParentProfileV2() {
   ];
 
   return (
-    <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-2 lg:gap-x-6">
-      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-[70px] pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 lg:col-span-2">
+    <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-6">
+      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-[70px] pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 md:col-span-2">
         {t("myProfile")}
       </div>
-      <div className="relative z-[1] -mt-[54px] flex flex-col items-center gap-3 lg:col-span-2">
+      <div className="relative z-[1] -mt-[54px] flex flex-col items-center gap-3 md:col-span-2">
         <div className="size-[102px] flex-none overflow-hidden rounded-full border-[3px] border-white shadow-[0_10px_24px_rgba(46,92,184,.32)]">
           <ParentAvatar className="size-full text-4xl" />
         </div>
@@ -74,7 +74,7 @@ export default function ParentProfileV2() {
       </div>
 
       {/* Column 1 */}
-      <div className="contents min-w-0 flex-col gap-5 lg:flex">
+      <div className="contents min-w-0 flex-col gap-5 md:flex">
         <div className="flex flex-col gap-3">
           <span className={label}>{t("myChildren", { count: childrenV2.length })}</span>
           <div className={panel}>
@@ -158,7 +158,7 @@ export default function ParentProfileV2() {
       </div>
 
       {/* Column 2 */}
-      <div className="contents min-w-0 flex-col gap-5 lg:flex">
+      <div className="contents min-w-0 flex-col gap-5 md:flex">
         <div className="flex flex-col gap-3">
           <span className={label}>{t("appearance")}</span>
           <div className="flex items-center justify-between gap-3 rounded-xl border-[1.5px] border-pp-line bg-white px-4 py-3">
@@ -223,7 +223,7 @@ export default function ParentProfileV2() {
         </Link>
       </div>
 
-      <div className="flex flex-col items-center gap-1 pb-1 pt-1.5 lg:col-span-2">
+      <div className="flex flex-col items-center gap-1 pb-1 pt-1.5 md:col-span-2">
         <Image src="/parent/jca-logo.png" alt="JCA Chess Academy" width={34} height={34} className="mb-0.5" />
         <span className="text-[11px] font-bold uppercase tracking-[.14em] text-pp-faint">
           JCA Chess Academy

@@ -36,9 +36,9 @@ export default function ParentHomeV2() {
   };
 
   return (
-    <div className="grid content-start gap-9 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-2 lg:gap-x-8">
+    <div className="grid content-start gap-9 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-8">
       {/* Header band */}
-      <div className="-mx-4 -mt-5 flex items-center justify-between gap-3 bg-pp-soft px-4 pb-4 pt-5 sm:-mx-5 sm:px-5 lg:col-span-2">
+      <div className="-mx-4 -mt-5 flex items-center justify-between gap-3 bg-pp-soft px-4 pb-4 pt-5 sm:-mx-5 sm:px-5 md:col-span-2">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <span className="font-pp-display text-2xl font-semibold leading-tight">
@@ -70,7 +70,7 @@ export default function ParentHomeV2() {
       </div>
 
       {/* Announcements + tournament */}
-      <div className="flex min-w-0 flex-col gap-3.5 lg:col-span-2">
+      <div className="flex min-w-0 flex-col gap-3.5 md:col-span-2">
         <div className="flex items-center justify-between">
           <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
             {t("announcements")}
@@ -93,7 +93,7 @@ export default function ParentHomeV2() {
                 key={a.id}
                 onClick={() => open(a)}
                 style={{ background: ss.bg }}
-                className="flex w-full max-w-full flex-none snap-start cursor-pointer flex-col gap-1.5 rounded-xl p-4 text-left shadow-[0_6px_16px_rgba(35,53,94,.08)] lg:max-w-[420px]"
+                className="flex w-full max-w-full flex-none snap-start cursor-pointer flex-col gap-1.5 rounded-xl p-4 text-left shadow-[0_6px_16px_rgba(35,53,94,.08)] md:max-w-[420px]"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="min-w-0 flex-1 text-sm font-bold leading-snug text-pp-ink">
@@ -116,7 +116,7 @@ export default function ParentHomeV2() {
             );
           })}
         </div>
-        <div className="flex justify-center gap-1.5 lg:hidden">
+        <div className="flex justify-center gap-1.5 md:hidden">
           {announcementsV2.map((_, i) => (
             <span
               key={i}
