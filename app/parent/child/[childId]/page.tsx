@@ -53,8 +53,8 @@ export default function ChildProfileV2({
     }));
 
   return (
-    <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-2 lg:gap-x-5">
-      <div className="flex items-center gap-3 lg:col-span-2">
+    <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-5">
+      <div className="flex items-center gap-3 md:col-span-2">
         <button
           onClick={() => router.back()}
           aria-label={t("back")}
@@ -67,7 +67,7 @@ export default function ChildProfileV2({
         </span>
       </div>
 
-      <div className="flex items-center gap-3.5 lg:col-span-2">
+      <div className="flex items-center gap-3.5 md:col-span-2">
         <span
           aria-label={ch.name}
           className="size-[62px] flex-none rounded-full bg-cover bg-center"

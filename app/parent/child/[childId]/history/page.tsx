@@ -44,8 +44,8 @@ export default function ChildHistoryV2({
     }));
 
   return (
-    <div className="grid content-start gap-4 px-4 pb-10 pt-5 sm:px-5 lg:grid-cols-2 lg:gap-x-5">
-      <div className="flex items-center gap-3 lg:col-span-2">
+    <div className="grid content-start gap-4 px-4 pb-10 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-5">
+      <div className="flex items-center gap-3 md:col-span-2">
         <button
           onClick={() => router.back()}
           aria-label={t("back")}
@@ -63,7 +63,7 @@ export default function ChildHistoryV2({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3.5">
+      <div className="flex w-full max-w-[440px] flex-col gap-3.5 place-self-center md:place-self-auto">
         <div className="flex flex-col gap-2.5 rounded-[14px] bg-white p-4 shadow-[0_10px_28px_rgba(35,53,94,.10)]">
           <div className="flex items-center justify-between px-0.5">
             <button

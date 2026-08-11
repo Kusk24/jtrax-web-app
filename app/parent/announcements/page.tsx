@@ -16,7 +16,7 @@ export default function ParentAnnouncementsV2() {
   const modal = announcementsV2.find((a) => a.id === modalId);
 
   return (
-    <div className="flex max-w-[760px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+    <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}

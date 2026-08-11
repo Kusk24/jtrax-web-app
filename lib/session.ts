@@ -34,9 +34,12 @@ export async function fetchMe(token: string | undefined): Promise<BackendIdentit
   }
 }
 
-/** Where each role lands after sign-in. */
-export function homeFor(role: string): string {
+/** Where each role lands after sign-in, or null when this app has no portal
+    for it (staff use the separate admin console) — returning a portal the
+    role can't enter would bounce between "/" and that portal forever. */
+export function homeFor(role: string): string | null {
   if (role === "Parent") return "/parent";
   if (role === "Student") return "/student";
-  return "/parent";
+  if (role === "Teacher") return "/teacher";
+  return null;
 }

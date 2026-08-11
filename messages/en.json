@@ -15,7 +15,8 @@
     "errorMissing": "Enter your email and password.",
     "errorInvalid": "That email and password don't match an account.",
     "errorUnreachable": "Cannot reach the JTrax server — is the backend running?",
-    "demoTitle": "Demo accounts"
+    "demoTitle": "Demo accounts",
+    "noPortal": "This account doesn't have a portal here — staff sign in to the admin console."
   },
   "nav": {
     "home": "Home",

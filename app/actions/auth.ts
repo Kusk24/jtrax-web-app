@@ -34,7 +34,7 @@ export async function signIn(_prev: SignInState, formData: FormData): Promise<Si
     secure: process.env.NODE_ENV === "production",
     maxAge: SESSION_MAX_AGE,
   });
-  redirect(homeFor(user.role));
+  redirect(homeFor(user.role) ?? "/");
 }
 
 export async function signOut() {
