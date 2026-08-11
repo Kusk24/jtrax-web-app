@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { GraduationCap, Users, Presentation, ArrowRight } from "lucide-react";
+import { GraduationCap, Users, ArrowRight } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
 const roles = [
@@ -18,13 +18,8 @@ const roles = [
     icon: Users,
     accent: "bg-navy-soft text-navy",
   },
-  {
-    href: "/teacher",
-    labelKey: "teacherLabel",
-    descKey: "teacherDesc",
-    icon: Presentation,
-    accent: "bg-brick-soft text-brick",
-  },
+  /* Teacher portal temporarily hidden from the chooser (routes still exist)
+     until the client decides whether it stays. */
 ] as const;
 
 export default function RoleSelectPage() {
@@ -34,7 +29,7 @@ export default function RoleSelectPage() {
       <LanguageToggle className="absolute right-4 top-4" />
       <h1 className="text-4xl font-extrabold tracking-tight text-navy">JTrax</h1>
       <p className="mt-2 text-center text-sm text-muted">{t("tagline")}</p>
-      <div className="mt-10 grid w-full max-w-4xl gap-4 sm:grid-cols-3">
+      <div className="mt-10 grid w-full max-w-2xl gap-4 sm:grid-cols-2">
         {roles.map(({ href, labelKey, descKey, icon: Icon, accent }) => (
           <Link
             key={href}
