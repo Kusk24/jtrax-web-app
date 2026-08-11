@@ -8,7 +8,8 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Clock3, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
-import { ATT, getChildV2, MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
+import { MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 
@@ -20,8 +21,9 @@ export default function ChildProfileV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
+  const { children: kids, att: ATT } = useParentData();
   const [hover, setHover] = useState<number | null>(null);
-  const ch = getChildV2(childId);
+  const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
 
   const expSoon = ch.daysLeft <= 14;

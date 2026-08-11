@@ -15,7 +15,7 @@ import {
   Trophy,
   UserRound,
 } from "lucide-react";
-import { childrenV2, tournamentV2 } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
 
 type Step = "detail" | "register" | "payment" | "done";
@@ -58,8 +58,10 @@ const cta =
 export default function TournamentFlow() {
   const t = useTranslations("pv2");
   const router = useRouter();
+  const { children: childrenV2, tournament: tournamentV2, register } = useParentData();
+  const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState<Step>("detail");
-  const [child, setChild] = useState("penny");
+  const [child, setChild] = useState(childrenV2[0]?.key ?? "");
   const [pay, setPay] = useState("card");
   const [contact, setContact] = useState({
     name: "Sandy Jones",
@@ -209,7 +211,27 @@ export default function TournamentFlow() {
             {tournamentV2.fee}
           </span>
         </div>
-        <button onClick={() => setStep("done")} className={cta}>
+        <button
+          disabled={submitting}
+          onClick={async () => {
+            setSubmitting(true);
+            try {
+              await register({
+                tournamentId: (tournamentV2 as { id?: string }).id ?? "",
+                studentId: participant.id,
+                participantName: participant.name,
+                contact: contact.phone,
+                fee: Number(tournamentV2.fee.replace(/[^0-9.]/g, "")) || 0,
+              });
+              setStep("done");
+            } catch (e) {
+              window.alert(e instanceof Error ? e.message : "registration failed");
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+          className={cta}
+        >
           {t("payNow")}
         </button>
       </div>

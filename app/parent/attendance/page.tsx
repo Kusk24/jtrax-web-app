@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ATT, childrenV2, histV2, MAY, MONTHS, type ChildKey } from "@/lib/parent-v2-data";
+import { MAY, MONTHS, type ChildKey } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
 export default function ParentAttendanceV2() {
   const t = useTranslations("pv2");
+  const { children: childrenV2, att: ATT, hist: histV2 } = useParentData();
   const [filter, setFilter] = useState<"all" | ChildKey>("all");
   const [month, setMonth] = useState(MAY);
 
@@ -16,7 +18,7 @@ export default function ParentAttendanceV2() {
   const cells: { label: string; present: boolean; today: boolean }[] = [];
   for (let i = 0; i < M.offset; i++) cells.push({ label: "", present: false, today: false });
   for (let d = 1; d <= M.days; d++) {
-    const keys: ChildKey[] = filter === "all" ? ["penny", "uri"] : [filter];
+    const keys: ChildKey[] = filter === "all" ? childrenV2.map((c) => c.key) : [filter];
     const present = keys.some((k) => (ATT[k][month] ?? { present: [] }).present.includes(d));
     cells.push({ label: String(d), present, today: month === MAY && d === 20 });
   }

@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { GraduationCap, Paperclip, UserRound } from "lucide-react";
-import { announcementsV2 } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 import { AnnouncementModal, SENDER_STYLE } from "@/components/parent/AnnouncementModal";
 
 export default function ParentAnnouncementsV2() {
   const t = useTranslations("pv2");
+  const { announcements: announcementsV2 } = useParentData();
   const router = useRouter();
   const [read, setRead] = useState<Record<string, boolean>>({});
   const [modalId, setModalId] = useState<string | null>(null);
