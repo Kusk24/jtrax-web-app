@@ -8,14 +8,8 @@ import { Bell, CheckSquare } from "lucide-react";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
-import {
-  announcementsV2,
-  childrenV2,
-  todayActivityV2,
-  tournamentV2,
-  type AnnouncementV2,
-  type SenderKind,
-} from "@/lib/parent-v2-data";
+import { todayActivityV2, type AnnouncementV2, type SenderKind } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 
 const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string }> = {
   teacher: { labelKey: "senderTeacher", c: "#2E5CB8", bg: "#E8EEFA" },
@@ -25,6 +19,7 @@ const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string
 
 export default function ParentHomeV2() {
   const t = useTranslations("pv2");
+  const { children: childrenV2, announcements: announcementsV2, tournament: tournamentV2 } = useParentData();
   const [read, setRead] = useState<Record<string, boolean>>({});
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);

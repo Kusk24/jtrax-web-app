@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
-import { childrenV2 } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
@@ -19,7 +19,7 @@ export default function ParentProfileV2() {
   const locale = useLocale();
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const [prefs, setPrefs] = useState({ checkin: true, credits: true, news: false });
+  const { children: childrenV2, prefs, savePrefs } = useParentData();
   const [theme, setTheme] = useState("system");
   const [screenTime, setScreenTime] = useState({ h: 1, m: 30 });
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -123,7 +123,7 @@ export default function ParentProfileV2() {
                   <span className="text-[11px] text-pp-muted">{p.sub}</span>
                 </div>
                 <button
-                  onClick={() => setPrefs((prev) => ({ ...prev, [p.k]: !prev[p.k] }))}
+                  onClick={() => savePrefs({ ...prefs, [p.k]: !prefs[p.k] }).catch(() => window.alert("could not save"))}
                   aria-pressed={prefs[p.k]}
                   className="relative h-7 w-[46px] flex-none cursor-pointer rounded-full transition-colors"
                   style={{ background: prefs[p.k] ? "#4a9d6b" : "#d8d3c8" }}

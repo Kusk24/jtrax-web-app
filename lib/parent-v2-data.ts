@@ -1,7 +1,7 @@
 /* Parent portal redesign mock data, ported from JTrax Parent.dc.html.
    Names/courses stay English (backend data); UI strings live in pv2.* */
 
-export type ChildKey = "penny" | "uri";
+export type ChildKey = string;
 
 export interface ChildV2 {
   key: ChildKey;
@@ -189,6 +189,7 @@ export const notifsV2: NotifV2[] = [
 ];
 
 export const tournamentV2 = {
+  id: "trn_wellington",
   name: "Wellington College Chess Championship 2026",
   venue: "Wellington College International School Bangkok",
   date: "Saturday, 7 June 2026",

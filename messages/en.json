@@ -7,7 +7,16 @@
     "parentDesc": "Follow your children's classes, credits and check-ins.",
     "teacherLabel": "Teacher",
     "teacherDesc": "Manage your classes and take attendance.",
-    "tempNote": "Temporary role selection — will be replaced by login once the backend is ready."
+    "tempNote": "Temporary role selection — will be replaced by login once the backend is ready.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "errorMissing": "Enter your email and password.",
+    "errorInvalid": "That email and password don't match an account.",
+    "errorUnreachable": "Cannot reach the JTrax server — is the backend running?",
+    "demoTitle": "Demo accounts",
+    "noPortal": "This account doesn't have a portal here — staff sign in to the admin console."
   },
   "nav": {
     "home": "Home",

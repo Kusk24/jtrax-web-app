@@ -3,7 +3,8 @@
 import { use, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ATT, getChildV2, MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
+import { MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
@@ -15,9 +16,10 @@ export default function ChildHistoryV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
+  const { children: kids, att: ATT } = useParentData();
   const [month, setMonth] = useState(MAY);
   const [sel, setSel] = useState<{ m: number; d: number } | null>(null);
-  const ch = getChildV2(childId);
+  const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
 
   const M = MONTHS[month];
