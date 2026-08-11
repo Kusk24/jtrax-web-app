@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Check, Flame, Star, X } from "lucide-react";
@@ -70,8 +70,44 @@ export default function StudentGame() {
   const [showWrong, setShowWrong] = useState(false);
   const [message, setMessage] = useState("");
   const [celebrate, setCelebrate] = useState(false);
+  const [studentId, setStudentId] = useState("");
+  const [streak, setStreak] = useState(7);
   const stars = 10;
   const fishCount = 32;
+
+  useEffect(() => {
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (me?.studentId) {
+          setStudentId(me.studentId);
+          fetch("/api/students", { cache: "no-store" })
+            .then((r) => (r.ok ? r.json() : []))
+            .then((rows: { student_id: string; streak_count?: number }[]) => {
+              const self = rows.find((row) => row.student_id === me.studentId);
+              if (self?.streak_count != null) setStreak(self.streak_count);
+            });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  /* The day's win is recorded server-side; failures stay silent in the game. */
+  const reportPractice = () => {
+    if (!studentId) return;
+    fetch("/api/practice-activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        student_id: studentId,
+        activity_date: new Date().toISOString().slice(0, 10),
+        puzzles_completed: 3,
+        minutes_practiced: 10,
+        points_earned: 30,
+        streak_count: streak + 1,
+      }),
+    }).catch(() => {});
+  };
 
   /* Feed-screen state */
   const [catState, setCatState] = useState<"idle" | "eating" | "celebrate">("idle");
@@ -131,8 +167,12 @@ export default function StudentGame() {
           setMessage(t("checkmateMsg"));
           setPuzzlesSolved(nextSolved);
           setTimeout(() => {
-            if (puzzleIndex < PUZZLES.length - 1) loadPuzzle(puzzleIndex + 1);
-            else setCelebrate(true);
+            if (puzzleIndex < PUZZLES.length - 1) {
+              loadPuzzle(puzzleIndex + 1);
+            } else {
+              reportPractice();
+              setCelebrate(true);
+            }
           }, 1400);
         } else {
           setBoard(newBoard);
@@ -593,7 +633,7 @@ export default function StudentGame() {
           <div className="absolute left-[18px] top-[217px] h-[306px] w-[352px] overflow-hidden rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
             <div className="absolute left-5 top-5 flex items-center gap-1.5 text-base font-bold">
               <Flame className="size-[18px] fill-[#f28c33] text-[#d96c1e]" strokeWidth={1.5} />
-              <span>{t("dayStreak", { n: 7 })}</span>
+              <span>{t("dayStreak", { n: streak })}</span>
             </div>
             <div className="absolute left-5 top-14 grid w-[312px] grid-cols-7 gap-2">
               {Array.from({ length: 21 }, (_, i) => (
