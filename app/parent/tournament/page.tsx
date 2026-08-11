@@ -71,7 +71,7 @@ export default function TournamentFlow() {
 
   if (step === "done") {
     return (
-      <div className="flex min-h-[70dvh] max-w-[620px] flex-col items-center justify-center gap-4 px-5 text-center">
+      <div className="mx-auto flex min-h-[70dvh] w-full max-w-[620px] flex-col items-center justify-center gap-4 px-5 text-center">
         <span className="flex size-16 items-center justify-center rounded-full bg-pp-green-soft text-pp-green">
           <Check className="size-[30px]" strokeWidth={2} />
         </span>
@@ -94,7 +94,7 @@ export default function TournamentFlow() {
 
   if (step === "register") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
         <BackHeader title={t("registration")} onBack={() => setStep("detail")} />
         <div className="flex flex-col gap-2">
           <span className={label}>{t("selectChild")}</span>
@@ -159,7 +159,7 @@ export default function TournamentFlow() {
 
   if (step === "payment") {
     return (
-      <div className="flex max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
         <BackHeader title={t("payment")} onBack={() => setStep("register")} />
         <div className={`${card} flex flex-col gap-3.5`}>
           <div className="flex flex-col gap-0.5">
@@ -217,7 +217,7 @@ export default function TournamentFlow() {
   }
 
   return (
-    <div className="flex max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+    <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
       <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
       <TournamentBanner className="h-[200px] w-full rounded-xl shadow-[0_8px_24px_rgba(35,53,94,.10)]" />
       <span className="font-pp-display text-xl font-semibold leading-snug text-pp-ink">

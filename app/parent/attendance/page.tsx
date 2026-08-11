@@ -39,12 +39,13 @@ export default function ParentAttendanceV2() {
   ];
 
   return (
-    <div className="grid content-start gap-4 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-2 lg:gap-x-5">
+    <div className="grid content-start gap-4 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:items-start lg:gap-x-6">
       <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-[70px] pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 lg:col-span-2">
         {t("attHistory")}
       </div>
 
-      <div className="relative z-[1] -mt-[54px] flex flex-col gap-3 rounded-xl border-[1.5px] border-pp-line bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)] lg:col-span-2">
+      {/* Calendar keeps a phone-card width everywhere — full-bleed cells turn into giant circles. */}
+      <div className="relative z-[1] -mt-[54px] flex w-full max-w-[440px] flex-col gap-3 place-self-center rounded-xl border-[1.5px] border-pp-line bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)] lg:place-self-auto">
         <div className="flex items-center justify-between px-0.5">
           <button
             onClick={() => setMonth((m) => Math.max(0, m - 1))}
@@ -93,7 +94,8 @@ export default function ParentAttendanceV2() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 lg:col-span-2">
+      <div className="flex min-w-0 flex-col gap-4 lg:relative lg:z-[1] lg:-mt-[54px]">
+      <div className="flex flex-wrap gap-2">
         {chips.map((f) => (
           <button
             key={f.k}
@@ -142,6 +144,7 @@ export default function ParentAttendanceV2() {
           })}
         </div>
       ))}
+      </div>
     </div>
   );
 }
