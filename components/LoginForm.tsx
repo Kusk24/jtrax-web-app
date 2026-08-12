@@ -4,6 +4,7 @@
    which redirects each role to its portal. */
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { signIn, type SignInState } from "@/app/actions/auth";
 
 export function LoginForm() {
@@ -45,6 +46,10 @@ export function LoginForm() {
       >
         {pending ? t("signingIn") : t("signIn")}
       </button>
+
+      <Link href="/forgot-password" className="text-center text-xs font-bold text-navy">
+        {t("forgot")}
+      </Link>
 
       {/* The account carries the role, so there is nothing to pick here — a
           parent and a student each sign in with their own account and land in
