@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Check, Flame, Star, X } from "lucide-react";
+import { Check, Flame, LogOut, Star, X } from "lucide-react";
+import { SignOutButton } from "@/components/SignOutButton";
 import {
   PUZZLES,
   PIECE_GLYPH,
@@ -59,6 +60,7 @@ function PawCorner({ pos }: { pos: string }) {
 
 export default function StudentGame() {
   const t = useTranslations("sv2");
+  const tc = useTranslations("common");
 
   const [screen, setScreen] = useState<Screen>("home");
   const [tab, setTab] = useState<"daily" | "free">("daily");
@@ -648,6 +650,11 @@ export default function StudentGame() {
               ))}
             </div>
           </div>
+          {/* Sits in the gap between the streak card (ends 523) and the nav (750). */}
+          <SignOutButton className="absolute left-[18px] top-[547px] flex h-[54px] w-[352px] cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-coral shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:opacity-60">
+            <LogOut className="size-[18px]" />
+            {tc("signOut")}
+          </SignOutButton>
         </>
       )}
 

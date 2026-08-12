@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import type { LucideIcon } from "lucide-react";
+import { LogOut, type LucideIcon } from "lucide-react";
+import { SignOutButton } from "./SignOutButton";
 
 export type PortalTab = {
   href: string;
@@ -65,6 +66,7 @@ export function PortalSideNav({
 }) {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const tc = useTranslations("common");
   return (
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-56 flex-col border-r-2 border-line bg-card px-4 py-6 lg:flex">
       <Link href="/" className="mb-8 px-2">
@@ -97,12 +99,12 @@ export function PortalSideNav({
           );
         })}
       </ul>
-      <Link
-        href="/"
-        className="mt-auto rounded-xl px-3 py-2.5 text-sm text-muted hover:bg-cream hover:text-ink"
-      >
-        {t("switchRole")}
-      </Link>
+      {/* Was "Switch role", a link to "/" — the account fixes the role, so it
+          only bounced back here. Sign out is what it was reaching for. */}
+      <SignOutButton className="mt-auto flex cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted transition-colors hover:bg-brick-soft hover:text-brick disabled:opacity-60">
+        <LogOut className="size-4" />
+        {tc("signOut")}
+      </SignOutButton>
     </aside>
   );
 }

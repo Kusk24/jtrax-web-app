@@ -12,10 +12,12 @@ import {
   Mail,
   MapPin,
   IdCard,
+  LogOut,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Avatar } from "@/components/Avatar";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { SignOutButton } from "@/components/SignOutButton";
 import { teacher, monthlyOverview, branches } from "@/lib/teacher-data";
 
 const overviewTiles = [
@@ -152,6 +154,11 @@ export default function TeacherProfilePage() {
               <Settings className="size-4 text-navy" /> {t("profile.settings")}
               <ChevronRight className="ml-auto size-4 text-muted" />
             </button>
+          </li>
+          <li className="mt-1 border-t border-line pt-1">
+            <SignOutButton className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-1 py-2.5 text-sm font-bold text-brick transition-colors hover:bg-brick-soft disabled:opacity-60">
+              <LogOut className="size-4" /> {t("common.signOut")}
+            </SignOutButton>
           </li>
         </ul>
       </section>

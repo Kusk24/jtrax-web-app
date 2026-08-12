@@ -21,7 +21,6 @@
     "studentPortal": "Student portal",
     "parentPortal": "Parent portal",
     "teacherPortal": "Teacher portal",
-    "switchRole": "Switch role",
     "ongoing": "Ongoing"
   },
   "common": {
@@ -42,6 +41,7 @@
     "studentBadge": "Student",
     "parentBadge": "Parent",
     "teacherBadge": "Teacher",
+    "signOut": "Sign out",
     "mother": "Mother",
     "father": "Father",
     "guardian": "Guardian"

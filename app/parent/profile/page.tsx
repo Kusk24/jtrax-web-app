@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, LogOut } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
+import { SignOutButton } from "@/components/SignOutButton";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-white";
@@ -215,12 +216,12 @@ export default function ParentProfileV2() {
           </div>
         </div>
 
-        <Link
-          href="/"
-          className="w-full rounded-xl border-[1.5px] border-[#e7c9c9] bg-white p-3.5 text-center text-[13.5px] font-bold text-pp-danger hover:bg-[#fdf3f3]"
-        >
+        {/* Was a Link to "/", which left the cookie in place — the landing page
+            saw a live session and sent you straight back here. */}
+        <SignOutButton className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-[1.5px] border-[#e7c9c9] bg-white p-3.5 text-center text-[13.5px] font-bold text-pp-danger transition-colors hover:bg-[#fdf3f3] disabled:opacity-60">
+          <LogOut className="size-4" />
           {t("logOut")}
-        </Link>
+        </SignOutButton>
       </div>
 
       <div className="flex flex-col items-center gap-1 pb-1 pt-1.5 md:col-span-2">

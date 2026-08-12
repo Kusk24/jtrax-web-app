@@ -21,7 +21,6 @@
     "studentPortal": "สำหรับนักเรียน",
     "parentPortal": "สำหรับผู้ปกครอง",
     "teacherPortal": "สำหรับคุณครู",
-    "switchRole": "เปลี่ยนบทบาท",
     "ongoing": "กำลังเรียน"
   },
   "common": {
@@ -42,6 +41,7 @@
     "studentBadge": "นักเรียน",
     "parentBadge": "ผู้ปกครอง",
     "teacherBadge": "คุณครู",
+    "signOut": "ออกจากระบบ",
     "mother": "แม่",
     "father": "พ่อ",
     "guardian": "ผู้ปกครอง"
