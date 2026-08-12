@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { TeacherBottomNav, TeacherSideNav } from "@/components/TeacherNav";
+import { SESSION_COOKIE, fetchMe } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "JTrax — Teacher",
 };
 
-export default function TeacherLayout({
+/** The guard lives on the layout so every route under /teacher inherits it —
+    the parent and student portals gate the same way. */
+export default async function TeacherLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const store = await cookies();
+  const me = await fetchMe(store.get(SESSION_COOKIE)?.value);
+  if (!me || me.role !== "Teacher") redirect("/");
+
   return (
     <div className="min-h-dvh lg:pl-56">
       <TeacherSideNav />
