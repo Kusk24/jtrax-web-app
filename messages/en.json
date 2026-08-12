@@ -9,7 +9,32 @@
     "errorInvalid": "That email and password don't match an account.",
     "errorUnreachable": "Cannot reach the JTrax server — is the backend running?",
     "accountHint": "Parents and students each have their own account from the academy.",
-    "noPortal": "This account doesn't have a portal here — staff sign in to the admin console."
+    "noPortal": "This account doesn't have a portal here — staff sign in to the admin console.",
+    "forgot": "Forgot your password?",
+    "passwordChanged": "Password changed. Sign in with your new one."
+  },
+  "reset": {
+    "requestTitle": "We'll email you a link to set a new password",
+    "requestHint": "Enter the email address the academy has for you.",
+    "email": "Email",
+    "sendLink": "Send reset link",
+    "sending": "Sending…",
+    "sentTitle": "Check your email",
+    "sentBody": "If that address has an account, a reset link is on its way. It works once and expires in an hour.",
+    "backToSignIn": "Back to sign in",
+    "setTitle": "Choose a new password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "rule": "At least 8 characters.",
+    "setPassword": "Set new password",
+    "saving": "Saving…",
+    "requestAnother": "Request a new link",
+    "noToken": "This link is missing its code. It may have been cut short by your email app.",
+    "errorMissing": "Enter your email address.",
+    "errorShort": "Use at least 8 characters.",
+    "errorMismatch": "The two passwords don't match.",
+    "errorInvalid": "That reset link is invalid or has expired.",
+    "errorUnreachable": "Cannot reach the JTrax server — please try again."
   },
   "nav": {
     "home": "Home",

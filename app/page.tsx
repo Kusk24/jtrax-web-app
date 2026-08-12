@@ -5,7 +5,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { LoginForm } from "@/components/LoginForm";
 import { SESSION_COOKIE, fetchMe, homeFor } from "@/lib/session";
 
-function Landing({ noPortal }: { noPortal?: boolean }) {
+function Landing({ noPortal, justReset }: { noPortal?: boolean; justReset?: boolean }) {
   const t = useTranslations("landing");
   return (
     <main className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-12">
@@ -15,15 +15,25 @@ function Landing({ noPortal }: { noPortal?: boolean }) {
       {noPortal && (
         <p className="mt-4 max-w-sm text-center text-xs font-bold text-brick">{t("noPortal")}</p>
       )}
+      {justReset && (
+        <p className="mt-4 max-w-sm text-center text-xs font-bold text-olive">{t("passwordChanged")}</p>
+      )}
       <LoginForm />
     </main>
   );
 }
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reset?: string }>;
+}) {
   const store = await cookies();
   const me = await fetchMe(store.get(SESSION_COOKIE)?.value);
   const home = me ? homeFor(me.role) : null;
   if (home) redirect(home);
-  return <Landing noPortal={!!me} />;
+  /* ?reset=1 is set by the reset action, which lands here because completing a
+     reset revokes every session for the account. */
+  const { reset } = await searchParams;
+  return <Landing noPortal={!!me} justReset={reset === "1"} />;
 }
