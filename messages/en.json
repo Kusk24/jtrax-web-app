@@ -1,13 +1,6 @@
 {
   "landing": {
-    "tagline": "Choose how you want to sign in",
-    "studentLabel": "Student",
-    "studentDesc": "Check your schedule, credits and attendance.",
-    "parentLabel": "Parent",
-    "parentDesc": "Follow your children's classes, credits and check-ins.",
-    "teacherLabel": "Teacher",
-    "teacherDesc": "Manage your classes and take attendance.",
-    "tempNote": "Temporary role selection — will be replaced by login once the backend is ready.",
+    "tagline": "Sign in to your JTrax account",
     "email": "Email",
     "password": "Password",
     "signIn": "Sign in",
@@ -15,7 +8,7 @@
     "errorMissing": "Enter your email and password.",
     "errorInvalid": "That email and password don't match an account.",
     "errorUnreachable": "Cannot reach the JTrax server — is the backend running?",
-    "demoTitle": "Demo accounts",
+    "accountHint": "Parents and students each have their own account from the academy.",
     "noPortal": "This account doesn't have a portal here — staff sign in to the admin console."
   },
   "nav": {
