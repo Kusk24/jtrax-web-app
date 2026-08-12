@@ -4,15 +4,7 @@
    which redirects each role to its portal. */
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { GraduationCap, Users } from "lucide-react";
 import { signIn, type SignInState } from "@/app/actions/auth";
-
-/* Seeded dev accounts (jtrax-backend internal/db/seed.go). */
-const DEV_PASSWORD = "jtrax-dev-1234";
-const DEV_ACCOUNTS = [
-  { email: "sandy01234@gmail.com", labelKey: "parentLabel", icon: Users, accent: "bg-navy-soft text-navy" },
-  { email: "penny@jca.ac.th", labelKey: "studentLabel", icon: GraduationCap, accent: "bg-olive-soft text-olive" },
-] as const;
 
 export function LoginForm() {
   const t = useTranslations("landing");
@@ -54,26 +46,10 @@ export function LoginForm() {
         {pending ? t("signingIn") : t("signIn")}
       </button>
 
-      <div className="mt-2 border-t border-line pt-3">
-        <p className="mb-2 text-xs text-muted">{t("demoTitle")}</p>
-        <div className="flex gap-2">
-          {DEV_ACCOUNTS.map(({ email, labelKey, icon: Icon, accent }) => (
-            <button
-              key={email}
-              type="button"
-              onClick={(e) => {
-                const form = e.currentTarget.closest("form")!;
-                (form.elements.namedItem("email") as HTMLInputElement).value = email;
-                (form.elements.namedItem("password") as HTMLInputElement).value = DEV_PASSWORD;
-              }}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-bold ${accent}`}
-            >
-              <Icon className="size-4" />
-              {t(labelKey)}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* The account carries the role, so there is nothing to pick here — a
+          parent and a student each sign in with their own account and land in
+          their own portal. */}
+      <p className="mt-2 border-t border-line pt-3 text-xs text-muted">{t("accountHint")}</p>
     </form>
   );
 }
