@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Check, Flame, LogOut, Star, X } from "lucide-react";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -61,6 +62,7 @@ function PawCorner({ pos }: { pos: string }) {
 export default function StudentGame() {
   const t = useTranslations("sv2");
   const tc = useTranslations("common");
+  const tp = useTranslations("play");
 
   const [screen, setScreen] = useState<Screen>("home");
   const [tab, setTab] = useState<"daily" | "free">("daily");
@@ -710,6 +712,24 @@ export default function StudentGame() {
             )}
           </button>
         ))}
+        {/* Play is a route rather than a screen: a game deserves a URL, so a
+            player who reloads mid-game lands back at the board. */}
+        <Link
+          href="/student/play"
+          aria-label={tp("title")}
+          className="flex size-[34px] items-center justify-center rounded-full"
+        >
+          {/* Knight — the piece a child draws when asked to draw chess. */}
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M8 21h9v-1.6c0-4.2-1.5-5.6-3.4-7.1l1.1-2.2-2.4 1.1-1.6-1.9 3-2.6-1-2.2L9.6 6 8.2 4.3 7 6.6 5.4 9.9c-.5 1 .1 2.1 1.2 2.2l1.6.2-1.5 2.4c-.5.9-.7 1.9-.7 2.9V21z"
+              fill="rgb(109,61,52)"
+              stroke="rgb(109,61,52)"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Link>
       </nav>
     </div>
   );

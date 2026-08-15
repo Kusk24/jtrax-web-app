@@ -1,0 +1,135 @@
+"use client";
+
+/* A game against another student. The board is drawn from the move list the
+   server confirmed, never from local optimism: the server is the referee, so
+   showing a move before it is accepted would mean sometimes taking it back. */
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Loader2, Wifi, WifiOff } from "lucide-react";
+import { ChessBoard } from "./ChessBoard";
+import { Panel, peachBtn } from "./PlayShell";
+import { useRoom } from "./useRoom";
+import { gameFrom, pairedMoves } from "@/lib/chess-core";
+
+export function LiveGame({ roomId }: { roomId: string }) {
+  const t = useTranslations("play");
+  const { room, moves, seat, connection, error, play, resign } = useRoom(roomId);
+  const [moveError, setMoveError] = useState("");
+  const [confirmResign, setConfirmResign] = useState(false);
+
+  const game = useMemo(() => gameFrom(moves.map((m) => m.uci)), [moves]);
+
+  if (error) {
+    return <Panel><p className="text-sm font-bold">{t(`error.${error}`)}</p></Panel>;
+  }
+  if (!room || !game) {
+    return (
+      <Panel className="flex items-center justify-center gap-2">
+        <Loader2 className="size-4 animate-spin" />
+        <span className="text-sm font-bold">{t("loading")}</span>
+      </Panel>
+    );
+  }
+
+  const orientation = seat === "Black" ? "b" : "w";
+  const myTurn = room.status === "Active" && seat !== "" && room.turn === seat;
+  const opponent = seat === "White" ? room.black : room.white;
+  const lastMove = moves.length ? moves[moves.length - 1].uci.slice(2, 4) : undefined;
+
+  async function onMove(uci: string) {
+    setMoveError("");
+    const failure = await play(uci);
+    if (failure) setMoveError(failure);
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Who you are playing, and whether the stream is actually live. */}
+      <Panel className="flex items-center justify-between !p-3">
+        <span className="flex flex-col">
+          <span className="text-[13px] font-bold">
+            {opponent ? opponent.displayName : t("waitingForOpponent")}
+          </span>
+          <span className="text-[11px] opacity-70">{t(`seat.${seat || "watching"}`)}</span>
+        </span>
+        <span
+          title={t(`connection.${connection}`)}
+          className="flex items-center gap-1 text-[11px] font-bold opacity-70"
+        >
+          {connection === "live" ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
+          {t(`connection.${connection}`)}
+        </span>
+      </Panel>
+
+      {room.status === "Open" && (
+        <Panel className="text-center">
+          <p className="text-[13px] font-bold">{t("shareCode")}</p>
+          <p className="mt-1.5 font-mono text-[30px] font-bold tracking-[0.3em]">{room.code}</p>
+        </Panel>
+      )}
+
+      <div className="flex justify-center">
+        <ChessBoard
+          game={game}
+          orientation={orientation}
+          canMove={myTurn}
+          onMove={onMove}
+          lastMove={lastMove}
+        />
+      </div>
+
+      <Panel className="!py-2.5 text-center">
+        {room.status === "Finished" ? (
+          <p className="text-[13px] font-bold">
+            {t(`result.${room.result === "1/2-1/2" ? "draw" : room.result === "1-0" ? "whiteWon" : "blackWon"}`)}
+            {room.resultReason ? ` — ${t(`reason.${room.resultReason}`)}` : ""}
+          </p>
+        ) : room.status === "Cancelled" ? (
+          <p className="text-[13px] font-bold">{t("cancelled")}</p>
+        ) : (
+          <p className="text-[13px] font-bold">
+            {myTurn ? t("yourMove") : room.status === "Open" ? t("waitingForOpponent") : t("theirMove")}
+          </p>
+        )}
+        {moveError && <p className="mt-1 text-[11px] font-bold text-[rgb(160,60,60)]">{t(`error.${moveError}`)}</p>}
+      </Panel>
+
+      {moves.length > 0 && (
+        <Panel className="max-h-28 overflow-y-auto !py-2.5">
+          <div className="grid grid-cols-[auto_1fr_1fr] gap-x-3 gap-y-0.5 font-mono text-[11px]">
+            {pairedMoves(moves.map((m) => m.san)).map((pair) => (
+              <div key={pair.no} className="contents">
+                <span className="opacity-50">{pair.no}.</span>
+                <span>{pair.white}</span>
+                <span>{pair.black ?? ""}</span>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      )}
+
+      {room.status === "Active" && seat !== "" && (
+        confirmResign ? (
+          <div className="flex gap-2">
+            <button onClick={() => void resign()} className={`${peachBtn} flex-1 py-3 text-sm`}>
+              {t("resignConfirm")}
+            </button>
+            <button
+              onClick={() => setConfirmResign(false)}
+              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+            >
+              {t("keepPlaying")}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmResign(true)}
+            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+          >
+            {t("resign")}
+          </button>
+        )
+      )}
+    </div>
+  );
+}
