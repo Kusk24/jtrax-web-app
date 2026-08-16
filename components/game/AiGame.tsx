@@ -8,9 +8,10 @@ import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { Chess } from "chess.js";
 import { ChessBoard } from "./ChessBoard";
+import { CapturedTray } from "./CapturedTray";
 import { Panel, peachBtn } from "./PlayShell";
 import { useStockfish, type Level } from "./useStockfish";
-import { endingOf, gameFrom, pairedMoves, type Ending } from "@/lib/chess-core";
+import { capturedIn, endingOf, gameFrom, pairedMoves, type Ending } from "@/lib/chess-core";
 
 const LEVELS: Level[] = [1, 2, 3, 4, 5];
 
@@ -61,6 +62,8 @@ export function AiGame() {
     return <Panel><p className="text-sm font-bold">{t("error.engine")}</p></Panel>;
   }
 
+  const captured = capturedIn(game);
+
   return (
     <div className="flex flex-col gap-3">
       <Panel className="!p-3">
@@ -84,7 +87,12 @@ export function AiGame() {
         <p className="mt-2 text-[11px] leading-snug opacity-70">{t(`levelHint.${level}`)}</p>
       </Panel>
 
-      <div className="flex justify-center">
+      {/* You always play White here, so the engine sits at the top of the board. */}
+      <div className="flex flex-col items-center gap-1.5">
+        <div className="flex w-[328px] items-center justify-between gap-2 px-1">
+          <span className="text-[12px] font-bold">{t("computer")}</span>
+          <CapturedTray side="b" pieces={captured.byBlack} advantage={captured.advantage} />
+        </div>
         <ChessBoard
           game={game}
           orientation="w"
@@ -92,6 +100,10 @@ export function AiGame() {
           onMove={onMove}
           lastMove={moves.length ? moves[moves.length - 1].slice(2, 4) : undefined}
         />
+        <div className="flex w-[328px] items-center justify-between gap-2 px-1">
+          <span className="text-[12px] font-bold">{t("you")}</span>
+          <CapturedTray side="w" pieces={captured.byWhite} advantage={captured.advantage} />
+        </div>
       </div>
 
       <Panel className="!py-2.5 text-center">

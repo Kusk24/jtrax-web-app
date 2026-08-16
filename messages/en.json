@@ -458,6 +458,9 @@
       "outOfTurn": "It isn't your turn — the board has been refreshed.",
       "unreachable": "Can't reach the server. Check your connection.",
       "engine": "The computer opponent could not start in this browser."
-    }
+    },
+    "computer": "Computer",
+    "you": "You",
+    "emptySeat": "Empty seat"
   }
 }

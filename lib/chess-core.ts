@@ -93,6 +93,67 @@ export function endingOf(game: Chess): Ending {
   return { result: "1/2-1/2", reason: "FiftyMoveRule" };
 }
 
+/**
+ * Piece values, for the material count beside each player.
+ *
+ * The king is absent on purpose: it cannot be captured, so giving it a value
+ * would only ever add a constant to both sides.
+ */
+const PIECE_VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9 };
+
+/** Cheapest first, which is how a captured tray is conventionally read. */
+const CAPTURE_ORDER = ["p", "n", "b", "r", "q"];
+
+export type Captured = {
+  /** Black pieces White has taken, cheapest first. */
+  byWhite: string[];
+  /** White pieces Black has taken. */
+  byBlack: string[];
+  /** Material difference from White's point of view; 0 when level. */
+  advantage: number;
+};
+
+/**
+ * What each side has taken, and who is ahead on material.
+ *
+ * The two halves are computed from different places on purpose.
+ *
+ * The lists come from the move history, because that is the only record that
+ * gets **en passant** right — the captured pawn is not on the square the
+ * capturing pawn moves to, so a position alone cannot say what happened.
+ *
+ * The advantage comes from the pieces actually on the board, because that is
+ * the only thing that gets **promotion** right: a player who queens a pawn is
+ * eight points better off without having captured anything, and a total built
+ * from the capture lists would miss it entirely.
+ */
+export function capturedIn(game: Chess): Captured {
+  const byWhite: string[] = [];
+  const byBlack: string[] = [];
+  for (const move of game.history({ verbose: true })) {
+    if (!move.captured) continue;
+    (move.color === "w" ? byWhite : byBlack).push(move.captured);
+  }
+  const byOrder = (a: string, b: string) => CAPTURE_ORDER.indexOf(a) - CAPTURE_ORDER.indexOf(b);
+  return {
+    byWhite: byWhite.sort(byOrder),
+    byBlack: byBlack.sort(byOrder),
+    advantage: materialBalance(game),
+  };
+}
+
+/** Material on the board, White minus Black. */
+export function materialBalance(game: Chess): number {
+  let score = 0;
+  for (const row of game.board()) {
+    for (const square of row) {
+      if (!square || square.type === "k") continue;
+      score += (square.color === "w" ? 1 : -1) * (PIECE_VALUE[square.type] ?? 0);
+    }
+  }
+  return score;
+}
+
 /** Move list as numbered pairs, for the move panel and the admin replay. */
 export function pairedMoves(sans: string[]): { no: number; white: string; black?: string }[] {
   const out: { no: number; white: string; black?: string }[] = [];

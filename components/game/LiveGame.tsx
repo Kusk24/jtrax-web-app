@@ -7,9 +7,10 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2, Wifi, WifiOff } from "lucide-react";
 import { ChessBoard } from "./ChessBoard";
+import { CapturedTray } from "./CapturedTray";
 import { Panel, peachBtn } from "./PlayShell";
 import { useRoom } from "./useRoom";
-import { gameFrom, pairedMoves } from "@/lib/chess-core";
+import { capturedIn, gameFrom, pairedMoves } from "@/lib/chess-core";
 
 export function LiveGame({ roomId }: { roomId: string }) {
   const t = useTranslations("play");
@@ -35,6 +36,23 @@ export function LiveGame({ roomId }: { roomId: string }) {
   const myTurn = room.status === "Active" && seat !== "" && room.turn === seat;
   const opponent = seat === "White" ? room.black : room.white;
   const lastMove = moves.length ? moves[moves.length - 1].uci.slice(2, 4) : undefined;
+
+  const captured = capturedIn(game);
+  /* The board is drawn from the viewer's side, so whoever is at the top of it
+     is the other player — and their tray belongs above the board, next to
+     their name, the way it sits on any board they have seen before. */
+  const topSide = orientation === "w" ? "b" : "w";
+  const nameOf = (side: "w" | "b") =>
+    (side === "w" ? room.white : room.black)?.displayName ?? t("emptySeat");
+  const trayFor = (side: "w" | "b") => (side === "w" ? captured.byWhite : captured.byBlack);
+
+  /* A name and what that player has taken, sized to the board above or below it. */
+  const playerLine = (side: "w" | "b") => (
+    <div className="flex w-[328px] items-center justify-between gap-2 px-1">
+      <span className="truncate text-[12px] font-bold">{nameOf(side)}</span>
+      <CapturedTray side={side} pieces={trayFor(side)} advantage={captured.advantage} />
+    </div>
+  );
 
   async function onMove(uci: string) {
     setMoveError("");
@@ -68,7 +86,8 @@ export function LiveGame({ roomId }: { roomId: string }) {
         </Panel>
       )}
 
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-1.5">
+        {playerLine(topSide)}
         <ChessBoard
           game={game}
           orientation={orientation}
@@ -76,6 +95,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
           onMove={onMove}
           lastMove={lastMove}
         />
+        {playerLine(orientation)}
       </div>
 
       <Panel className="!py-2.5 text-center">
