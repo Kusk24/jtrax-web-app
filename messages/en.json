@@ -383,7 +383,12 @@
     "intermediatePuzzles": "Intermediate puzzles",
     "advancedPuzzles": "Advanced puzzles",
     "beginner": "Beginner",
-    "dayStreak": "{n} day streak"
+    "dayStreak": "{n} day streak",
+    "studentIdLabel": "Student ID",
+    "ratingLabel": "Rating",
+    "lastAttendedLabel": "Last class",
+    "unrated": "Not rated yet",
+    "notYet": "No classes yet"
   },
   "play": {
     "title": "Play",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -76,6 +76,15 @@ export default function StudentGame() {
   const [celebrate, setCelebrate] = useState(false);
   const [studentId, setStudentId] = useState("");
   const [streak, setStreak] = useState(7);
+  /* The profile card used to hard-code "Mochi" and "Beginner" — the cat's name
+     and a guess. This is the signed-in account. */
+  const [me, setMe] = useState<{ displayName: string; email: string } | null>(null);
+  const [record, setRecord] = useState<{
+    name?: string;
+    current_level?: string;
+    fide_rating?: number;
+    last_attended_date?: string;
+  } | null>(null);
   const stars = 10;
   const fishCount = 32;
 
@@ -83,14 +92,29 @@ export default function StudentGame() {
     fetch("/api/auth/me", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((me) => {
+        if (me) setMe({ displayName: me.displayName, email: me.email });
         if (me?.studentId) {
           setStudentId(me.studentId);
           fetch("/api/students", { cache: "no-store" })
             .then((r) => (r.ok ? r.json() : []))
-            .then((rows: { student_id: string; streak_count?: number }[]) => {
-              const self = rows.find((row) => row.student_id === me.studentId);
-              if (self?.streak_count != null) setStreak(self.streak_count);
-            });
+            .then(
+              (
+                rows: {
+                  student_id: string;
+                  name?: string;
+                  current_level?: string;
+                  fide_rating?: number;
+                  last_attended_date?: string;
+                  streak_count?: number;
+                }[],
+              ) => {
+                // The scope on `students` means this list is only ever the
+                // caller's own row, but find by id rather than take [0].
+                const self = rows.find((row) => row.student_id === me.studentId);
+                if (self?.streak_count != null) setStreak(self.streak_count);
+                if (self) setRecord(self);
+              },
+            );
         }
       })
       .catch(() => {});
@@ -621,20 +645,51 @@ export default function StudentGame() {
       {screen === "profile" && (
         <>
           <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-normal">{t("profile")}</h1>
-          <div className="absolute left-[15px] top-[100px] h-24 w-[352px] rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_4px_4px_rgba(125,87,50,0.5)]">
-            <div className="absolute left-2.5 top-[5px] flex h-[86px] w-[332px] items-center gap-3.5 rounded-[18px] bg-sv-cream pl-[18px] shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
-              <span className="size-[50px] overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgb(156,162,147)]">
-                <Image src="/student/happy.png" alt="Mochi" width={100} height={100} className="size-full object-cover" />
+          {/* Identity card. The name and level come from the account and the
+              student record — this used to read "Mochi", which is the cat. */}
+          <div className="absolute left-[15px] top-[100px] h-[104px] w-[352px] rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_4px_4px_rgba(125,87,50,0.5)]">
+            <div className="absolute left-2.5 top-[5px] flex h-[94px] w-[332px] items-center gap-3.5 rounded-[18px] bg-sv-cream pl-[18px] pr-3 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
+              <span className="size-[50px] shrink-0 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgb(156,162,147)]">
+                <Image src="/student/happy.png" alt="" width={100} height={100} className="size-full object-cover" />
               </span>
-              <span className="flex flex-col items-start gap-1">
-                <span className="text-base font-bold">Mochi</span>
+              <span className="flex min-w-0 flex-col items-start gap-1">
+                <span className="max-w-full truncate text-base font-bold">
+                  {record?.name ?? me?.displayName ?? "—"}
+                </span>
+                {/* An email is long and a phone is narrow, so it truncates
+                    rather than pushing the badge off the card. */}
+                <span className="max-w-full truncate text-[11.5px] opacity-70">{me?.email ?? ""}</span>
                 <span className="rounded-[20px] bg-sv-mint px-2.5 py-[3px] text-[11px] text-sv-mint-ink shadow-[inset_0_0_0_0.5px_rgb(137,187,169),0_0_0_0.5px_rgb(137,187,169)]">
-                  {t("beginner")}
+                  {record?.current_level || t("beginner")}
                 </span>
               </span>
             </div>
           </div>
-          <div className="absolute left-[18px] top-[217px] h-[306px] w-[352px] overflow-hidden rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
+
+          {/* Details worth checking: the id a teacher asks for, the rating, and
+              when the academy last saw you. */}
+          <div className="absolute left-[18px] top-[218px] w-[352px] overflow-hidden rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
+            <div className="rounded-[16px] bg-sv-cream px-4 py-3 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
+              {(
+                [
+                  [t("studentIdLabel"), studentId || "—"],
+                  [t("ratingLabel"), record?.fide_rating ? String(record.fide_rating) : t("unrated")],
+                  [t("lastAttendedLabel"), record?.last_attended_date || t("notYet")],
+                ] as const
+              ).map(([label, value], i) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between gap-3 py-2"
+                  style={{ borderTop: i === 0 ? "none" : "1px solid rgba(208,158,97,0.35)" }}
+                >
+                  <span className="text-[13px] opacity-75">{label}</span>
+                  <span className="max-w-[190px] truncate text-[13px] font-bold">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="absolute left-[18px] top-[382px] h-[196px] w-[352px] overflow-hidden rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
             <div className="absolute left-5 top-5 flex items-center gap-1.5 text-base font-bold">
               <Flame className="size-[18px] fill-[#f28c33] text-[#d96c1e]" strokeWidth={1.5} />
               <span>{t("dayStreak", { n: streak })}</span>
@@ -645,15 +700,20 @@ export default function StudentGame() {
                   key={i}
                   className="aspect-square w-full rounded-md"
                   style={{
-                    background: i < 7 ? "rgb(255,227,135)" : "rgb(244,247,250)",
-                    boxShadow: `inset 0 0 0 1px ${i < 7 ? "rgba(207,132,40,0.6)" : "rgba(183,192,216,0.6)"}`,
+                    /* Filled squares track the real streak rather than a fixed
+                       seven, so a 3-day streak no longer draws a full week. */
+                    background: i < Math.min(streak, 21) ? "rgb(255,227,135)" : "rgb(244,247,250)",
+                    boxShadow: `inset 0 0 0 1px ${
+                      i < Math.min(streak, 21) ? "rgba(207,132,40,0.6)" : "rgba(183,192,216,0.6)"
+                    }`,
                   }}
                 />
               ))}
             </div>
           </div>
-          {/* Sits in the gap between the streak card (ends 523) and the nav (750). */}
-          <SignOutButton className="absolute left-[18px] top-[547px] flex h-[54px] w-[352px] cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-coral shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:opacity-60">
+
+          {/* Sits in the gap between the streak card (ends 578) and the nav (750). */}
+          <SignOutButton className="absolute left-[18px] top-[600px] flex h-[54px] w-[352px] cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-coral shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:opacity-60">
             <LogOut className="size-[18px]" />
             {tc("signOut")}
           </SignOutButton>
@@ -687,49 +747,54 @@ export default function StudentGame() {
         </button>
       )}
 
-      {/* Bottom nav */}
+      {/* Bottom nav. Profile sits last, as it does in every other portal —
+          Play is a route rather than a screen, so it is rendered in place
+          rather than driven by `go`. */}
       <nav className="absolute left-[25px] top-[750px] flex h-[70px] w-[340px] items-center justify-around rounded-[25px] bg-sv-cream shadow-[inset_0_0_0_1.25px_rgb(237,218,192),0_0_0_1.25px_rgb(237,218,192)]">
         {navItems.map((item) => (
-          <button
-            key={item.key}
-            onClick={() => go(item.key as Screen)}
-            aria-label={t(item.key)}
-            className="flex size-[34px] cursor-pointer items-center justify-center rounded-full border-none"
-            style={{ background: item.key === "profile" && item.active ? "rgb(255,227,135)" : "transparent" }}
-          >
-            {item.key === "home" && (
-              <svg width="26" height="24" viewBox="0 0 26 24" fill="none">
-                <path d="M13 1.5L2 10.5V22.5H10V15.5H16V22.5H24V10.5L13 1.5Z" fill={item.color} stroke={item.color} strokeWidth="1.5" strokeLinejoin="round" />
-              </svg>
-            )}
-            {item.key === "puzzles" && <PuzzlePieceIcon fill={item.color} size={26} />}
+          <Fragment key={item.key}>
+            {/* A game deserves a URL, so a player who reloads mid-game lands
+                back at the board rather than the home screen. */}
             {item.key === "profile" && (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10.5" stroke={item.color} strokeWidth="1.6" />
-                <circle cx="12" cy="9.5" r="3.2" fill={item.color} />
-                <path d="M4.5 19C5.8 15.8 8.6 14.5 12 14.5C15.4 14.5 18.2 15.8 19.5 19" stroke={item.color} strokeWidth="1.8" strokeLinecap="round" fill="none" />
-              </svg>
+              <Link
+                href="/student/play"
+                aria-label={tp("title")}
+                className="flex size-[34px] items-center justify-center rounded-full"
+              >
+                {/* Knight — the piece a child draws when asked to draw chess. */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M8 21h9v-1.6c0-4.2-1.5-5.6-3.4-7.1l1.1-2.2-2.4 1.1-1.6-1.9 3-2.6-1-2.2L9.6 6 8.2 4.3 7 6.6 5.4 9.9c-.5 1 .1 2.1 1.2 2.2l1.6.2-1.5 2.4c-.5.9-.7 1.9-.7 2.9V21z"
+                    fill="rgb(109,61,52)"
+                    stroke="rgb(109,61,52)"
+                    strokeWidth="1.2"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
             )}
-          </button>
+            <button
+              onClick={() => go(item.key as Screen)}
+              aria-label={t(item.key)}
+              className="flex size-[34px] cursor-pointer items-center justify-center rounded-full border-none"
+              style={{ background: item.key === "profile" && item.active ? "rgb(255,227,135)" : "transparent" }}
+            >
+              {item.key === "home" && (
+                <svg width="26" height="24" viewBox="0 0 26 24" fill="none">
+                  <path d="M13 1.5L2 10.5V22.5H10V15.5H16V22.5H24V10.5L13 1.5Z" fill={item.color} stroke={item.color} strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+              )}
+              {item.key === "puzzles" && <PuzzlePieceIcon fill={item.color} size={26} />}
+              {item.key === "profile" && (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10.5" stroke={item.color} strokeWidth="1.6" />
+                  <circle cx="12" cy="9.5" r="3.2" fill={item.color} />
+                  <path d="M4.5 19C5.8 15.8 8.6 14.5 12 14.5C15.4 14.5 18.2 15.8 19.5 19" stroke={item.color} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+                </svg>
+              )}
+            </button>
+          </Fragment>
         ))}
-        {/* Play is a route rather than a screen: a game deserves a URL, so a
-            player who reloads mid-game lands back at the board. */}
-        <Link
-          href="/student/play"
-          aria-label={tp("title")}
-          className="flex size-[34px] items-center justify-center rounded-full"
-        >
-          {/* Knight — the piece a child draws when asked to draw chess. */}
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M8 21h9v-1.6c0-4.2-1.5-5.6-3.4-7.1l1.1-2.2-2.4 1.1-1.6-1.9 3-2.6-1-2.2L9.6 6 8.2 4.3 7 6.6 5.4 9.9c-.5 1 .1 2.1 1.2 2.2l1.6.2-1.5 2.4c-.5.9-.7 1.9-.7 2.9V21z"
-              fill="rgb(109,61,52)"
-              stroke="rgb(109,61,52)"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
       </nav>
     </div>
   );
