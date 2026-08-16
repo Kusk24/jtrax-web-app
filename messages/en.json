@@ -384,5 +384,80 @@
     "advancedPuzzles": "Advanced puzzles",
     "beginner": "Beginner",
     "dayStreak": "{n} day streak"
+  },
+  "play": {
+    "title": "Play",
+    "vsComputer": "Play the computer",
+    "vsComputerBody": "Practise on your own. Five levels, from gentle to tough.",
+    "vsFriend": "Play a friend",
+    "vsFriendBody": "Enter the code your teacher gave you and play head to head.",
+    "codeLabel": "Room code",
+    "codeHint": "Six letters and numbers, from your teacher.",
+    "join": "Take my seat",
+    "joining": "Joining…",
+    "shareCode": "Show this code to your opponent",
+    "loading": "Loading the board…",
+    "yourMove": "Your move",
+    "theirMove": "Waiting for their move",
+    "thinking": "Thinking…",
+    "waitingForOpponent": "Waiting for someone to join",
+    "engineLoading": "Waking up the computer…",
+    "newGame": "New game",
+    "resign": "Resign",
+    "resignConfirm": "Yes, resign",
+    "keepPlaying": "Keep playing",
+    "cancelled": "This game was stopped by a teacher.",
+    "promote": "Choose a piece",
+    "level": "Level",
+    "levelHint": {
+      "1": "Barely looks ahead. A good first opponent.",
+      "2": "Looks one move ahead. Will take a free piece.",
+      "3": "Spots simple traps. A fair match for a beginner.",
+      "4": "Plays like a club player. Punishes mistakes.",
+      "5": "Strong. Expect to lose while you learn."
+    },
+    "seat": {
+      "White": "You are White",
+      "Black": "You are Black",
+      "watching": "Watching"
+    },
+    "connection": {
+      "connecting": "Connecting",
+      "live": "Live",
+      "offline": "Reconnecting"
+    },
+    "result": {
+      "whiteWon": "White wins",
+      "blackWon": "Black wins",
+      "draw": "It's a draw",
+      "youWon": "You win!",
+      "youLost": "The computer wins"
+    },
+    "reason": {
+      "Checkmate": "checkmate",
+      "Stalemate": "stalemate",
+      "Resignation": "resignation",
+      "ThreefoldRepetition": "threefold repetition",
+      "FiftyMoveRule": "the fifty-move rule",
+      "InsufficientMaterial": "not enough pieces to mate",
+      "FivefoldRepetition": "fivefold repetition",
+      "SeventyFiveMoveRule": "the seventy-five-move rule"
+    },
+    "piece": {
+      "q": "Queen",
+      "r": "Rook",
+      "b": "Bishop",
+      "n": "Knight"
+    },
+    "error": {
+      "badCode": "No room has that code. Check it with your teacher.",
+      "roomFull": "That room already has two players.",
+      "notAllowed": "Your account cannot take a seat in a game.",
+      "notFound": "That game is not yours to watch.",
+      "illegal": "That move isn't allowed here.",
+      "outOfTurn": "It isn't your turn — the board has been refreshed.",
+      "unreachable": "Can't reach the server. Check your connection.",
+      "engine": "The computer opponent could not start in this browser."
+    }
   }
 }

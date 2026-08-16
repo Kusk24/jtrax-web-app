@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "chess.js": "^1.4.0",
     "lucide-react": "^1.23.0",
     "next": "^16.2.10",
     "next-intl": "^4.13.1",
