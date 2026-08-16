@@ -383,7 +383,12 @@
     "intermediatePuzzles": "ปริศนาระดับกลาง",
     "advancedPuzzles": "ปริศนาระดับสูง",
     "beginner": "มือใหม่",
-    "dayStreak": "สตรีค {n} วัน"
+    "dayStreak": "สตรีค {n} วัน",
+    "studentIdLabel": "รหัสนักเรียน",
+    "ratingLabel": "เรตติ้ง",
+    "lastAttendedLabel": "เรียนครั้งล่าสุด",
+    "unrated": "ยังไม่มีเรตติ้ง",
+    "notYet": "ยังไม่เคยเข้าเรียน"
   },
   "play": {
     "title": "เล่นหมากรุก",
