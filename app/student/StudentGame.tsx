@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Check, Flame, LogOut, Star, X } from "lucide-react";
+import { LichessCard } from "@/components/student/LichessCard";
 import { SignOutButton } from "@/components/SignOutButton";
 import {
   PUZZLES,
@@ -645,9 +646,12 @@ export default function StudentGame() {
       {screen === "profile" && (
         <>
           <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-normal">{t("profile")}</h1>
-          {/* Identity card. The name and level come from the account and the
-              student record — this used to read "Mochi", which is the cat. */}
-          <div className="absolute left-[15px] top-[100px] h-[104px] w-[352px] rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_4px_4px_rgba(125,87,50,0.5)]">
+          {/* A scrolling column rather than a stack of absolute positions.
+              Every card here used to be pinned to a measured offset, which
+              meant nothing could be added without moving all of them — and
+              there was no room left below the streak anyway. */}
+          <div className="absolute inset-x-0 bottom-[110px] top-[100px] flex flex-col items-center gap-4 overflow-y-auto px-[15px] pb-4">
+          <div className="h-[104px] w-[352px] shrink-0 rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_4px_4px_rgba(125,87,50,0.5)]">
             <div className="absolute left-2.5 top-[5px] flex h-[94px] w-[332px] items-center gap-3.5 rounded-[18px] bg-sv-cream pl-[18px] pr-3 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
               <span className="size-[50px] shrink-0 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgb(156,162,147)]">
                 <Image src="/student/happy.png" alt="" width={100} height={100} className="size-full object-cover" />
@@ -668,7 +672,7 @@ export default function StudentGame() {
 
           {/* Details worth checking: the id a teacher asks for, the rating, and
               when the academy last saw you. */}
-          <div className="absolute left-[18px] top-[218px] w-[352px] overflow-hidden rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
+          <div className="w-[352px] shrink-0 overflow-hidden rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
             <div className="rounded-[16px] bg-sv-cream px-4 py-3 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
               {(
                 [
@@ -689,7 +693,7 @@ export default function StudentGame() {
             </div>
           </div>
 
-          <div className="absolute left-[18px] top-[382px] h-[196px] w-[352px] overflow-hidden rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
+          <div className="relative h-[196px] w-[352px] shrink-0 overflow-hidden rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]">
             <div className="absolute left-5 top-5 flex items-center gap-1.5 text-base font-bold">
               <Flame className="size-[18px] fill-[#f28c33] text-[#d96c1e]" strokeWidth={1.5} />
               <span>{t("dayStreak", { n: streak })}</span>
@@ -712,11 +716,14 @@ export default function StudentGame() {
             </div>
           </div>
 
-          {/* Sits in the gap between the streak card (ends 578) and the nav (750). */}
-          <SignOutButton className="absolute left-[18px] top-[600px] flex h-[54px] w-[352px] cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-coral shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:opacity-60">
+          {/* What the academy cannot otherwise see: the chess played at home. */}
+          <LichessCard />
+
+          <SignOutButton className="flex h-[54px] w-[352px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-coral shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:opacity-60">
             <LogOut className="size-[18px]" />
             {tc("signOut")}
           </SignOutButton>
+          </div>
         </>
       )}
 
