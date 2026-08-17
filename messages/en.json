@@ -467,5 +467,32 @@
     "computer": "Computer",
     "you": "You",
     "emptySeat": "Empty seat"
+  },
+  "lichess": {
+    "title": "Lichess",
+    "loading": "Loading…",
+    "intro": "Play at home on Lichess? Connect your account and your ratings show up here.",
+    "usernameLabel": "Lichess username",
+    "usernamePlaceholder": "your Lichess username",
+    "connect": "Connect",
+    "checking": "Checking…",
+    "checkNow": "I've added it — check",
+    "remove": "Disconnect",
+    "verified": "Verified",
+    "proveHint": "Now paste this code anywhere in your Lichess profile bio, then tap check. This proves the account is yours.",
+    "copyCode": "Copy code",
+    "openLichess": "Open my Lichess profile",
+    "addedByStaff": "A teacher added this username. Connect it yourself to prove it is yours and start tracking ratings.",
+    "codeNotFound": "That code isn't in your Lichess bio yet. Save your bio on Lichess, then try again.",
+    "noGamesYet": "No rated games yet — play a few and they'll appear here.",
+    "provisional": "provisional",
+    "failed": "Something went wrong. Please try again.",
+    "perf": {
+      "bullet": "Bullet",
+      "blitz": "Blitz",
+      "rapid": "Rapid",
+      "classical": "Classical",
+      "puzzle": "Puzzles"
+    }
   }
 }
