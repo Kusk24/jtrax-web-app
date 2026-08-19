@@ -17,12 +17,12 @@ export default async function PlayPage() {
         {modes.map(({ href, icon: Icon, title, body }) => (
           <Link key={href} href={href} className="block">
             <Panel className="flex items-center gap-3.5 transition-transform active:scale-[0.98]">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(208,158,97)]">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
                 <Icon className="size-6" strokeWidth={2.2} />
               </span>
               <span className="flex flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{title}</span>
-                <span className="text-xs leading-snug opacity-75">{body}</span>
+                <span className="text-xs leading-snug text-sv-body">{body}</span>
               </span>
             </Panel>
           </Link>

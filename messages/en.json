@@ -370,14 +370,10 @@
     "home": "Home",
     "puzzles": "Puzzles",
     "profile": "Profile",
-    "feedMochi": "Feed Mochi",
     "back": "Back",
     "dailyChallenge": "Daily Challenge",
     "puzzlesCount": "{n}/3 puzzles",
     "start": "Start",
-    "mochiWaiting": "Mochi is waiting!",
-    "todaysMeal": "Today's meal:",
-    "feedMochiBtn": "Feed Mochi",
     "missionComplete": "Mission complete!",
     "keepStreak": "Keep your streak going tomorrow.",
     "freePlay": "Free Play",
@@ -401,7 +397,8 @@
     "ratingLabel": "Rating",
     "lastAttendedLabel": "Last class",
     "unrated": "Not rated yet",
-    "notYet": "No classes yet"
+    "notYet": "No classes yet",
+    "streakLabel": "Day streak"
   },
   "play": {
     "title": "Play",

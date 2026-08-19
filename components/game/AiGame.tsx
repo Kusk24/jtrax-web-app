@@ -74,9 +74,9 @@ export function AiGame() {
               key={l}
               onClick={() => setLevel(l)}
               aria-pressed={level === l}
-              className={`flex-1 cursor-pointer rounded-xl border-none py-2 text-sm font-bold text-sv-brown ${
+              className={`flex-1 cursor-pointer rounded-xl border-none py-2 text-sm font-bold text-sv-ink ${
                 level === l
-                  ? "bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(208,158,97)]"
+                  ? "bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
                   : "bg-sv-paper shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.4)]"
               }`}
             >
@@ -84,7 +84,7 @@ export function AiGame() {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] leading-snug opacity-70">{t(`levelHint.${level}`)}</p>
+        <p className="mt-2 text-[11px] leading-snug text-sv-body">{t(`levelHint.${level}`)}</p>
       </Panel>
 
       {/* You always play White here, so the engine sits at the top of the board. */}

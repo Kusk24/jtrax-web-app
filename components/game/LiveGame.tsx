@@ -68,11 +68,11 @@ export function LiveGame({ roomId }: { roomId: string }) {
           <span className="text-[13px] font-bold">
             {opponent ? opponent.displayName : t("waitingForOpponent")}
           </span>
-          <span className="text-[11px] opacity-70">{t(`seat.${seat || "watching"}`)}</span>
+          <span className="text-[11px] text-sv-body">{t(`seat.${seat || "watching"}`)}</span>
         </span>
         <span
           title={t(`connection.${connection}`)}
-          className="flex items-center gap-1 text-[11px] font-bold opacity-70"
+          className="flex items-center gap-1 text-[11px] font-bold text-sv-body"
         >
           {connection === "live" ? <Wifi className="size-3.5" /> : <WifiOff className="size-3.5" />}
           {t(`connection.${connection}`)}
@@ -93,7 +93,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
               href={`https://lichess.org/${room.lichessGameId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-1 flex items-center gap-1 text-[11.5px] font-bold underline opacity-75"
+              className="mt-1 flex items-center gap-1 text-[11.5px] font-bold underline text-sv-body"
             >
               {t("rated.viewOnLichess")} <ExternalLink className="size-3" />
             </a>
@@ -103,10 +103,10 @@ export function LiveGame({ roomId }: { roomId: string }) {
 
       {!room.lichessRated && room.lichessDetachedReason && (
         <Panel className="!p-3">
-          <p className="text-[12.5px] font-bold text-[rgb(160,90,40)]">
+          <p className="text-[12.5px] font-bold text-[rgb(176,96,40)]">
             {t(`rated.detached.${room.lichessDetachedReason}`)}
           </p>
-          <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("rated.detachedHint")}</p>
+          <p className="mt-1 text-[11.5px] leading-snug text-sv-body">{t("rated.detachedHint")}</p>
         </Panel>
       )}
 
@@ -167,7 +167,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
             </button>
             <button
               onClick={() => setConfirmResign(false)}
-              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
             >
               {t("keepPlaying")}
             </button>
@@ -175,7 +175,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
         ) : (
           <button
             onClick={() => setConfirmResign(true)}
-            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
           >
             {t("resign")}
           </button>

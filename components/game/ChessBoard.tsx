@@ -79,7 +79,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
   }
 
   return (
-    <div className="relative rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(208,158,97),0_4px_10px_rgba(125,87,50,0.35)]">
+    <div className="relative rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
       <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
         <div
           className="grid overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(116,84,44)]"
@@ -97,7 +97,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
               const isCapture = !!dest && !!piece;
               const wasLast = lastMove === name;
               const bg = isFrom
-                ? "rgb(255,227,135)"
+                ? "rgb(220,232,248)"
                 : wasLast
                   ? "rgb(238,222,168)"
                   : (r + c) % 2 === 0
@@ -118,7 +118,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
                       style={{
                         fontSize: square * 0.72,
                         color: piece.color === "w" ? "rgb(255,251,240)" : "rgb(90,50,42)",
-                        textShadow: piece.color === "w" ? "1px 1px 0 rgb(109,61,52)" : "none",
+                        textShadow: piece.color === "w" ? "1px 1px 0 rgb(36,65,124)" : "none",
                       }}
                     >
                       {PIECE_GLYPH[piece.color + piece.type]}
@@ -139,7 +139,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
 
       {pending && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[20px] bg-[rgba(109,61,52,0.55)]">
-          <div className="rounded-2xl bg-sv-cream p-4 text-center shadow-[inset_0_0_0_2px_rgb(208,158,97)]">
+          <div className="rounded-2xl bg-sv-cream p-4 text-center shadow-[inset_0_0_0_2px_rgb(206,219,236)]">
             <p className="mb-2 text-xs font-bold">{t("promote")}</p>
             <div className="flex gap-1.5">
               {PROMOTION_CHOICES.map((p) => (
@@ -147,9 +147,9 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
                   key={p}
                   onClick={() => choosePromotion(p)}
                   aria-label={t(`piece.${p}`)}
-                  className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-sv-gold text-3xl leading-none shadow-[inset_0_0_0_1.5px_rgb(208,158,97)]"
+                  className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-sv-gold text-3xl leading-none shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
                   style={{ color: game.turn() === "w" ? "rgb(255,251,240)" : "rgb(90,50,42)",
-                           textShadow: game.turn() === "w" ? "1px 1px 0 rgb(109,61,52)" : "none" }}
+                           textShadow: game.turn() === "w" ? "1px 1px 0 rgb(36,65,124)" : "none" }}
                 >
                   {PIECE_GLYPH[game.turn() + p]}
                 </button>

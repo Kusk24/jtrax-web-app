@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const peachBtn =
-  "cursor-pointer rounded-[20px] border-none bg-sv-peach font-bold text-sv-brown shadow-[inset_0_0_0_1.25px_rgb(192,120,98),0_0_0_1.25px_rgb(192,120,98)] disabled:opacity-60";
+  "cursor-pointer rounded-[20px] border-none bg-sv-primary font-bold text-white shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
 
 export function PlayShell({
   title,
@@ -20,13 +20,10 @@ export function PlayShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex h-[844px] w-[390px] shrink-0 flex-col overflow-hidden bg-sv-paper text-sv-brown sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(80,50,30,0.35)]">
-      <div
-        className="absolute inset-x-0 top-0 h-[240px] bg-cover bg-top"
-        style={{ backgroundImage: "url('/student/wall.png')" }}
-      />
-      <div className="absolute inset-x-0 bottom-0 top-[240px] bg-[rgb(233,213,181)]" />
-      <div className="absolute inset-x-0 top-[236px] h-[6px] bg-[rgba(184,133,88,0.45)]" />
+    <div className="relative flex h-[844px] w-[390px] shrink-0 flex-col overflow-hidden bg-sv-paper text-sv-ink sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(36,65,124,0.28)]">
+      {/* The academy's own colours rather than a picture of a room. The cottage
+          art was warm raster and no palette change could reach it. */}
+      <div className="absolute inset-x-0 top-0 h-[190px] bg-[linear-gradient(180deg,#24417C_0%,#3A5DA5_58%,#F7FAFD_100%)]" />
 
       <header className="relative z-10 flex items-center gap-3 px-5 pt-[44px]">
         <Link
