@@ -466,7 +466,22 @@
     },
     "computer": "Computer",
     "you": "You",
-    "emptySeat": "Empty seat"
+    "emptySeat": "Empty seat",
+    "rated": {
+      "on": "This game counts on Lichess",
+      "viewOnLichess": "View on Lichess",
+      "detachedHint": "You can keep playing — only the Lichess rating is affected.",
+      "detached": {
+        "noPlayAccess": "This game is no longer rated: a player has not connected Lichess.",
+        "tokenExpired": "This game is no longer rated: a player's Lichess permission ran out.",
+        "challengeFailed": "This game is no longer rated: Lichess would not start it.",
+        "opponentDeclined": "This game is no longer rated: the pairing was not accepted.",
+        "moveRejected": "This game is no longer rated: the two boards stopped matching.",
+        "unreachable": "This game is no longer rated: Lichess could not be reached.",
+        "notConfigured": "This game is not rated: Lichess play is not set up here.",
+        "failed": "This game is no longer rated."
+      }
+    }
   },
   "lichess": {
     "title": "Lichess",
