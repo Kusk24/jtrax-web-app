@@ -571,5 +571,33 @@
     "closedFull": "This tournament is full.",
     "closedDeadline": "Registration for this tournament has closed.",
     "closedHint": "Contact the academy if you think this is a mistake."
+  },
+  "results": {
+    "standings": "Standings",
+    "player": "Player",
+    "points": "Pts",
+    "wdl": "W/D/L",
+    "buchholz": "Buch.",
+    "federation": "Fed.",
+    "rating": "Rating",
+    "noPlayers": "No players yet.",
+    "round": "Round {n}",
+    "finished": "Finished",
+    "playing": "Playing",
+    "notStarted": "Not started",
+    "notPaired": "Not paired yet.",
+    "bye": "bye",
+    "bracket": "Bracket",
+    "champion": "Champion",
+    "final": "Final",
+    "semifinals": "Semifinals",
+    "quarterfinals": "Quarterfinals",
+    "liveWithCount": "Live standings · {count} players",
+    "registeredCount": "{count} players registered",
+    "liveFromSource": "Live from chess-results.com",
+    "sourceNote": "Published by the arbiter on chess-results.com.",
+    "fetchedAt": "Read {when}.",
+    "openSource": "View on chess-results",
+    "updatesAutomatically": "Updates automatically. Published by JCA Chess Academy."
   }
 }

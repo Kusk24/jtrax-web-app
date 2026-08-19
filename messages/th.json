@@ -571,5 +571,33 @@
     "closedFull": "การแข่งขันนี้เต็มแล้ว",
     "closedDeadline": "ปิดรับสมัครการแข่งขันนี้แล้ว",
     "closedHint": "หากคิดว่ามีข้อผิดพลาด กรุณาติดต่อสถาบัน"
+  },
+  "results": {
+    "standings": "ตารางคะแนน",
+    "player": "ผู้เล่น",
+    "points": "คะแนน",
+    "wdl": "ชนะ/เสมอ/แพ้",
+    "buchholz": "บุชโฮลซ์",
+    "federation": "ประเทศ",
+    "rating": "เรตติ้ง",
+    "noPlayers": "ยังไม่มีผู้เล่น",
+    "round": "รอบที่ {n}",
+    "finished": "จบแล้ว",
+    "playing": "กำลังแข่ง",
+    "notStarted": "ยังไม่เริ่ม",
+    "notPaired": "ยังไม่ได้จับคู่",
+    "bye": "ผ่านรอบ",
+    "bracket": "สายการแข่งขัน",
+    "champion": "ชนะเลิศ",
+    "final": "รอบชิงชนะเลิศ",
+    "semifinals": "รอบรองชนะเลิศ",
+    "quarterfinals": "รอบก่อนรองชนะเลิศ",
+    "liveWithCount": "ตารางคะแนนสด · ผู้เล่น {count} คน",
+    "registeredCount": "สมัครแล้ว {count} คน",
+    "liveFromSource": "ข้อมูลสดจาก chess-results.com",
+    "sourceNote": "เผยแพร่โดยกรรมการผ่าน chess-results.com",
+    "fetchedAt": "อ่านข้อมูลเมื่อ {when}",
+    "openSource": "ดูบน chess-results",
+    "updatesAutomatically": "อัปเดตอัตโนมัติ เผยแพร่โดย JCA Chess Academy"
   }
 }
