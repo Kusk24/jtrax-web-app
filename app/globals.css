@@ -44,22 +44,28 @@
   --color-pp-amber-soft: #fbeedf;
   --color-pp-danger: #c24b4b;
 
-  /* Student game redesign (JTrax Chess.dc.html) — warm Mochi palette. */
-  --color-sv-brown: rgb(109, 61, 52);
-  --color-sv-cream: rgb(248, 246, 235);
-  --color-sv-paper: rgb(249, 248, 245);
-  --color-sv-gold: rgb(249, 230, 173);
-  --color-sv-peach: rgb(255, 179, 157);
-  --color-sv-peach-line: rgb(192, 120, 98);
-  --color-sv-tan: rgb(208, 158, 97);
-  --color-sv-board-dark: rgb(196, 165, 165);
-  --color-sv-highlight: rgb(255, 227, 135);
-  --color-sv-mint: rgb(207, 245, 231);
-  --color-sv-mint-line: rgb(137, 187, 169);
-  --color-sv-mint-ink: rgb(61, 108, 79);
-  --color-sv-coral: rgb(224, 122, 96);
-  --color-sv-purple: rgb(180, 140, 214);
-  --color-sv-amber: rgb(207, 132, 40);
+  /* Student portal — the academy's own colours, sampled from jcachess.ac.th:
+     navy #24417C on a near-white blue #F7FAFD, with #355575 body text. The same
+     family the console and parent portal already use, so a family moving between
+     them sees one school rather than three products.
+
+     Names are roles, not hues: `ink` is whatever text is, `primary` is whatever
+     the main action is. They were literally brown and peach before. */
+  --color-sv-ink: rgb(36, 65, 124);
+  --color-sv-body: rgb(53, 85, 117);
+  --color-sv-paper: rgb(247, 250, 253);
+  --color-sv-cream: rgb(255, 255, 255);
+  --color-sv-gold: rgb(232, 239, 249);
+  --color-sv-tan: rgb(206, 219, 236);
+  --color-sv-primary: rgb(36, 65, 124);
+  --color-sv-primary-line: rgb(27, 50, 96);
+  --color-sv-highlight: rgb(220, 232, 248);
+  --color-sv-board-dark: rgb(183, 198, 220);
+  --color-sv-mint: rgb(226, 240, 233);
+  --color-sv-mint-line: rgb(143, 191, 168);
+  --color-sv-mint-ink: rgb(47, 107, 79);
+  --color-sv-accent: rgb(58, 93, 165);
+  --color-sv-warn: rgb(176, 96, 40);
 
   --font-sans: var(--font-nunito), var(--font-mitr), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fredoka), var(--font-mitr), ui-sans-serif, sans-serif;

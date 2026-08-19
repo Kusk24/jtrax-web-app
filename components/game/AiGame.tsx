@@ -74,9 +74,9 @@ export function AiGame() {
               key={l}
               onClick={() => setLevel(l)}
               aria-pressed={level === l}
-              className={`flex-1 cursor-pointer rounded-xl border-none py-2 text-sm font-bold text-sv-brown ${
+              className={`flex-1 cursor-pointer rounded-xl border-none py-2 text-sm font-bold text-sv-ink ${
                 level === l
-                  ? "bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(208,158,97)]"
+                  ? "bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
                   : "bg-sv-paper shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.4)]"
               }`}
             >

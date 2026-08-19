@@ -103,7 +103,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
 
       {!room.lichessRated && room.lichessDetachedReason && (
         <Panel className="!p-3">
-          <p className="text-[12.5px] font-bold text-[rgb(160,90,40)]">
+          <p className="text-[12.5px] font-bold text-[rgb(176,96,40)]">
             {t(`rated.detached.${room.lichessDetachedReason}`)}
           </p>
           <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("rated.detachedHint")}</p>
@@ -167,7 +167,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
             </button>
             <button
               onClick={() => setConfirmResign(false)}
-              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
             >
               {t("keepPlaying")}
             </button>
@@ -175,7 +175,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
         ) : (
           <button
             onClick={() => setConfirmResign(true)}
-            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
           >
             {t("resign")}
           </button>

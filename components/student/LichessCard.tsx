@@ -134,12 +134,12 @@ export function LichessCard() {
   }
 
   const card =
-    "w-[352px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(208,158,97),0_2px_4px_rgba(118,83,50,0.58)]";
+    "w-[352px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.58)]";
   const inner = "rounded-[16px] bg-sv-cream px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]";
   const field =
-    "w-full rounded-xl border-none bg-sv-paper px-3 py-2.5 text-[14px] font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] outline-none placeholder:font-normal placeholder:opacity-40 focus:shadow-[inset_0_0_0_2px_rgb(192,120,98)]";
+    "w-full rounded-xl border-none bg-sv-paper px-3 py-2.5 text-[14px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] outline-none placeholder:font-normal placeholder:opacity-40 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]";
   const button =
-    "cursor-pointer rounded-[16px] border-none bg-sv-peach px-4 py-2.5 text-[13.5px] font-bold text-sv-brown shadow-[inset_0_0_0_1.25px_rgb(192,120,98),0_0_0_1.25px_rgb(192,120,98)] disabled:opacity-60";
+    "cursor-pointer rounded-[16px] border-none bg-sv-primary px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
 
   if (loading) {
     return (
@@ -239,7 +239,7 @@ export function LichessCard() {
               href={`${link.profileUrl}/edit`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 flex items-center justify-center gap-1.5 text-[12.5px] font-bold text-sv-brown underline opacity-80"
+              className="mt-2 flex items-center justify-center gap-1.5 text-[12.5px] font-bold text-sv-ink underline opacity-80"
             >
               {t("openLichess")} <ExternalLink className="size-3.5" />
             </a>
@@ -257,7 +257,7 @@ export function LichessCard() {
               <button
                 onClick={() => void run(unlinkLichess)}
                 disabled={busy}
-                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] disabled:opacity-60"
+                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] disabled:opacity-60"
               >
                 {t("remove")}
               </button>
@@ -310,7 +310,7 @@ export function LichessCard() {
                   {/* A token cannot be refreshed, only granted again — so the
                       warning has to come before it dies, not after. */}
                   {play.expiringSoon && (
-                    <p className="mt-1.5 text-[11.5px] font-bold leading-snug text-[rgb(160,90,40)]">
+                    <p className="mt-1.5 text-[11.5px] font-bold leading-snug text-[rgb(176,96,40)]">
                       {t("expiringSoon")}
                     </p>
                   )}
