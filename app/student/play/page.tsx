@@ -12,7 +12,7 @@ export default async function PlayPage() {
   ];
 
   return (
-    <PlayShell title={t("title")}>
+    <PlayShell title={t("title")} nav>
       <div className="flex flex-col gap-3.5">
         {modes.map(({ href, icon: Icon, title, body }) => (
           <Link key={href} href={href} className="block">
