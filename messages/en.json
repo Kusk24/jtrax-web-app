@@ -493,6 +493,21 @@
       "rapid": "Rapid",
       "classical": "Classical",
       "puzzle": "Puzzles"
+    },
+    "connectWithLichess": "Connect with Lichess",
+    "orTrackOnly": "or just track my ratings",
+    "ratedOn": "Rated games are on",
+    "ratedOnHint": "Games you play here against another connected student count on Lichess and move your real rating.",
+    "ratedOff": "Rated games are off",
+    "ratedOffHint": "Connect your Lichess account to let games played here count towards your real Lichess rating.",
+    "enableRated": "Turn on rated games",
+    "expiringSoon": "Your Lichess permission runs out soon. Connect again to keep playing rated games.",
+    "managedAccount": "A parent or teacher looks after this Lichess account.",
+    "outcome": {
+      "declined": "You cancelled on Lichess, so nothing changed.",
+      "failed": "Lichess could not be reached. Please try again.",
+      "taken": "That Lichess account is already connected to another student.",
+      "notConfigured": "Rated games are not set up on this server yet."
     }
   }
 }
