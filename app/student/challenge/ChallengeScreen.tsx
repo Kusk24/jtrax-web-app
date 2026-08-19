@@ -104,7 +104,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
           <Panel key={c.challengeId} className="flex items-center justify-between gap-3">
             <span className="min-w-0">
               <span className="block text-[14.5px] font-bold">{t("gameReady", { name: c.opponentName })}</span>
-              <span className="block text-[12px] opacity-70">{c.rated ? t("rated") : t("friendly")}</span>
+              <span className="block text-[12px] text-sv-body">{c.rated ? t("rated") : t("friendly")}</span>
             </span>
             <button
               onClick={() => router.push(`/student/play/room/${c.gameRoomId}`)}
@@ -118,12 +118,12 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
         {/* ---- invitations ---- */}
         {pending.length > 0 && (
           <section className="flex flex-col gap-2.5">
-            <h2 className="px-1 text-[13px] font-bold opacity-70">{t("waiting")}</h2>
+            <h2 className="px-1 text-[13px] font-bold text-sv-body">{t("waiting")}</h2>
             {pending.map((c) => (
               <Panel key={c.challengeId} className="flex items-center justify-between gap-3">
                 <span className="min-w-0">
                   <span className="block truncate text-[14.5px] font-bold">{c.opponentName}</span>
-                  <span className="block text-[12px] opacity-70">
+                  <span className="block text-[12px] text-sv-body">
                     {c.direction === "in" ? t("wantsToPlay") : t("waitingOnThem")}
                     {c.rated ? ` · ${t("rated")}` : ""}
                   </span>
@@ -147,7 +147,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                             router.push(`/student/play/room/${out.gameRoomId}`);
                           })
                         }
-                        className="flex size-11 cursor-pointer items-center justify-center rounded-full border-none bg-sv-mint shadow-[inset_0_0_0_1.25px_rgb(137,187,169)] disabled:opacity-60"
+                        className="flex size-11 cursor-pointer items-center justify-center rounded-full border-none bg-sv-mint shadow-[inset_0_0_0_1.25px_rgb(143,191,168)] disabled:opacity-60"
                       >
                         <Check className="size-5 text-sv-mint-ink" strokeWidth={3} />
                       </button>
@@ -158,7 +158,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                           await declineChallenge(c.challengeId);
                           await reload();
                         })}
-                        className="flex size-11 cursor-pointer items-center justify-center rounded-full border-none bg-sv-paper shadow-[inset_0_0_0_1.25px_rgba(208,158,97,0.6)] disabled:opacity-60"
+                        className="flex size-11 cursor-pointer items-center justify-center rounded-full border-none bg-sv-paper shadow-[inset_0_0_0_1.25px_rgb(206,219,236)] disabled:opacity-60"
                       >
                         <X className="size-5" strokeWidth={3} />
                       </button>
@@ -170,7 +170,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                         await cancelChallenge(c.challengeId);
                         await reload();
                       })}
-                      className="min-h-[44px] cursor-pointer rounded-[16px] border-none bg-sv-paper px-3.5 text-[12.5px] font-bold shadow-[inset_0_0_0_1.25px_rgba(208,158,97,0.6)] disabled:opacity-60"
+                      className="min-h-[44px] cursor-pointer rounded-[16px] border-none bg-sv-paper px-3.5 text-[12.5px] font-bold shadow-[inset_0_0_0_1.25px_rgb(206,219,236)] disabled: text-sv-body"
                     >
                       {t("cancel")}
                     </button>
@@ -183,7 +183,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
 
         {/* ---- find somebody ---- */}
         <section className="flex flex-col gap-2.5">
-          <h2 className="px-1 text-[13px] font-bold opacity-70">{t("findSomeone")}</h2>
+          <h2 className="px-1 text-[13px] font-bold text-sv-body">{t("findSomeone")}</h2>
 
           <div className="relative">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 opacity-50" />
@@ -194,13 +194,13 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
               aria-label={t("searchLabel")}
               autoCapitalize="off"
               autoComplete="off"
-              className="min-h-[48px] w-full rounded-[20px] border-none bg-sv-cream pl-11 pr-4 text-[14px] font-bold text-sv-brown shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] outline-none placeholder:font-normal placeholder:opacity-50 focus:shadow-[inset_0_0_0_2px_rgb(192,120,98)]"
+              className="min-h-[48px] w-full rounded-[20px] border-none bg-sv-cream pl-11 pr-4 text-[14px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] outline-none placeholder:font-normal placeholder: focus:shadow-[inset_0_0_0_2px_rgb(36,65,124)]"
             />
           </div>
 
           {/* Their own id, so it can be read out to a friend in another class —
               the exact-id search exists precisely so that works. */}
-          <p className="px-1 text-[11.5px] opacity-60">{t("yourId", { id: myStudentId })}</p>
+          <p className="px-1 text-[11.5px] text-sv-body">{t("yourId", { id: myStudentId })}</p>
 
           {/* ---- what kind of game ---- */}
           <Panel className="flex flex-col gap-2.5">
@@ -213,7 +213,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                   className="min-h-[36px] cursor-pointer rounded-[14px] border-none px-3 text-[12.5px] font-bold"
                   style={{
                     background: clock === i ? "rgb(255,227,135)" : "transparent",
-                    boxShadow: clock === i ? "inset 0 0 0 1.5px rgb(208,158,97)" : "inset 0 0 0 1px rgba(208,158,97,0.4)",
+                    boxShadow: clock === i ? "inset 0 0 0 1.5px rgb(206,219,236)" : "inset 0 0 0 1px rgba(208,158,97,0.4)",
                   }}
                 >
                   {c.label}
@@ -225,23 +225,23 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                 type="checkbox"
                 checked={rated}
                 onChange={(e) => setRated(e.target.checked)}
-                className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[rgb(192,120,98)]"
+                className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[rgb(36,65,124)]"
               />
               <span>
                 <span className="block text-[13.5px] font-bold">{t("ratedLabel")}</span>
-                <span className="block text-[11.5px] opacity-70">{t("ratedHint")}</span>
+                <span className="block text-[11.5px] text-sv-body">{t("ratedHint")}</span>
               </span>
             </label>
           </Panel>
 
           {searching && (
-            <p className="flex items-center gap-2 px-1 text-[12.5px] opacity-70">
+            <p className="flex items-center gap-2 px-1 text-[12.5px] text-sv-body">
               <Loader2 className="size-4 animate-spin" /> {t("searching")}
             </p>
           )}
 
           {!searching && query.trim().length >= 2 && results.length === 0 && (
-            <p className="px-1 text-[12.5px] opacity-70">{t("noneFound")}</p>
+            <p className="px-1 text-[12.5px] text-sv-body">{t("noneFound")}</p>
           )}
 
           {results.map((p) => {
@@ -250,7 +250,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
               <Panel key={p.studentId} className="flex items-center justify-between gap-3">
                 <span className="min-w-0">
                   <span className="block truncate text-[14.5px] font-bold">{p.name}</span>
-                  <span className="block font-mono text-[11px] opacity-60">{p.studentId}</span>
+                  <span className="block font-mono text-[11px] text-sv-body">{p.studentId}</span>
                   {ratedImpossible && (
                     <span className="mt-1 block text-[11.5px] font-bold text-[rgb(176,96,40)]">
                       {t("theyHaveNoLichess")}

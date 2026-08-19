@@ -322,10 +322,12 @@ export default function StudentGame() {
             </div>
           </div>
 
-          {/* Something to do, rather than a blank stretch of wall where the cat
-              used to sit. (The challenge screen joins this row once #31 lands —
-              it does not exist on this branch.) */}
-          <HomeAction href="/student/play" label={tp("title")} />
+          {/* The two things a pupil comes here to do, rather than a blank
+              stretch of wall where the cat used to sit. */}
+          <div className="flex gap-3.5">
+            <HomeAction href="/student/play" label={tp("title")} />
+            <HomeAction href="/student/challenge" label={tch("title")} />
+          </div>
         </div>
       )}
 
