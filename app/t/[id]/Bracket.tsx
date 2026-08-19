@@ -50,12 +50,22 @@ function shortResult(r: string): string {
   return r;
 }
 
-function roundTitle(index: number, total: number): string {
+/* Round names are passed in already translated: this component is server-
+   rendered inside a localized page, and "Final" is not a word every visitor
+   reads. `labels` carries the four it can need. */
+export type BracketLabels = {
+  final: string;
+  semifinals: string;
+  quarterfinals: string;
+  round: (n: number) => string;
+};
+
+function roundTitle(index: number, total: number, labels: BracketLabels): string {
   const fromEnd = total - index;
-  if (fromEnd === 1) return "Final";
-  if (fromEnd === 2) return "Semifinals";
-  if (fromEnd === 3) return "Quarterfinals";
-  return `Round ${index + 1}`;
+  if (fromEnd === 1) return labels.final;
+  if (fromEnd === 2) return labels.semifinals;
+  if (fromEnd === 3) return labels.quarterfinals;
+  return labels.round(index + 1);
 }
 
 function Match({ b }: { b: Board }) {
@@ -63,14 +73,14 @@ function Match({ b }: { b: Board }) {
   const row = (side: "w" | "b", name: string | undefined) => (
     <div
       className={`flex items-center justify-between gap-2 px-3 py-1.5 text-[12.5px] ${
-        w === side ? "font-extrabold text-navy" : w !== "" ? "text-muted" : "text-ink"
+        w === side ? "font-extrabold text-pp-navy" : w !== "" ? "text-pp-muted" : "text-pp-ink"
       }`}
     >
-      <span className="min-w-0 truncate">{name ?? <span className="text-muted">bye</span>}</span>
+      <span className="min-w-0 truncate">{name ?? <span className="text-pp-muted">—</span>}</span>
       {w === side && (
         /* The advancing player gets a mark, not just boldness — bold alone is
            invisible to half the room on a projector. */
-        <svg viewBox="0 0 24 24" className="size-3 shrink-0 fill-none stroke-brick" strokeWidth="3">
+        <svg viewBox="0 0 24 24" className="size-3 shrink-0 fill-none stroke-pp-blue" strokeWidth="3">
           <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )}
@@ -78,13 +88,13 @@ function Match({ b }: { b: Board }) {
   );
   return (
     <div className="relative">
-      <div className="w-44 overflow-hidden rounded-xl border-2 border-line bg-card shadow-[0_2px_0_rgba(0,0,0,0.04)]">
+      <div className="w-44 overflow-hidden rounded-xl border border-pp-line bg-white shadow-[0_2px_0_rgba(0,0,0,0.04)]">
         {row("w", b.white)}
-        <div className="border-t border-line" />
+        <div className="border-t border-pp-line" />
         {row("b", b.black)}
       </div>
       {shortResult(b.result) && (
-        <span className="absolute -top-2 right-2 rounded-full border border-line bg-cream px-1.5 font-mono text-[10px] font-bold text-muted">
+        <span className="absolute -top-2 right-2 rounded-full border border-pp-line bg-pp-mist px-1.5 font-mono text-[10px] font-bold text-pp-muted">
           {shortResult(b.result)}
         </span>
       )}
@@ -92,7 +102,14 @@ function Match({ b }: { b: Board }) {
   );
 }
 
-export function Bracket({ rounds }: { rounds: Round[] }) {
+export function Bracket({
+  rounds, title, championLabel, labels,
+}: {
+  rounds: Round[];
+  title: string;
+  championLabel: string;
+  labels: BracketLabels;
+}) {
   const total = rounds.length;
   const final = rounds[total - 1];
   const champion =
@@ -103,8 +120,8 @@ export function Bracket({ rounds }: { rounds: Round[] }) {
       : null;
 
   return (
-    <section className="overflow-hidden rounded-2xl border-2 border-line bg-card">
-      <h2 className="border-b-2 border-line px-4 py-3 text-sm font-bold text-ink">Bracket</h2>
+    <section className="overflow-hidden rounded-2xl border border-pp-line bg-white shadow-[0_1px_2px_rgba(35,53,94,.04)]">
+      <h2 className="border-b-2 border-pp-line px-4 py-3 text-sm font-bold text-pp-ink">Bracket</h2>
 
       {/* A bracket is wide by nature; on a phone it scrolls sideways inside
           this box rather than stretching the page. */}
@@ -113,8 +130,8 @@ export function Bracket({ rounds }: { rounds: Round[] }) {
           {rounds.map((round, i) => (
             <div key={round.round} className="flex">
               <div className="flex flex-col">
-                <p className="pb-3 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
-                  {roundTitle(i, total)}
+                <p className="pb-3 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-pp-muted">
+                  {roundTitle(i, total, labels)}
                 </p>
                 <div className="flex flex-1 flex-col justify-around gap-4">
                   {round.pairings.map((b) => (
@@ -127,7 +144,7 @@ export function Bracket({ rounds }: { rounds: Round[] }) {
               {i < total - 1 && (
                 <div className="mt-7 flex w-6 flex-col justify-around">
                   {round.pairings.map((b) => (
-                    <div key={b.board} className="h-0 border-t-2 border-line" />
+                    <div key={b.board} className="h-0 border-t-2 border-pp-line" />
                   ))}
                 </div>
               )}
@@ -136,14 +153,14 @@ export function Bracket({ rounds }: { rounds: Round[] }) {
 
           {champion && (
             <div className="mt-7 flex flex-col justify-around pl-4">
-              <div className="flex flex-col items-center gap-1.5 rounded-xl border-2 border-peach-ink/40 bg-cream px-4 py-3">
+              <div className="flex flex-col items-center gap-1.5 rounded-xl border border-pp-line bg-pp-mist px-4 py-3">
                 {/* Inline SVG trophy — house rule: no emoji as UI icons. */}
-                <svg viewBox="0 0 24 24" className="size-6 fill-none stroke-brick" strokeWidth="2">
+                <svg viewBox="0 0 24 24" className="size-6 fill-none stroke-pp-blue" strokeWidth="2">
                   <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">Champion</span>
-                <span className="text-sm font-extrabold text-navy">{champion}</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-muted">{championLabel}</span>
+                <span className="text-sm font-extrabold text-pp-navy">{champion}</span>
               </div>
             </div>
           )}
