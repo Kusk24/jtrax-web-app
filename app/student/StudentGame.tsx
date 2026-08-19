@@ -64,6 +64,7 @@ export default function StudentGame() {
   const t = useTranslations("sv2");
   const tc = useTranslations("common");
   const tp = useTranslations("play");
+  const tch = useTranslations("challenge");
 
   const [screen, setScreen] = useState<Screen>("home");
   const [tab, setTab] = useState<"daily" | "free">("daily");
@@ -772,6 +773,20 @@ export default function StudentGame() {
           <Fragment key={item.key}>
             {/* A game deserves a URL, so a player who reloads mid-game lands
                 back at the board rather than the home screen. */}
+            {item.key === "profile" && (
+              <Link
+                href="/student/challenge"
+                aria-label={tch("title")}
+                className="flex size-[34px] items-center justify-center rounded-full"
+              >
+                {/* Two crossed swords: the "play someone" idea, without an
+                    emoji and without repeating the knight used for Play. */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(109,61,52)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14.5 14.5 21 21M21 3l-8 8M3 21l8-8M9.5 9.5 3 3" />
+                  <path d="M18 3h3v3M6 3H3v3" />
+                </svg>
+              </Link>
+            )}
             {item.key === "profile" && (
               <Link
                 href="/student/play"

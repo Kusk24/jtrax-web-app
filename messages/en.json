@@ -496,6 +496,31 @@
       }
     }
   },
+  "challenge": {
+    "title": "Challenge",
+    "findSomeone": "Find someone to play",
+    "searchPlaceholder": "Name or player ID",
+    "searchLabel": "Search for a player by name or ID",
+    "searching": "Looking…",
+    "noneFound": "Nobody by that name. Try their player ID.",
+    "yourId": "Your player ID is {id} — share it so friends can find you.",
+    "challenge": "Challenge",
+    "waiting": "Invitations",
+    "wantsToPlay": "wants to play you",
+    "waitingOnThem": "waiting for them",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel",
+    "gameReady": "Your game with {name} is ready",
+    "openBoard": "Open board",
+    "rated": "Rated on Lichess",
+    "friendly": "Friendly game",
+    "ratedLabel": "Rated on Lichess",
+    "ratedHint": "Counts towards both players' Lichess ratings.",
+    "theyHaveNoLichess": "They have not connected Lichess, so this game cannot be rated.",
+    "ratedNotPossible": "Asked for rated, but one of you has not connected Lichess — it will be a friendly game.",
+    "failed": "That did not work. Please try again."
+  },
   "lichess": {
     "title": "Lichess",
     "loading": "Loading…",
