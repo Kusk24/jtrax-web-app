@@ -397,7 +397,8 @@
     "ratingLabel": "Rating",
     "lastAttendedLabel": "Last class",
     "unrated": "Not rated yet",
-    "notYet": "No classes yet"
+    "notYet": "No classes yet",
+    "streakLabel": "Day streak"
   },
   "play": {
     "title": "Play",

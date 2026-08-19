@@ -84,7 +84,7 @@ export function AiGame() {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] leading-snug opacity-70">{t(`levelHint.${level}`)}</p>
+        <p className="mt-2 text-[11px] leading-snug text-sv-body">{t(`levelHint.${level}`)}</p>
       </Panel>
 
       {/* You always play White here, so the engine sits at the top of the board. */}

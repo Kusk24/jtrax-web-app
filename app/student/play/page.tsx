@@ -22,7 +22,7 @@ export default async function PlayPage() {
               </span>
               <span className="flex flex-col gap-0.5">
                 <span className="text-[15px] font-bold">{title}</span>
-                <span className="text-xs leading-snug opacity-75">{body}</span>
+                <span className="text-xs leading-snug text-sv-body">{body}</span>
               </span>
             </Panel>
           </Link>

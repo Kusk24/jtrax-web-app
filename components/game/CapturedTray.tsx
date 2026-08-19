@@ -55,7 +55,7 @@ export function CapturedTray({
         </span>
       ))}
       {lead > 0 && (
-        <span className="ml-1 text-[11.5px] font-bold tabular-nums opacity-75">+{lead}</span>
+        <span className="ml-1 text-[11.5px] font-bold tabular-nums text-sv-body">+{lead}</span>
       )}
     </span>
   );

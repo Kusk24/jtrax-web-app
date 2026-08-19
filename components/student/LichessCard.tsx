@@ -146,7 +146,7 @@ export function LichessCard() {
       <div className={card}>
         <div className={`${inner} flex items-center justify-center gap-2`}>
           <Loader2 className="size-4 animate-spin" />
-          <span className="text-[13px] font-bold opacity-70">{t("loading")}</span>
+          <span className="text-[13px] font-bold text-sv-body">{t("loading")}</span>
         </div>
       </div>
     );
@@ -175,7 +175,7 @@ export function LichessCard() {
         {/* ---- not linked yet ---- */}
         {!link && (
           <>
-            <p className="mb-2.5 text-[12.5px] leading-snug opacity-75">{t("intro")}</p>
+            <p className="mb-2.5 text-[12.5px] leading-snug text-sv-body">{t("intro")}</p>
 
             {/* The recommended path. It proves the account *and* unlocks rated
                 games, so it is offered first and the bio-code route below is
@@ -188,7 +188,7 @@ export function LichessCard() {
               <Swords className="size-4" />
               {busy ? t("checking") : t("connectWithLichess")}
             </button>
-            <p className="mb-2 text-center text-[11.5px] leading-snug opacity-60">{t("orTrackOnly")}</p>
+            <p className="mb-2 text-center text-[11.5px] leading-snug text-sv-body">{t("orTrackOnly")}</p>
 
             <input
               value={username}
@@ -214,7 +214,7 @@ export function LichessCard() {
         {link && !link.verified && (
           <>
             <p className="text-[13px] font-bold">{link.username}</p>
-            <p className="mt-1.5 text-[12.5px] leading-snug opacity-75">{t("proveHint")}</p>
+            <p className="mt-1.5 text-[12.5px] leading-snug text-sv-body">{t("proveHint")}</p>
 
             {link.verifyCode ? (
               <div className="mt-2 flex items-center gap-2">
@@ -232,14 +232,14 @@ export function LichessCard() {
             ) : (
               /* A staff-created link has no code on this screen — staff cannot
                  edit a pupil's bio, so the pupil starts the proof themselves. */
-              <p className="mt-2 text-[12.5px] leading-snug opacity-75">{t("addedByStaff")}</p>
+              <p className="mt-2 text-[12.5px] leading-snug text-sv-body">{t("addedByStaff")}</p>
             )}
 
             <a
               href={`${link.profileUrl}/edit`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 flex items-center justify-center gap-1.5 text-[12.5px] font-bold text-sv-ink underline opacity-80"
+              className="mt-2 flex items-center justify-center gap-1.5 text-[12.5px] font-bold text-sv-ink underline"
             >
               {t("openLichess")} <ExternalLink className="size-3.5" />
             </a>
@@ -257,7 +257,7 @@ export function LichessCard() {
               <button
                 onClick={() => void run(unlinkLichess)}
                 disabled={busy}
-                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] disabled:opacity-60"
+                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] disabled:"
               >
                 {t("remove")}
               </button>
@@ -277,7 +277,7 @@ export function LichessCard() {
               {link.username} <ExternalLink className="size-3.5" />
             </a>
             {link.ratings.length === 0 ? (
-              <p className="mt-2 text-[12.5px] opacity-75">{t("noGamesYet")}</p>
+              <p className="mt-2 text-[12.5px] text-sv-body">{t("noGamesYet")}</p>
             ) : (
               <div className="mt-2">
                 {sortRatings(link.ratings).map((r, i) => (
@@ -286,13 +286,13 @@ export function LichessCard() {
                     className="flex items-center justify-between gap-3 py-1.5"
                     style={{ borderTop: i === 0 ? "none" : "1px solid rgba(208,158,97,0.35)" }}
                   >
-                    <span className="text-[13px] opacity-75">{t(`perf.${r.perf}`)}</span>
+                    <span className="text-[13px] text-sv-body">{t(`perf.${r.perf}`)}</span>
                     <span className="flex items-baseline gap-1.5">
                       <span className="text-[13px] font-bold">{r.rating}</span>
                       {/* A provisional rating swings wildly and is not an
                           achievement yet — saying so is kinder than a number
                           that drops 200 points tomorrow. */}
-                      {r.provisional && <span className="text-[10.5px] opacity-60">{t("provisional")}</span>}
+                      {r.provisional && <span className="text-[10.5px] text-sv-body">{t("provisional")}</span>}
                     </span>
                   </div>
                 ))}
@@ -306,7 +306,7 @@ export function LichessCard() {
                     <Swords className="size-3.5" />
                     {t("ratedOn")}
                   </p>
-                  <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("ratedOnHint")}</p>
+                  <p className="mt-1 text-[11.5px] leading-snug text-sv-body">{t("ratedOnHint")}</p>
                   {/* A token cannot be refreshed, only granted again — so the
                       warning has to come before it dies, not after. */}
                   {play.expiringSoon && (
@@ -315,13 +315,13 @@ export function LichessCard() {
                     </p>
                   )}
                   {play.managed && (
-                    <p className="mt-1.5 text-[11.5px] leading-snug opacity-70">{t("managedAccount")}</p>
+                    <p className="mt-1.5 text-[11.5px] leading-snug text-sv-body">{t("managedAccount")}</p>
                   )}
                 </>
               ) : (
                 <>
                   <p className="text-[12.5px] font-bold">{t("ratedOff")}</p>
-                  <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("ratedOffHint")}</p>
+                  <p className="mt-1 text-[11.5px] leading-snug text-sv-body">{t("ratedOffHint")}</p>
                   <button
                     onClick={() => void connectForPlay()}
                     disabled={busy}
@@ -337,7 +337,7 @@ export function LichessCard() {
             <button
               onClick={() => void run(unlinkLichess)}
               disabled={busy}
-              className="mt-2.5 cursor-pointer border-none bg-transparent text-[12px] font-bold underline opacity-60"
+              className="mt-2.5 cursor-pointer border-none bg-transparent text-[12px] font-bold underline text-sv-body"
             >
               {t("remove")}
             </button>

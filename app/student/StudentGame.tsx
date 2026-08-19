@@ -36,6 +36,29 @@ function PuzzlePieceIcon({ fill, size = 20 }: { fill: string; size?: number }) {
 }
 
 /* Living-room props shared by the home and feed screens. */
+function StatTile({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex flex-1 items-center gap-2.5 rounded-[18px] bg-sv-cream px-3.5 py-3 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sv-gold text-sv-ink">{icon}</span>
+      <span className="flex min-w-0 flex-col">
+        <span className="text-[17px] font-bold leading-none">{value}</span>
+        <span className="truncate text-[11.5px] text-sv-body">{label}</span>
+      </span>
+    </div>
+  );
+}
+
+function HomeAction({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-[52px] flex-1 items-center justify-center rounded-[18px] bg-sv-cream text-[15px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] transition-colors duration-150 hover:bg-sv-gold"
+    >
+      {label}
+    </Link>
+  );
+}
+
 export default function StudentGame() {
   const t = useTranslations("sv2");
   const tc = useTranslations("common");
@@ -255,7 +278,7 @@ export default function StudentGame() {
         <div className="absolute right-5 top-12 flex items-center gap-1.5 rounded-[20px] bg-sv-cream px-3 py-1.5 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
           <Star className="size-[15px] fill-sv-accent text-sv-accent" strokeWidth={1.5} />
           <span className="text-sm font-bold">{rating.value}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wide opacity-60">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-sv-body">
             {tl(`perf.${rating.perf}`)}
           </span>
         </div>
@@ -263,50 +286,53 @@ export default function StudentGame() {
 
       {/* ---------------- HOME ---------------- */}
       {screen === "home" && (
-        <>
-          <h1 className="absolute left-[25px] top-[44px] font-sv-display text-[32px] font-normal">{t("home")}</h1>
-          {/* Daily challenge card */}
-          <div className="absolute left-[25px] top-[449px] h-[212px] w-[331px] rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.4)]">
-            <div className="absolute left-[9px] top-[10px] h-48 w-[313px] rounded-[18px] bg-sv-cream shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]" />
-            {!isDailyDone && (
-              <>
-                <div className="absolute top-5 w-[313px] text-center text-2xl font-bold">{t("dailyChallenge")}</div>
-                <div className="absolute top-[76px] w-[313px] text-center text-base font-bold">
-                  {t("puzzlesCount", { n: solvedCount })}
-                </div>
-                <div className="absolute left-0 top-[108px] flex w-[313px] items-center justify-center gap-3.5">
-                  <span className="h-5 w-[30px]" />
-                  {[0, 1].map((i) => (
-                    <svg key={i} width="30" height="20" viewBox="0 0 30 20" fill="none">
-                      <ellipse cx="14" cy="10" rx="10" ry="7" stroke="rgb(206,219,236)" strokeWidth="1.5" strokeDasharray="3 2" />
-                      <path d="M24 10L29 5V15L24 10Z" stroke="rgb(206,219,236)" strokeWidth="1.5" strokeDasharray="3 2" strokeLinejoin="round" />
-                      <circle cx="9" cy="8" r="1" fill="rgb(206,219,236)" />
-                    </svg>
-                  ))}
-                </div>
-                <button onClick={() => go("puzzles")} className={`${peachBtn} absolute left-[81px] top-[145px] h-9 w-[151px] text-lg`}>
-                  {t("start")}
-                </button>
-              </>
-            )}
-            {isDailyDone && (
-              <>
-                <div className="absolute top-[30px] w-[313px] text-center text-[22px] font-bold">{t("missionComplete")}</div>
-                <div className="absolute top-[78px] w-[313px] text-center text-sm font-bold opacity-85">{t("keepStreak")}</div>
-                <button onClick={() => go("puzzles")} className={`${peachBtn} absolute left-[66px] top-32 flex h-10 w-[181px] items-center justify-center gap-2 text-base`}>
-                  <PuzzlePieceIcon fill="#fff" />
-                  <span>{t("freePlay")}</span>
-                </button>
-              </>
-            )}
+        /* Laid out in flow, not at absolute coordinates. The old home screen
+           pinned its one card to top-449 because a cat and a sofa occupied
+           everything above it; with those gone the same coordinates left a
+           320px hole between the heading and the card. */
+        <div className="absolute inset-x-0 bottom-[104px] top-0 flex flex-col gap-3.5 overflow-y-auto px-[25px] pb-4 pt-[44px]">
+          <h1 className="font-sv-display text-[32px] font-normal leading-tight text-white">
+            {t("home")}
+          </h1>
+          <p className="-mt-2 text-sm font-bold text-white/85">
+            {record?.name ?? me?.displayName ?? ""}
+          </p>
+
+          <div className="mt-1 flex gap-3.5">
+            <StatTile label={t("streakLabel")} value={String(streak)} icon={<Flame className="size-[18px]" strokeWidth={2.4} />} />
+            <StatTile label={t("dailyChallenge")} value={`${solvedCount}/3`} icon={<PuzzlePieceIcon fill="rgb(36,65,124)" size={18} />} />
           </div>
-        </>
+
+          {/* Daily challenge */}
+          <div className="rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236)]">
+            <div className="flex flex-col items-center gap-2.5 rounded-[16px] bg-sv-cream px-4 py-5">
+              <span className="text-center text-[22px] font-bold">
+                {isDailyDone ? t("missionComplete") : t("dailyChallenge")}
+              </span>
+              <span className="text-center text-sm font-bold text-sv-body">
+                {isDailyDone ? t("keepStreak") : t("puzzlesCount", { n: solvedCount })}
+              </span>
+              <button
+                onClick={() => go("puzzles")}
+                className={`${peachBtn} mt-1 flex min-h-[44px] w-[181px] items-center justify-center gap-2 text-base`}
+              >
+                {isDailyDone ? <PuzzlePieceIcon fill="#fff" size={18} /> : null}
+                <span>{isDailyDone ? t("freePlay") : t("start")}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Something to do, rather than a blank stretch of wall where the cat
+              used to sit. (The challenge screen joins this row once #31 lands —
+              it does not exist on this branch.) */}
+          <HomeAction href="/student/play" label={tp("title")} />
+        </div>
       )}
 
       {screen === "puzzles" && (
         <>
           <h1 className="absolute left-[25px] top-[43px] font-sv-display text-[32px] font-normal">{t("puzzles")}</h1>
-          <div className="absolute left-[18px] top-[156px] h-[450px] w-[354px] overflow-hidden rounded-3xl bg-sv-gold p-[18px] shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
+          <div className="absolute left-[18px] top-[126px] h-[604px] w-[354px] overflow-hidden rounded-3xl bg-sv-gold p-[18px] shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
             {/* Tabs */}
             <div className="flex h-12 w-full gap-1 rounded-3xl bg-sv-cream p-1 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
               {(
@@ -318,11 +344,13 @@ export default function StudentGame() {
                 <button
                   key={k}
                   onClick={() => setTab(k)}
-                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[20px] border-none text-[15px] font-bold text-sv-ink"
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[20px] border-none text-[15px] font-bold"
                   style={{
                     background: tab === k ? "#fff" : "transparent",
                     boxShadow: tab === k ? "inset 0 0 0 1.5px rgb(206,219,236)" : "none",
-                    opacity: tab === k ? 1 : 0.6,
+                    /* The inactive tab changes colour rather than fading: navy
+                       at 60% opacity measures 3.33:1 on white. */
+                    color: tab === k ? "rgb(36,65,124)" : "rgb(53,85,117)",
                   }}
                 >
                   {k === "daily" ? (
@@ -392,7 +420,7 @@ export default function StudentGame() {
           <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-normal">
             {t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
-          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold opacity-85">{t("whiteToMove")}</div>
+          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-sv-body">{t("whiteToMove")}</div>
 
           <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
             <div className="relative mb-1 flex w-full justify-start">
@@ -491,7 +519,7 @@ export default function StudentGame() {
                 </span>
                 {/* An email is long and a phone is narrow, so it truncates
                     rather than pushing the badge off the card. */}
-                <span className="max-w-full truncate text-[11.5px] opacity-70">{me?.email ?? ""}</span>
+                <span className="max-w-full truncate text-[11.5px] text-sv-body">{me?.email ?? ""}</span>
                 <span className="rounded-[20px] bg-sv-mint px-2.5 py-[3px] text-[11px] text-sv-mint-ink shadow-[inset_0_0_0_0.5px_rgb(137,187,169),0_0_0_0.5px_rgb(137,187,169)]">
                   {record?.current_level || t("beginner")}
                 </span>
@@ -515,7 +543,7 @@ export default function StudentGame() {
                   className="flex items-center justify-between gap-3 py-2"
                   style={{ borderTop: i === 0 ? "none" : "1px solid rgba(208,158,97,0.35)" }}
                 >
-                  <span className="text-[13px] opacity-75">{label}</span>
+                  <span className="text-[13px] text-sv-body">{label}</span>
                   <span className="max-w-[190px] truncate text-[13px] font-bold">{value}</span>
                 </div>
               ))}
@@ -548,7 +576,7 @@ export default function StudentGame() {
           {/* What the academy cannot otherwise see: the chess played at home. */}
           <LichessCard />
 
-          <SignOutButton className="flex h-[54px] w-[352px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-primary shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:opacity-60">
+          <SignOutButton className="flex h-[54px] w-[352px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-primary shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:">
             <LogOut className="size-[18px]" />
             {tc("signOut")}
           </SignOutButton>
