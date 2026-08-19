@@ -91,7 +91,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
   const accepted = challenges.filter((c) => c.status === "Accepted" && c.gameRoomId);
 
   return (
-    <PlayShell title={t("title")}>
+    <PlayShell title={t("title")} nav>
       <div className="flex flex-col gap-3.5">
         {error && (
           <p role="alert" className="rounded-2xl bg-[rgb(255,240,240)] px-3.5 py-2.5 text-[12.5px] font-bold text-[rgb(160,60,60)]">

@@ -6,6 +6,7 @@
    back at the board, not at the home screen. */
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { StudentBottomNav } from "./StudentBottomNav";
 
 export const peachBtn =
   "cursor-pointer rounded-[20px] border-none bg-sv-primary font-bold text-white shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
@@ -13,10 +14,15 @@ export const peachBtn =
 export function PlayShell({
   title,
   back = "/student",
+  nav = false,
   children,
 }: {
   title: string;
   back?: string;
+  /** Show the portal's bottom bar. On a screen reached *from* that bar it has
+      to stay — losing it strands a child on a page whose only way out is a
+      small arrow in the corner. Mid-game screens leave it off on purpose. */
+  nav?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -29,14 +35,20 @@ export function PlayShell({
         <Link
           href={back}
           aria-label="Back"
-          className="flex size-9 items-center justify-center rounded-full bg-sv-cream shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+          className="flex size-11 items-center justify-center rounded-full bg-sv-cream text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
         >
           <ArrowLeft className="size-[18px]" strokeWidth={2.5} />
         </Link>
-        <h1 className="font-sv-display text-[28px] font-normal">{title}</h1>
+        {/* White, because the wash behind it is navy and the container's ink is
+            too — the heading was navy-on-navy and simply invisible. axe did not
+            catch it: it skips contrast checks against a CSS gradient. */}
+        <h1 className="font-sv-display text-[28px] font-normal text-white">{title}</h1>
       </header>
 
-      <div className="relative z-10 flex flex-1 flex-col overflow-y-auto px-5 pb-6 pt-4">{children}</div>
+      <div className={`relative z-10 flex flex-1 flex-col overflow-y-auto px-5 pt-4 ${nav ? "pb-[104px]" : "pb-6"}`}>
+        {children}
+      </div>
+      {nav && <StudentBottomNav />}
     </div>
   );
 }
