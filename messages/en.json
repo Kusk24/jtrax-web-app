@@ -351,7 +351,20 @@
     "logOut": "Log Out",
     "academyFooter": "Paradise Park Mall, 4th Floor · Bangkok · Certified by Thailand's Ministry of Education",
     "idLabel": "ID: {id}",
-    "back": "Back"
+    "back": "Back",
+    "lichess": {
+      "title": "Lichess",
+      "noGames": "No rated games yet.",
+      "provisional": "provisional",
+      "footnote": "Ratings from games played on Lichess, updated a few times a day.",
+      "perf": {
+        "bullet": "Bullet",
+        "blitz": "Blitz",
+        "rapid": "Rapid",
+        "classical": "Classical",
+        "puzzle": "Puzzles"
+      }
+    }
   },
   "sv2": {
     "home": "Home",
