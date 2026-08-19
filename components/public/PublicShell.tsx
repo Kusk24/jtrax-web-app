@@ -33,17 +33,19 @@ export function PublicShell({
     <div className={`${dmSans.variable} ${poppins.variable} min-h-dvh bg-pp-mist font-pp-sans text-pp-ink`}>
       <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
         <header className="mb-6 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-pp-faint">
+          {/* pp-sub, not pp-muted: this sits on the mist background, where
+              pp-muted measures 4.49:1 and misses the 4.5:1 floor by a hair. */}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-pp-sub">
             JCA Chess Academy
           </p>
           <h1 className="mt-1.5 font-pp-display text-2xl font-bold tracking-tight text-pp-navy sm:text-[28px]">
             {title}
           </h1>
-          {subtitle && <p className="mt-1.5 text-sm text-pp-muted">{subtitle}</p>}
+          {subtitle && <p className="mt-1.5 text-sm text-pp-sub">{subtitle}</p>}
         </header>
         {children}
       </main>
-      <footer className="pb-8 text-center text-xs text-pp-faint">
+      <footer className="pb-8 text-center text-xs text-pp-sub">
         JCA Chess Academy
       </footer>
     </div>

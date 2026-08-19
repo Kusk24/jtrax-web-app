@@ -136,7 +136,7 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
               <p className="text-[13px] text-pp-muted">
                 {t("sourceNote")}
                 {data.fetchedAt && (
-                  <span className="ml-1 text-pp-faint">
+                  <span className="ml-1 text-pp-muted">
                     {t("fetchedAt", { when: formatTime(data.fetchedAt, locale) })}
                   </span>
                 )}
@@ -180,7 +180,7 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-pp-mist text-[11px] uppercase tracking-wide text-pp-faint">
+                  <tr className="bg-pp-mist text-[11px] uppercase tracking-wide text-pp-sub">
                     <th scope="col" className="px-4 py-2.5 text-left font-semibold">#</th>
                     <th scope="col" className="px-4 py-2.5 text-left font-semibold">{t("player")}</th>
                     {external ? (
@@ -255,7 +255,7 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
               <ul>
                 {round.pairings.map((b) => (
                   <li key={b.board} className="flex items-center gap-3 border-t border-pp-line px-5 py-2.5 text-sm first:border-t-0">
-                    <span className="w-5 shrink-0 text-xs text-pp-faint">{b.board}</span>
+                    <span className="w-5 shrink-0 text-xs text-pp-muted">{b.board}</span>
                     <span className="min-w-0 flex-1 text-pp-ink">
                       {b.white}
                       {b.black ? <span className="text-pp-muted"> vs </span> : <span className="text-pp-muted"> — {t("bye")}</span>}
@@ -269,7 +269,7 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
           </PublicCard>
         ))}
 
-        <p className="text-center text-xs text-pp-faint">{t("updatesAutomatically")}</p>
+        <p className="text-center text-xs text-pp-sub">{t("updatesAutomatically")}</p>
       </div>
     </PublicShell>
   );

@@ -134,10 +134,15 @@ function money(amount: number, locale = "en"): string {
 
 function Fact({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
+    /* The note lives inside the <dd>, not beside it: a <div> inside a <dl> may
+       only hold <dt>/<dd> pairs, and a stray <p> there is invalid markup that
+       screen readers read out of order. */
     <div>
-      <dt className="text-[11px] font-semibold uppercase tracking-wide text-pp-faint">{label}</dt>
-      <dd className="mt-0.5 text-[15px] font-semibold text-pp-ink">{value}</dd>
-      {note && <p className="text-[11.5px] text-pp-muted">{note}</p>}
+      <dt className="text-[11px] font-semibold uppercase tracking-wide text-pp-muted">{label}</dt>
+      <dd className="mt-0.5 text-[15px] font-semibold text-pp-ink">
+        {value}
+        {note && <span className="block text-[11.5px] font-normal text-pp-muted">{note}</span>}
+      </dd>
     </div>
   );
 }

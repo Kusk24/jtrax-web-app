@@ -73,10 +73,10 @@ function Match({ b }: { b: Board }) {
   const row = (side: "w" | "b", name: string | undefined) => (
     <div
       className={`flex items-center justify-between gap-2 px-3 py-1.5 text-[12.5px] ${
-        w === side ? "font-extrabold text-pp-navy" : w !== "" ? "text-pp-faint" : "text-pp-ink"
+        w === side ? "font-extrabold text-pp-navy" : w !== "" ? "text-pp-muted" : "text-pp-ink"
       }`}
     >
-      <span className="min-w-0 truncate">{name ?? <span className="text-pp-faint">—</span>}</span>
+      <span className="min-w-0 truncate">{name ?? <span className="text-pp-muted">—</span>}</span>
       {w === side && (
         /* The advancing player gets a mark, not just boldness — bold alone is
            invisible to half the room on a projector. */
@@ -94,7 +94,7 @@ function Match({ b }: { b: Board }) {
         {row("b", b.black)}
       </div>
       {shortResult(b.result) && (
-        <span className="absolute -top-2 right-2 rounded-full border border-pp-line bg-pp-mist px-1.5 font-mono text-[10px] font-bold text-pp-faint">
+        <span className="absolute -top-2 right-2 rounded-full border border-pp-line bg-pp-mist px-1.5 font-mono text-[10px] font-bold text-pp-muted">
           {shortResult(b.result)}
         </span>
       )}
@@ -130,7 +130,7 @@ export function Bracket({
           {rounds.map((round, i) => (
             <div key={round.round} className="flex">
               <div className="flex flex-col">
-                <p className="pb-3 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint">
+                <p className="pb-3 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-pp-muted">
                   {roundTitle(i, total, labels)}
                 </p>
                 <div className="flex flex-1 flex-col justify-around gap-4">
@@ -159,7 +159,7 @@ export function Bracket({
                   <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-faint">{championLabel}</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-pp-muted">{championLabel}</span>
                 <span className="text-sm font-extrabold text-pp-navy">{champion}</span>
               </div>
             </div>

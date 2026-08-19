@@ -20,7 +20,7 @@ import { PublicCard } from "@/components/public/PublicShell";
 
 const field =
   "w-full min-h-[44px] rounded-xl border border-pp-line bg-white px-3 py-2.5 text-[15px] text-pp-ink " +
-  "outline-none transition-colors duration-150 placeholder:text-pp-faint " +
+  "outline-none transition-colors duration-150 placeholder:text-pp-muted " +
   "focus:border-pp-blue focus:ring-2 focus:ring-pp-soft";
 
 export function RegisterForm({
@@ -155,7 +155,8 @@ export function RegisterForm({
               <span className="block text-[14.5px] font-semibold text-pp-ink">
                 {t("isStudent", { pct: discountPct })}
               </span>
-              <span className="block text-[12.5px] text-pp-muted">{t("isStudentHint")}</span>
+              {/* On the mist panel, so pp-sub — see PublicShell. */}
+              <span className="block text-[12.5px] text-pp-sub">{t("isStudentHint")}</span>
             </span>
           </label>
         )}
