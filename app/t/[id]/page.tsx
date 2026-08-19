@@ -11,6 +11,7 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Bracket, knockoutRounds } from "./Bracket";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
@@ -90,6 +91,10 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
 
   const { tournament, standings, rounds } = data;
   const started = standings.some((s) => s.played > 0 || s.points > 0);
+  /* When the rounds genuinely form a knockout — each one half the size of the
+     last, everyone advancing from it — the bracket is the truthful picture and
+     the round list would be noise. Swiss events keep the list. */
+  const knockout = knockoutRounds(rounds);
 
   return (
     <main className="min-h-dvh bg-cream px-4 py-8 sm:px-6">
@@ -103,6 +108,8 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
             {started ? `Live standings · ${standings.length} players` : `${standings.length} players registered`}
           </p>
         </header>
+
+        {knockout && <Bracket rounds={knockout} />}
 
         <section className="overflow-hidden rounded-2xl border-2 border-line bg-card">
           <h2 className="border-b-2 border-line px-4 py-3 text-sm font-bold text-ink">Standings</h2>
@@ -145,7 +152,7 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
           )}
         </section>
 
-        {rounds.map((round) => (
+        {!knockout && rounds.map((round) => (
           <section key={round.round} className="overflow-hidden rounded-2xl border-2 border-line bg-card">
             <h2 className="flex items-center gap-2 border-b-2 border-line px-4 py-3 text-sm font-bold text-ink">
               Round {round.round}
