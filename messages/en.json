@@ -351,7 +351,20 @@
     "logOut": "Log Out",
     "academyFooter": "Paradise Park Mall, 4th Floor · Bangkok · Certified by Thailand's Ministry of Education",
     "idLabel": "ID: {id}",
-    "back": "Back"
+    "back": "Back",
+    "lichess": {
+      "title": "Lichess",
+      "noGames": "No rated games yet.",
+      "provisional": "provisional",
+      "footnote": "Ratings from games played on Lichess, updated a few times a day.",
+      "perf": {
+        "bullet": "Bullet",
+        "blitz": "Blitz",
+        "rapid": "Rapid",
+        "classical": "Classical",
+        "puzzle": "Puzzles"
+      }
+    }
   },
   "sv2": {
     "home": "Home",
@@ -466,7 +479,22 @@
     },
     "computer": "Computer",
     "you": "You",
-    "emptySeat": "Empty seat"
+    "emptySeat": "Empty seat",
+    "rated": {
+      "on": "This game counts on Lichess",
+      "viewOnLichess": "View on Lichess",
+      "detachedHint": "You can keep playing — only the Lichess rating is affected.",
+      "detached": {
+        "noPlayAccess": "This game is no longer rated: a player has not connected Lichess.",
+        "tokenExpired": "This game is no longer rated: a player's Lichess permission ran out.",
+        "challengeFailed": "This game is no longer rated: Lichess would not start it.",
+        "opponentDeclined": "This game is no longer rated: the pairing was not accepted.",
+        "moveRejected": "This game is no longer rated: the two boards stopped matching.",
+        "unreachable": "This game is no longer rated: Lichess could not be reached.",
+        "notConfigured": "This game is not rated: Lichess play is not set up here.",
+        "failed": "This game is no longer rated."
+      }
+    }
   },
   "lichess": {
     "title": "Lichess",
@@ -493,6 +521,21 @@
       "rapid": "Rapid",
       "classical": "Classical",
       "puzzle": "Puzzles"
+    },
+    "connectWithLichess": "Connect with Lichess",
+    "orTrackOnly": "or just track my ratings",
+    "ratedOn": "Rated games are on",
+    "ratedOnHint": "Games you play here against another connected student count on Lichess and move your real rating.",
+    "ratedOff": "Rated games are off",
+    "ratedOffHint": "Connect your Lichess account to let games played here count towards your real Lichess rating.",
+    "enableRated": "Turn on rated games",
+    "expiringSoon": "Your Lichess permission runs out soon. Connect again to keep playing rated games.",
+    "managedAccount": "A parent or teacher looks after this Lichess account.",
+    "outcome": {
+      "declined": "You cancelled on Lichess, so nothing changed.",
+      "failed": "Lichess could not be reached. Please try again.",
+      "taken": "That Lichess account is already connected to another student.",
+      "notConfigured": "Rated games are not set up on this server yet."
     }
   }
 }

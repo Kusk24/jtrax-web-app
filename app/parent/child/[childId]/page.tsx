@@ -10,6 +10,7 @@ import { Check, Clock3, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
 import { MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
+import { ChildLichess } from "@/components/parent/ChildLichess";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 
@@ -304,6 +305,11 @@ export default function ChildProfileV2({
           ))}
         </div>
       </div>
+
+      {/* What this child plays at home. Renders nothing when no account is
+          linked, so a family that does not use Lichess never sees an empty
+          card asking them to. */}
+      <ChildLichess studentId={ch.key} />
     </div>
   );
 }

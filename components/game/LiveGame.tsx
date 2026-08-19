@@ -5,7 +5,7 @@
    showing a move before it is accepted would mean sometimes taking it back. */
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Wifi, WifiOff } from "lucide-react";
+import { ExternalLink, Loader2, Swords, Wifi, WifiOff } from "lucide-react";
 import { ChessBoard } from "./ChessBoard";
 import { CapturedTray } from "./CapturedTray";
 import { Panel, peachBtn } from "./PlayShell";
@@ -78,6 +78,37 @@ export function LiveGame({ roomId }: { roomId: string }) {
           {t(`connection.${connection}`)}
         </span>
       </Panel>
+
+      {/* Whether this game counts. Shown while it is being played, because a
+          game that has stopped counting is something the players need to know
+          now rather than afterwards. */}
+      {room.lichessRated && (
+        <Panel className="!p-3">
+          <p className="flex items-center gap-1.5 text-[12.5px] font-bold">
+            <Swords className="size-3.5" />
+            {t("rated.on")}
+          </p>
+          {room.lichessGameId && (
+            <a
+              href={`https://lichess.org/${room.lichessGameId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 flex items-center gap-1 text-[11.5px] font-bold underline opacity-75"
+            >
+              {t("rated.viewOnLichess")} <ExternalLink className="size-3" />
+            </a>
+          )}
+        </Panel>
+      )}
+
+      {!room.lichessRated && room.lichessDetachedReason && (
+        <Panel className="!p-3">
+          <p className="text-[12.5px] font-bold text-[rgb(160,90,40)]">
+            {t(`rated.detached.${room.lichessDetachedReason}`)}
+          </p>
+          <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("rated.detachedHint")}</p>
+        </Panel>
+      )}
 
       {room.status === "Open" && (
         <Panel className="text-center">

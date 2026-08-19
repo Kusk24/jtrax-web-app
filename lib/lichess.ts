@@ -31,6 +31,24 @@ export type LichessLink = {
 
 export type MyLichess = { linked: false } | { linked: true; link: LichessLink };
 
+/**
+ * Whether this student can play a game that actually counts on Lichess.
+ *
+ * Separate from `verified` on purpose. Pasting a code into a bio proves an
+ * account is yours; it does not let the academy move your pieces. Only an OAuth
+ * grant does that, and a pupil who only wants their rating on the wall should
+ * not have to give one.
+ */
+export type LichessPlayStatus = {
+  canPlay: boolean;
+  username?: string;
+  expiresAt?: string;
+  /** Lichess tokens last a year and cannot be refreshed — only re-granted. */
+  expiringSoon: boolean;
+  /** True when a parent or teacher holds the account, as under-13s require. */
+  managed: boolean;
+};
+
 async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`/api/lichess/${path}`, {
     method,
@@ -51,6 +69,22 @@ export const linkLichess = (username: string) =>
 export const verifyLichess = () =>
   call<{ verified: boolean; reason?: string }>("POST", "verify");
 export const unlinkLichess = () => call<{ linked: boolean }>("DELETE", "link");
+
+export const getLichessPlayStatus = () => call<LichessPlayStatus>("GET", "play-status");
+
+/**
+ * Begins the OAuth grant and hands back where to send the browser.
+ *
+ * The server returns a URL rather than redirecting, because the caller here is
+ * a fetch: a 302 would be followed by the fetch instead of by the person, and
+ * they would never see Lichess's consent screen.
+ */
+export async function startLichessOAuth(returnTo: string): Promise<string> {
+  const { authorizeUrl } = await call<{ authorizeUrl: string }>("POST", "oauth/start", {
+    returnTo,
+  });
+  return authorizeUrl;
+}
 
 /** The game types worth showing a child, in the order a coach would read them. */
 export const PERF_ORDER = ["bullet", "blitz", "rapid", "classical", "puzzle"];

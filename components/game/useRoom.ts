@@ -36,6 +36,15 @@ export type Room = {
   white: Seat | null;
   black: Seat | null;
   moveCount: number;
+
+  /** Whether this board is also a real rated game on lichess.org. */
+  lichessRated: boolean;
+  lichessGameId?: string;
+  lichessStatus?: string;
+  /** Why it stopped counting, when it did. Carried to the players rather than
+      only logged: being told mid-game that this one no longer counts is the
+      whole point of tracking it. */
+  lichessDetachedReason?: string;
 };
 
 export type Move = { ply: number; san: string; uci: string; fenAfter: string };

@@ -12,34 +12,42 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Copy, ExternalLink, Loader2 } from "lucide-react";
+import { Check, Copy, ExternalLink, Loader2, Swords } from "lucide-react";
 import {
-  getMyLichess, linkLichess, sortRatings, unlinkLichess, verifyLichess,
-  type LichessLink,
+  getLichessPlayStatus, getMyLichess, linkLichess, sortRatings, startLichessOAuth,
+  unlinkLichess, verifyLichess,
+  type LichessLink, type LichessPlayStatus,
 } from "@/lib/lichess";
 
 export function LichessCard() {
   const t = useTranslations("lichess");
 
   const [link, setLink] = useState<LichessLink | null>(null);
+  const [play, setPlay] = useState<LichessPlayStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  /** Set by the OAuth callback on its way back here. */
+  const [outcome, setOutcome] = useState("");
 
   const reload = useCallback(async () => {
-    const mine = await getMyLichess();
+    const [mine, status] = await Promise.all([getMyLichess(), getLichessPlayStatus()]);
     setLink(mine.linked ? mine.link : null);
+    setPlay(status);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const mine = await getMyLichess();
-        if (!cancelled) setLink(mine.linked ? mine.link : null);
+        const [mine, status] = await Promise.all([getMyLichess(), getLichessPlayStatus()]);
+        if (!cancelled) {
+          setLink(mine.linked ? mine.link : null);
+          setPlay(status);
+        }
       } catch {
         /* The empty state covers it; a cold API is not worth an error here. */
       } finally {
@@ -50,6 +58,34 @@ export function LichessCard() {
       cancelled = true;
     };
   }, []);
+
+  // The callback lands back here with ?lichess=… . It is read once and then
+  // stripped, so a reload does not replay a message about something that
+  // happened minutes ago.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const said = params.get("lichess");
+    if (!said) return;
+    setOutcome(said);
+    params.delete("lichess");
+    const rest = params.toString();
+    window.history.replaceState(
+      {}, "", window.location.pathname + (rest ? `?${rest}` : ""),
+    );
+  }, []);
+
+  async function connectForPlay() {
+    setBusy(true);
+    setError("");
+    try {
+      // Come back to exactly this screen, so the pupil lands where they left.
+      const url = await startLichessOAuth(window.location.origin + window.location.pathname);
+      window.location.href = url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("failed"));
+      setBusy(false);
+    }
+  }
 
   async function run(fn: () => Promise<unknown>) {
     setBusy(true);
@@ -129,10 +165,31 @@ export function LichessCard() {
           )}
         </div>
 
+        {/* The callback bounces back here with an outcome to show. */}
+        {outcome && outcome !== "connected" && (
+          <p className="mb-2.5 rounded-xl bg-[rgb(255,240,240)] px-3 py-2 text-[12px] font-bold text-[rgb(160,60,60)]">
+            {t(`outcome.${outcome}`)}
+          </p>
+        )}
+
         {/* ---- not linked yet ---- */}
         {!link && (
           <>
             <p className="mb-2.5 text-[12.5px] leading-snug opacity-75">{t("intro")}</p>
+
+            {/* The recommended path. It proves the account *and* unlocks rated
+                games, so it is offered first and the bio-code route below is
+                framed as the smaller ask it is. */}
+            <button
+              onClick={() => void connectForPlay()}
+              disabled={busy}
+              className={`${button} mb-3 flex w-full items-center justify-center gap-2`}
+            >
+              <Swords className="size-4" />
+              {busy ? t("checking") : t("connectWithLichess")}
+            </button>
+            <p className="mb-2 text-center text-[11.5px] leading-snug opacity-60">{t("orTrackOnly")}</p>
+
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -241,6 +298,42 @@ export function LichessCard() {
                 ))}
               </div>
             )}
+            {/* ---- rated play ---- */}
+            <div className="mt-3 rounded-xl bg-sv-paper px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.5)]">
+              {play?.canPlay ? (
+                <>
+                  <p className="flex items-center gap-1.5 text-[12.5px] font-bold">
+                    <Swords className="size-3.5" />
+                    {t("ratedOn")}
+                  </p>
+                  <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("ratedOnHint")}</p>
+                  {/* A token cannot be refreshed, only granted again — so the
+                      warning has to come before it dies, not after. */}
+                  {play.expiringSoon && (
+                    <p className="mt-1.5 text-[11.5px] font-bold leading-snug text-[rgb(160,90,40)]">
+                      {t("expiringSoon")}
+                    </p>
+                  )}
+                  {play.managed && (
+                    <p className="mt-1.5 text-[11.5px] leading-snug opacity-70">{t("managedAccount")}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-[12.5px] font-bold">{t("ratedOff")}</p>
+                  <p className="mt-1 text-[11.5px] leading-snug opacity-70">{t("ratedOffHint")}</p>
+                  <button
+                    onClick={() => void connectForPlay()}
+                    disabled={busy}
+                    className={`${button} mt-2 flex w-full items-center justify-center gap-2`}
+                  >
+                    <Swords className="size-4" />
+                    {busy ? t("checking") : t("enableRated")}
+                  </button>
+                </>
+              )}
+            </div>
+
             <button
               onClick={() => void run(unlinkLichess)}
               disabled={busy}

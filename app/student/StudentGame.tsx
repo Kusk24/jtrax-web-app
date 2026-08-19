@@ -156,6 +156,16 @@ export default function StudentGame() {
     setScreen(s);
   };
 
+  /* Coming back from Lichess lands on this route, but the card that sent them
+     there lives on the profile screen — and screens here are state, not routes.
+     Without this a pupil returns from granting access to the home screen and
+     sees nothing at all confirming it worked. */
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("lichess")) {
+      setScreen("profile");
+    }
+  }, []);
+
   const loadPuzzle = (index: number) => {
     setPuzzleIndex(index);
     setBoard(PUZZLES[index].build());
