@@ -180,6 +180,8 @@ export default function StudentGame() {
      Without this a pupil returns from granting access to the home screen and
      sees nothing at all confirming it worked. */
   useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get("screen");
+    if (wanted === "puzzles" || wanted === "profile") setScreen(wanted);
     if (new URLSearchParams(window.location.search).has("lichess")) {
       setScreen("profile");
     }
@@ -306,9 +308,9 @@ export default function StudentGame() {
           {/* Daily challenge */}
           <div className="rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236)]">
             <div className="flex flex-col items-center gap-2.5 rounded-[16px] bg-sv-cream px-4 py-5">
-              <span className="text-center text-[22px] font-bold">
+              <h2 className="text-center text-[22px] font-bold">
                 {isDailyDone ? t("missionComplete") : t("dailyChallenge")}
-              </span>
+              </h2>
               <span className="text-center text-sm font-bold text-sv-body">
                 {isDailyDone ? t("keepStreak") : t("puzzlesCount", { n: solvedCount })}
               </span>
@@ -333,7 +335,7 @@ export default function StudentGame() {
 
       {screen === "puzzles" && (
         <>
-          <h1 className="absolute left-[25px] top-[43px] font-sv-display text-[32px] font-normal">{t("puzzles")}</h1>
+          <h1 className="absolute left-[25px] top-[43px] font-sv-display text-[32px] font-normal text-white">{t("puzzles")}</h1>
           <div className="absolute left-[18px] top-[126px] h-[604px] w-[354px] overflow-hidden rounded-3xl bg-sv-gold p-[18px] shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
             {/* Tabs */}
             <div className="flex h-12 w-full gap-1 rounded-3xl bg-sv-cream p-1 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
@@ -419,7 +421,7 @@ export default function StudentGame() {
           <button onClick={() => go("puzzles")} aria-label={t("back")} className="absolute left-5 top-[46px] z-[2] cursor-pointer border-none bg-transparent text-[22px] font-bold text-sv-ink">
             ←
           </button>
-          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-normal">
+          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-normal text-white">
             {t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
           <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-sv-body">{t("whiteToMove")}</div>
@@ -504,7 +506,7 @@ export default function StudentGame() {
       {/* ---------------- PROFILE ---------------- */}
       {screen === "profile" && (
         <>
-          <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-normal">{t("profile")}</h1>
+          <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-normal text-white">{t("profile")}</h1>
           {/* A scrolling column rather than a stack of absolute positions.
               Every card here used to be pinned to a measured offset, which
               meant nothing could be added without moving all of them — and
