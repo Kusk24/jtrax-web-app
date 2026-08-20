@@ -25,7 +25,7 @@ export default function TeacherHome() {
     <div className="flex flex-col gap-6">
       <TeacherHeader classCount={1} />
 
-      <section className="rounded-card bg-peach/60 px-5 py-4">
+      <section className="rounded-card bg-highlight/60 px-5 py-4">
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-ink">{t("weeklyProgress")}</h2>
           <span className="text-sm font-extrabold text-navy">{weeklyProgress.pct}%</span>
@@ -72,7 +72,7 @@ export default function TeacherHome() {
               key={cls.id}
               className="overflow-hidden rounded-card border-2 border-navy/20 bg-card shadow-clay"
             >
-              <div className="flex h-24 items-center justify-center bg-gradient-to-br from-olive-soft to-peach">
+              <div className="flex h-24 items-center justify-center bg-gradient-to-br from-olive-soft to-highlight">
                 <Crown className="size-9 text-olive" />
               </div>
               <div className="flex flex-col gap-1.5 p-3">

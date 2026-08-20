@@ -19,7 +19,7 @@ export function Avatar({
         {name.charAt(0)}
       </span>
       {badge && (
-        <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-brick text-[10px] font-bold text-white ring-2 ring-cream">
+        <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-brick text-[10px] font-bold text-white ring-2 ring-paper">
           !
         </span>
       )}

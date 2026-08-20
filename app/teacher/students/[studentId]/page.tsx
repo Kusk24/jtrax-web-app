@@ -96,7 +96,7 @@ export default async function TeacherStudentProfilePage({
           <GraduationCap className="size-4" /> {t("profile.enrolledClasses")}
         </h2>
         <div className="mt-3 flex gap-3">
-          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-olive-soft to-peach">
+          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-olive-soft to-highlight">
             <Crown className="size-7 text-olive" />
           </div>
           <div className="min-w-0 flex-1">
@@ -113,7 +113,7 @@ export default async function TeacherStudentProfilePage({
         </div>
         <div className="mt-3">
           <div className="flex justify-end text-xs font-semibold text-navy">{cls.pct}%</div>
-          <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+          <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-line">
             <div className="h-full rounded-full bg-navy" style={{ width: `${cls.pct}%` }} />
           </div>
           <p className="mt-1 text-xs text-muted">

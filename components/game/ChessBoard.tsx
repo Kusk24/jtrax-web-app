@@ -5,8 +5,8 @@
    it owns no game state, so the same component serves a live game and a
    finished one being stepped through.
 
-   Styling follows the puzzle board already in StudentGame: gold tray, cream
-   mat, unicode glyphs. */
+   Styling follows the puzzle board already in StudentGame: pale-blue tray,
+   white mat, unicode glyphs. */
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {

@@ -39,15 +39,15 @@ const overviewTiles = [
     icon: BarChart3,
     value: `${monthlyOverview.attendancePct}%`,
     labelKey: "attendanceRate",
-    frame: "border-teal-500/40",
-    iconColor: "text-teal-600",
+    frame: "border-accent/50",
+    iconColor: "text-accent",
   },
   {
     icon: CircleDollarSign,
     value: `${monthlyOverview.creditsConsumed}`,
     labelKey: "creditConsumed",
-    frame: "border-amber-400/60",
-    iconColor: "text-amber-500",
+    frame: "border-gold/50",
+    iconColor: "text-gold",
   },
 ] as const;
 
@@ -144,13 +144,13 @@ export default function TeacherProfilePage() {
             <LanguageToggle className="ml-auto" />
           </li>
           <li>
-            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
+            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-paper">
               <Phone className="size-4 text-navy" /> {t("profile.contactSchool")}
               <ChevronRight className="ml-auto size-4 text-muted" />
             </button>
           </li>
           <li>
-            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-cream">
+            <button className="flex w-full items-center gap-3 rounded-lg px-1 py-2.5 text-sm text-ink hover:bg-paper">
               <Settings className="size-4 text-navy" /> {t("profile.settings")}
               <ChevronRight className="ml-auto size-4 text-muted" />
             </button>

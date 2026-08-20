@@ -6,7 +6,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Panel, peachBtn } from "./PlayShell";
+import { Panel, actionBtn } from "./PlayShell";
 
 const CODE_LENGTH = 6;
 
@@ -69,7 +69,7 @@ export function JoinForm() {
         </p>
       )}
 
-      <button type="submit" disabled={pending || code.length < CODE_LENGTH} className={`${peachBtn} py-3.5 text-[15px]`}>
+      <button type="submit" disabled={pending || code.length < CODE_LENGTH} className={`${actionBtn} py-3.5 text-[15px]`}>
         {pending ? t("joining") : t("join")}
       </button>
     </form>

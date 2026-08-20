@@ -57,7 +57,7 @@ export default function OngoingClassesPage() {
                       <h2 className="font-bold text-navy">
                         {session.course} ({session.section})
                       </h2>
-                      <span className="rounded-full bg-peach px-2 py-0.5 text-[10px] font-bold text-peach-ink">
+                      <span className="rounded-full bg-highlight px-2 py-0.5 text-[10px] font-bold text-highlight-ink">
                         {tn("ongoing")}
                       </span>
                     </div>

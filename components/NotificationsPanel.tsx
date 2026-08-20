@@ -9,7 +9,7 @@ const kindStyles: Record<
   NotificationItem["kind"],
   { icon: typeof AlertTriangle; box: string; iconClass: string }
 > = {
-  alert: { icon: AlertTriangle, box: "bg-peach", iconClass: "fill-peach-ink text-peach" },
+  alert: { icon: AlertTriangle, box: "bg-highlight", iconClass: "fill-highlight-ink text-highlight" },
   success: { icon: Check, box: "bg-olive", iconClass: "text-white" },
   expiry: { icon: Hourglass, box: "bg-brick-soft", iconClass: "text-brick" },
 };
