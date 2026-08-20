@@ -58,13 +58,13 @@ export function JoinForm() {
           maxLength={CODE_LENGTH}
           onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
           placeholder="ABC123"
-          className="w-full rounded-xl border-none bg-sv-paper px-3 py-3 text-center font-mono text-[26px] font-bold tracking-[0.35em] text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] outline-none placeholder:opacity-30 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]"
+          className="w-full rounded-xl border-none bg-sv-paper px-3 py-3 text-center font-mono text-[26px] font-bold tracking-[0.35em] text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] outline-none placeholder:opacity-30 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]"
         />
         <p className="mt-2 text-xs leading-snug text-sv-body">{t("codeHint")}</p>
       </Panel>
 
       {error && (
-        <p role="alert" className="rounded-2xl bg-[rgb(255,240,240)] px-3.5 py-2.5 text-xs font-bold text-[rgb(160,60,60)] shadow-[inset_0_0_0_1.5px_rgb(196,165,165)]">
+        <p role="alert" className="rounded-2xl bg-[rgb(251,234,234)] px-3.5 py-2.5 text-xs font-bold text-[rgb(176,63,58)] shadow-[inset_0_0_0_1.5px_rgb(224,180,180)]">
           {t(`error.${error}`)}
         </p>
       )}

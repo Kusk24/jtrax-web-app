@@ -213,7 +213,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                   className="min-h-[36px] cursor-pointer rounded-[14px] border-none px-3 text-[12.5px] font-bold"
                   style={{
                     background: clock === i ? "rgb(255,227,135)" : "transparent",
-                    boxShadow: clock === i ? "inset 0 0 0 1.5px rgb(206,219,236)" : "inset 0 0 0 1px rgba(208,158,97,0.4)",
+                    boxShadow: clock === i ? "inset 0 0 0 1.5px rgb(206,219,236)" : "inset 0 0 0 1px rgb(216,226,240)",
                   }}
                 >
                   {c.label}

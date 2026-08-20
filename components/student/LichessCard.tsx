@@ -135,9 +135,9 @@ export function LichessCard() {
 
   const card =
     "w-[352px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.58)]";
-  const inner = "rounded-[16px] bg-sv-cream px-4 py-3.5 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]";
+  const inner = "rounded-[16px] bg-sv-cream px-4 py-3.5 shadow-[inset_0_0_0_1px_rgb(206,219,236)]";
   const field =
-    "w-full rounded-xl border-none bg-sv-paper px-3 py-2.5 text-[14px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] outline-none placeholder:font-normal placeholder:opacity-40 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]";
+    "w-full rounded-xl border-none bg-sv-paper px-3 py-2.5 text-[14px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] outline-none placeholder:font-normal placeholder:opacity-40 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]";
   const button =
     "cursor-pointer rounded-[16px] border-none bg-sv-primary px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
 
@@ -218,13 +218,13 @@ export function LichessCard() {
 
             {link.verifyCode ? (
               <div className="mt-2 flex items-center gap-2">
-                <code className="flex-1 truncate rounded-xl bg-sv-paper px-3 py-2 font-mono text-[13px] font-bold shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]">
+                <code className="flex-1 truncate rounded-xl bg-sv-paper px-3 py-2 font-mono text-[13px] font-bold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
                   {link.verifyCode}
                 </code>
                 <button
                   onClick={() => void copyCode()}
                   aria-label={t("copyCode")}
-                  className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none bg-sv-paper shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+                  className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none bg-sv-paper shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
                 >
                   {copied ? <Check className="size-4 text-sv-mint-ink" /> : <Copy className="size-4" />}
                 </button>
@@ -257,7 +257,7 @@ export function LichessCard() {
               <button
                 onClick={() => void run(unlinkLichess)}
                 disabled={busy}
-                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] disabled:"
+                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] disabled:"
               >
                 {t("remove")}
               </button>
@@ -284,7 +284,7 @@ export function LichessCard() {
                   <div
                     key={r.perf}
                     className="flex items-center justify-between gap-3 py-1.5"
-                    style={{ borderTop: i === 0 ? "none" : "1px solid rgba(208,158,97,0.35)" }}
+                    style={{ borderTop: i === 0 ? "none" : "1px solid rgb(216,226,240)" }}
                   >
                     <span className="text-[13px] text-sv-body">{t(`perf.${r.perf}`)}</span>
                     <span className="flex items-baseline gap-1.5">
@@ -299,7 +299,7 @@ export function LichessCard() {
               </div>
             )}
             {/* ---- rated play ---- */}
-            <div className="mt-3 rounded-xl bg-sv-paper px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.5)]">
+            <div className="mt-3 rounded-xl bg-sv-paper px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
               {play?.canPlay ? (
                 <>
                   <p className="flex items-center gap-1.5 text-[12.5px] font-bold">

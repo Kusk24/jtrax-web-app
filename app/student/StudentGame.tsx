@@ -373,15 +373,15 @@ export default function StudentGame() {
                     <button
                       key={i}
                       onClick={() => loadPuzzle(i)}
-                      className="flex h-[78px] w-full cursor-pointer items-center gap-4 rounded-[18px] border-none bg-sv-cream px-5 text-left shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]"
+                      className="flex h-[78px] w-full cursor-pointer items-center gap-4 rounded-[18px] border-none bg-sv-cream px-5 text-left shadow-[inset_0_0_0_1px_rgb(206,219,236)]"
                     >
-                      <span className="flex text-[rgb(40,32,30)]">
+                      <span className="flex text-[rgb(36,65,124)]">
                         <span className="-mr-1.5 text-3xl">♟</span>
                         <span className="text-3xl">♜</span>
                       </span>
                       <span className="flex-1 text-base font-bold text-sv-ink">{t("puzzleN", { n: i + 1 })}</span>
                       {puzzlesSolved[i] ? (
-                        <Check className="size-5 text-[rgb(36,163,110)]" strokeWidth={3} />
+                        <Check className="size-5 text-[rgb(47,107,79)]" strokeWidth={3} />
                       ) : (
                         <span className="text-base font-bold text-sv-ink">x1</span>
                       )}
@@ -396,9 +396,9 @@ export default function StudentGame() {
                   ).map(([title, n]) => (
                     <div
                       key={title}
-                      className="flex h-[78px] w-full cursor-pointer items-center gap-4 rounded-[18px] bg-sv-cream px-5 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]"
+                      className="flex h-[78px] w-full cursor-pointer items-center gap-4 rounded-[18px] bg-sv-cream px-5 shadow-[inset_0_0_0_1px_rgb(206,219,236)]"
                     >
-                      <span className="flex text-[rgb(40,32,30)]">
+                      <span className="flex text-[rgb(36,65,124)]">
                         <span className="-mr-1.5 text-3xl">♟</span>
                         <span className="text-3xl">♜</span>
                       </span>
@@ -424,7 +424,9 @@ export default function StudentGame() {
           <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-normal text-white">
             {t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
-          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-sv-body">{t("whiteToMove")}</div>
+          {/* Sits on the navy wash with the heading, so it is white like the
+              heading — `sv-body` here measured 3.9 luminance spread, i.e. gone. */}
+          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-white/90">{t("whiteToMove")}</div>
 
           <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
             <div className="relative mb-1 flex w-full justify-start">
@@ -432,18 +434,18 @@ export default function StudentGame() {
                 <div
                   className="absolute left-24 top-[-68px] z-[2] flex max-w-[210px] items-center gap-1.5 rounded-2xl px-3 py-2"
                   style={{
-                    background: solved ? "rgb(249,230,173)" : "rgb(255,240,240)",
-                    boxShadow: `inset 0 0 0 1.5px ${solved ? "rgb(206,219,236)" : "rgb(196,165,165)"}`,
+                    background: solved ? "rgb(226,240,233)" : "rgb(251,234,234)",
+                    boxShadow: `inset 0 0 0 1.5px ${solved ? "rgb(206,219,236)" : "var(--color-sv-board-dark)"}`,
                   }}
                 >
                   {solved && <Check className="size-[18px] text-sv-mint-ink" strokeWidth={3} />}
-                  {showWrong && <X className="size-4 text-[rgb(196,90,90)]" strokeWidth={3} />}
+                  {showWrong && <X className="size-4 text-[rgb(176,63,58)]" strokeWidth={3} />}
                   <span className="text-xs font-bold">{message}</span>
                   <span
                     className="absolute bottom-3.5 left-[-6px] size-3 rotate-45 [clip-path:polygon(0_0,100%_100%,0_100%)]"
                     style={{
-                      background: solved ? "rgb(249,230,173)" : "rgb(255,240,240)",
-                      boxShadow: `inset 0 0 0 1.5px ${solved ? "rgb(206,219,236)" : "rgb(196,165,165)"}`,
+                      background: solved ? "rgb(226,240,233)" : "rgb(251,234,234)",
+                      boxShadow: `inset 0 0 0 1.5px ${solved ? "rgb(206,219,236)" : "var(--color-sv-board-dark)"}`,
                     }}
                   />
                 </div>
@@ -451,8 +453,8 @@ export default function StudentGame() {
             </div>
 
             <div className="relative top-[-13px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
-              <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
-                <div className="grid grid-cols-[repeat(8,34px)] grid-rows-[repeat(8,34px)] overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(116,84,44)]">
+              <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
+                <div className="grid grid-cols-[repeat(8,34px)] grid-rows-[repeat(8,34px)] overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(70,96,140)]">
                   {Array.from({ length: 64 }, (_, idx) => {
                     const r = Math.floor(idx / 8);
                     const c = idx % 8;
@@ -463,8 +465,8 @@ export default function StudentGame() {
                     const bg = isSelected
                       ? "rgb(220,232,248)"
                       : (r + c) % 2 === 0
-                        ? "rgb(248,246,235)"
-                        : "rgb(196,165,165)";
+                        ? "var(--color-sv-board-light)"
+                        : "var(--color-sv-board-dark)";
                     return (
                       <button
                         key={idx}
@@ -476,7 +478,7 @@ export default function StudentGame() {
                           <span
                             className="select-none text-2xl leading-none"
                             style={{
-                              color: isWhite(piece) ? "rgb(255,251,240)" : "rgb(90,50,42)",
+                              color: isWhite(piece) ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
                               textShadow: isWhite(piece) ? "1px 1px 0 rgb(36,65,124)" : "none",
                             }}
                           >
@@ -513,7 +515,7 @@ export default function StudentGame() {
               there was no room left below the streak anyway. */}
           <div className="absolute inset-x-0 bottom-[110px] top-[100px] flex flex-col items-center gap-4 overflow-y-auto px-[15px] pb-4">
           <div className="h-[104px] w-[352px] shrink-0 rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_4px_rgba(125,87,50,0.5)]">
-            <div className="absolute left-2.5 top-[5px] flex h-[94px] w-[332px] items-center gap-3.5 rounded-[18px] bg-sv-cream pl-[18px] pr-3 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
+            <div className="absolute left-2.5 top-[5px] flex h-[94px] w-[332px] items-center gap-3.5 rounded-[18px] bg-sv-cream pl-[18px] pr-3 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
               <span className="flex size-[50px] shrink-0 items-center justify-center rounded-full bg-sv-gold font-sv-display text-[22px] text-sv-ink shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
                 {(record?.name ?? me?.displayName ?? "?").trim().charAt(0).toUpperCase()}
               </span>
@@ -534,7 +536,7 @@ export default function StudentGame() {
           {/* Details worth checking: the id a teacher asks for, the rating, and
               when the academy last saw you. */}
           <div className="w-[352px] shrink-0 overflow-hidden rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.58)]">
-            <div className="rounded-[16px] bg-sv-cream px-4 py-3 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
+            <div className="rounded-[16px] bg-sv-cream px-4 py-3 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
               {(
                 [
                   [t("studentIdLabel"), studentId || "—"],
@@ -545,7 +547,7 @@ export default function StudentGame() {
                 <div
                   key={label}
                   className="flex items-center justify-between gap-3 py-2"
-                  style={{ borderTop: i === 0 ? "none" : "1px solid rgba(208,158,97,0.35)" }}
+                  style={{ borderTop: i === 0 ? "none" : "1px solid rgb(216,226,240)" }}
                 >
                   <span className="text-[13px] text-sv-body">{label}</span>
                   <span className="max-w-[190px] truncate text-[13px] font-bold">{value}</span>
@@ -629,7 +631,7 @@ export default function StudentGame() {
               >
                 {/* Two crossed swords: the "play someone" idea, without an
                     emoji and without repeating the knight used for Play. */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(109,61,52)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(36,65,124)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14.5 14.5 21 21M21 3l-8 8M3 21l8-8M9.5 9.5 3 3" />
                   <path d="M18 3h3v3M6 3H3v3" />
                 </svg>

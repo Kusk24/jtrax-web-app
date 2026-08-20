@@ -57,7 +57,7 @@ export function PlayShell({
 export function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`rounded-[20px] bg-sv-cream p-4 shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)] ${className}`}
+      className={`rounded-[20px] bg-sv-cream p-4 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] ${className}`}
     >
       {children}
     </div>

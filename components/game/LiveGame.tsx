@@ -167,7 +167,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
             </button>
             <button
               onClick={() => setConfirmResign(false)}
-              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+              className="flex-1 cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
             >
               {t("keepPlaying")}
             </button>
@@ -175,7 +175,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
         ) : (
           <button
             onClick={() => setConfirmResign(true)}
-            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgba(208,158,97,0.6)]"
+            className="cursor-pointer rounded-[20px] border-none bg-sv-cream py-3 text-sm font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
           >
             {t("resign")}
           </button>

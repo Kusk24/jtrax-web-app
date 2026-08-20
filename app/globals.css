@@ -77,7 +77,17 @@
   --color-sv-primary: rgb(36, 65, 124);
   --color-sv-primary-line: rgb(27, 50, 96);
   --color-sv-highlight: rgb(220, 232, 248);
-  --color-sv-board-dark: rgb(183, 198, 220);
+
+  /* The board. `board-dark` existed through the whole restyle and was never
+     used — every board hard-coded a dusty rose and cream, so the one surface a
+     child looks at longest stayed the old palette. The move highlights are
+     deliberately warm: a blue highlight on a blue board is not a highlight. */
+  --color-sv-board-light: rgb(238, 243, 250);
+  --color-sv-board-dark: rgb(163, 182, 210);
+  --color-sv-board-selected: rgb(242, 217, 140);
+  --color-sv-board-last: rgb(228, 215, 176);
+  --color-sv-piece-white: rgb(253, 254, 254);
+  --color-sv-piece-black: rgb(27, 50, 96);
   --color-sv-mint: rgb(226, 240, 233);
   --color-sv-mint-line: rgb(143, 191, 168);
   --color-sv-mint-ink: rgb(47, 107, 79);
