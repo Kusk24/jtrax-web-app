@@ -84,7 +84,7 @@ export default function ChildProfileV2({
       </div>
 
       {/* Credits gradient card */}
-      <div className="flex flex-col gap-3 rounded-[14px] bg-[linear-gradient(150deg,#234A9F,#1B3A73)] p-5 text-[#fbfff1] shadow-[0_12px_30px_rgba(27,58,115,.25)]">
+      <div className="flex flex-col gap-3 rounded-[14px] bg-[linear-gradient(150deg,var(--color-pp-deep),#1B3A73)] p-5 text-[#fbfff1] shadow-[0_12px_30px_rgba(27,58,115,.25)]">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-[.12em] text-[#b4c5e4]">
             {t("remainingCredits")}
@@ -101,17 +101,17 @@ export default function ChildProfileV2({
           <div className="flex flex-col gap-0.5">
             <span
               className="text-[12.5px] font-bold"
-              style={{ color: expSoon ? "#C24B4B" : "#fbfff1" }}
+              style={{ color: expSoon ? "var(--color-pp-danger)" : "#fbfff1" }}
             >
               {expSoon ? t("expiresSoon") : t("validUntil")}
             </span>
-            <span className="text-[11px]" style={{ color: expSoon ? "#C97A2E" : "#b4c5e4" }}>
+            <span className="text-[11px]" style={{ color: expSoon ? "var(--color-pp-amber)" : "#b4c5e4" }}>
               {ch.valid}
             </span>
           </div>
           <span
             className="flex-none font-pp-display text-[19px] font-semibold"
-            style={{ color: expSoon ? "#C24B4B" : "#fbfff1" }}
+            style={{ color: expSoon ? "var(--color-pp-danger)" : "#fbfff1" }}
           >
             {t("daysLeftShort", { count: ch.daysLeft })}
           </span>
@@ -138,12 +138,12 @@ export default function ChildProfileV2({
             <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="block h-16 w-full overflow-visible">
               <defs>
                 <linearGradient id="chGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2E5CB8" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#2E5CB8" stopOpacity="0" />
+                  <stop offset="0%" stopColor="var(--color-pp-blue)" stopOpacity="0.22" />
+                  <stop offset="100%" stopColor="var(--color-pp-blue)" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <path d={area} fill="url(#chGrad)" />
-              <path d={line} fill="none" stroke="#2E5CB8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={line} fill="none" stroke="var(--color-pp-blue)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             {pts.map((p, i) => {
               const mins = vals[i];
@@ -173,7 +173,7 @@ export default function ChildProfileV2({
                         <span className="relative flex size-[22px] items-center justify-center">
                           <svg width="22" height="22" viewBox="0 0 22 22" className="absolute inset-0 -rotate-90">
                             <circle cx="11" cy="11" r="9" fill="none" stroke="#F3E6D8" strokeWidth="3" />
-                            <circle cx="11" cy="11" r="9" fill="none" stroke="#E38A3E" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`} />
+                            <circle cx="11" cy="11" r="9" fill="none" stroke="var(--color-pp-amber)" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`} />
                           </svg>
                           <Image src="/shared/fish.png" alt="" width={10} height={10} className="relative" />
                         </span>
@@ -232,7 +232,7 @@ export default function ChildProfileV2({
                 className="h-full rounded-full"
                 style={{
                   width: `${Math.round((ch.credits / 20) * 100)}%`,
-                  background: low ? "#e3a45e" : "#2E5CB8",
+                  background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
                 }}
               />
             </div>

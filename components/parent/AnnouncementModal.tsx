@@ -9,9 +9,9 @@ export const SENDER_STYLE: Record<
   SenderKind,
   { labelKey: string; c: string; bg: string }
 > = {
-  teacher: { labelKey: "senderTeacher", c: "#2E5CB8", bg: "#E8EEFA" },
-  branch: { labelKey: "senderBranch", c: "#4CAF7D", bg: "#E6F4EC" },
-  admin: { labelKey: "senderAdmin", c: "#234A9F", bg: "#efeefa" },
+  teacher: { labelKey: "senderTeacher", c: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
+  branch: { labelKey: "senderBranch", c: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
+  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "#efeefa" },
 };
 
 export function AnnouncementModal({

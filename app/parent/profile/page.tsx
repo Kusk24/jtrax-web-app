@@ -25,6 +25,10 @@ export default function ParentProfileV2() {
   const [screenTime, setScreenTime] = useState({ h: 1, m: 30 });
   const [pickerOpen, setPickerOpen] = useState(false);
   const [draft, setDraft] = useState({ h: 1, m: 30 });
+  /* A failed save used to raise a browser alert, in English, on a screen a
+     Thai-reading parent may be using. It belongs next to the switch that
+     failed. */
+  const [prefError, setPrefError] = useState(false);
   const hoursRef = useRef<HTMLDivElement>(null);
   const minutesRef = useRef<HTMLDivElement>(null);
 
@@ -124,10 +128,19 @@ export default function ParentProfileV2() {
                   <span className="text-[11px] text-pp-muted">{p.sub}</span>
                 </div>
                 <button
-                  onClick={() => savePrefs({ ...prefs, [p.k]: !prefs[p.k] }).catch(() => window.alert("could not save"))}
-                  aria-pressed={prefs[p.k]}
+                  onClick={() => {
+                    setPrefError(false);
+                    savePrefs({ ...prefs, [p.k]: !prefs[p.k] }).catch(() => setPrefError(true));
+                  }}
+                  role="switch"
+                  aria-checked={prefs[p.k]}
+                  aria-label={p.label}
                   className="relative h-7 w-[46px] flex-none cursor-pointer rounded-full transition-colors"
-                  style={{ background: prefs[p.k] ? "#4a9d6b" : "#d8d3c8" }}
+                  style={{
+                    background: prefs[p.k]
+                      ? "var(--color-pp-green-dot)"
+                      : "var(--color-pp-faint)",
+                  }}
                 >
                   <span
                     className="absolute top-[3px] size-[22px] rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,.2)] transition-all"
@@ -136,6 +149,11 @@ export default function ParentProfileV2() {
                 </button>
               </div>
             ))}
+            {prefError && (
+              <p role="alert" className="px-4 py-2.5 text-[12px] font-semibold text-pp-danger">
+                {t("prefSaveFailed")}
+              </p>
+            )}
           </div>
         </div>
 
@@ -171,8 +189,8 @@ export default function ParentProfileV2() {
                   onClick={() => setTheme(th.k)}
                   className="cursor-pointer rounded-full px-3 py-1 text-[11.5px] font-bold"
                   style={{
-                    background: theme === th.k ? "#234A9F" : "transparent",
-                    color: theme === th.k ? "#fbfff1" : "#64708C",
+                    background: theme === th.k ? "var(--color-pp-deep)" : "transparent",
+                    color: theme === th.k ? "#fbfff1" : "var(--color-pp-muted)",
                   }}
                 >
                   {th.label}
@@ -200,8 +218,8 @@ export default function ParentProfileV2() {
                     aria-pressed={locale === code}
                     className="cursor-pointer rounded-full px-3.5 py-1 text-xs font-bold"
                     style={{
-                      background: locale === code ? "#234A9F" : "transparent",
-                      color: locale === code ? "#fbfff1" : "#64708C",
+                      background: locale === code ? "var(--color-pp-deep)" : "transparent",
+                      color: locale === code ? "#fbfff1" : "var(--color-pp-muted)",
                     }}
                   >
                     {lbl}
@@ -277,7 +295,7 @@ export default function ParentProfileV2() {
                     style={{
                       fontSize: h === draft.h ? 20 : 16,
                       fontWeight: h === draft.h ? 700 : 400,
-                      color: h === draft.h ? "#1A2B4A" : "#B7C2D6",
+                      color: h === draft.h ? "var(--color-pp-ink)" : "var(--color-pp-faint)",
                     }}
                   >
                     {h}
@@ -305,7 +323,7 @@ export default function ParentProfileV2() {
                     style={{
                       fontSize: m === draft.m ? 20 : 16,
                       fontWeight: m === draft.m ? 700 : 400,
-                      color: m === draft.m ? "#1A2B4A" : "#B7C2D6",
+                      color: m === draft.m ? "var(--color-pp-ink)" : "var(--color-pp-faint)",
                     }}
                   >
                     {String(m).padStart(2, "0")}

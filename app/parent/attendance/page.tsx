@@ -74,10 +74,10 @@ export default function ParentAttendanceV2() {
               key={i}
               className="flex aspect-square items-center justify-center rounded-full text-[12.5px]"
               style={{
-                background: c.present ? "#4a9d6b" : "transparent",
-                color: c.present ? "#fbfff1" : "#1A2B4A",
+                background: c.present ? "var(--color-pp-green-dot)" : "transparent",
+                color: c.present ? "#fbfff1" : "var(--color-pp-ink)",
                 fontWeight: c.present || c.today ? 700 : 400,
-                border: c.today && !c.present ? "1.5px solid #2E5CB8" : "none",
+                border: c.today && !c.present ? "1.5px solid var(--color-pp-blue)" : "none",
               }}
             >
               {c.label}
@@ -104,9 +104,9 @@ export default function ParentAttendanceV2() {
             onClick={() => setFilter(f.k)}
             className="cursor-pointer rounded-full border-[1.5px] px-4 py-2 text-xs font-bold"
             style={{
-              background: filter === f.k ? "#234A9F" : "#ffffff",
-              color: filter === f.k ? "#fbfff1" : "#64708C",
-              borderColor: filter === f.k ? "#234A9F" : "#E7EBF3",
+              background: filter === f.k ? "var(--color-pp-deep)" : "#ffffff",
+              color: filter === f.k ? "#fbfff1" : "var(--color-pp-muted)",
+              borderColor: filter === f.k ? "var(--color-pp-deep)" : "var(--color-pp-line)",
             }}
           >
             {f.label}
