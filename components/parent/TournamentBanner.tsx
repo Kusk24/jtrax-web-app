@@ -9,7 +9,7 @@ export function TournamentBanner({ className = "" }: { className?: string }) {
       className={`relative flex items-center justify-center overflow-hidden ${className}`}
       style={{
         backgroundImage:
-          "linear-gradient(135deg,#234A9F 0%,#1E3F87 55%,#162F5C 100%)",
+          "linear-gradient(135deg,var(--color-pp-deep) 0%,#1E3F87 55%,#162F5C 100%)",
       }}
     >
       {/* faint chessboard field */}

@@ -43,8 +43,8 @@ export default function ParentAnnouncementsV2() {
               }}
               className="flex w-full cursor-pointer flex-col gap-2 rounded-xl border-[1.5px] p-4 text-left shadow-[0_6px_18px_rgba(35,53,94,.07)]"
               style={{
-                background: isUnread ? "#F0F4FC" : "#ffffff",
-                borderColor: isUnread ? "#E8EEFA" : "#E7EBF3",
+                background: isUnread ? "var(--color-pp-mist)" : "#ffffff",
+                borderColor: isUnread ? "var(--color-pp-soft)" : "var(--color-pp-line)",
               }}
             >
               <div className="flex items-center justify-between gap-2">

@@ -77,8 +77,8 @@ export default function ParentNotificationsV2() {
               }}
               className="flex w-full cursor-pointer items-start gap-3 rounded-xl border-[1.5px] p-4 text-left shadow-[0_6px_18px_rgba(35,53,94,.07)]"
               style={{
-                background: isUnread ? "#F0F4FC" : "#ffffff",
-                borderColor: isUnread ? "#E8EEFA" : "#E7EBF3",
+                background: isUnread ? "var(--color-pp-mist)" : "#ffffff",
+                borderColor: isUnread ? "var(--color-pp-soft)" : "var(--color-pp-line)",
               }}
             >
               <span

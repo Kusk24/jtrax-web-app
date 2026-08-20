@@ -93,8 +93,8 @@ export default function ChildHistoryV2({
                 }
                 className="flex aspect-square cursor-pointer items-center justify-center rounded-full p-0 text-[12.5px]"
                 style={{
-                  background: c.selected ? "#2E5CB8" : c.present ? "#4a9d6b" : "transparent",
-                  color: c.selected || c.present ? "#fbfff1" : "#1A2B4A",
+                  background: c.selected ? "var(--color-pp-blue)" : c.present ? "var(--color-pp-green-dot)" : "transparent",
+                  color: c.selected || c.present ? "#fbfff1" : "var(--color-pp-ink)",
                   border: c.today && !c.selected && !c.present ? "1.5px solid #b4c5e4" : "none",
                   fontWeight: c.selected || c.present ? 700 : 400,
                 }}

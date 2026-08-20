@@ -12,9 +12,9 @@ import { todayActivityV2, type AnnouncementV2, type SenderKind } from "@/lib/par
 import { useParentData } from "@/components/parent/ParentData";
 
 const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string }> = {
-  teacher: { labelKey: "senderTeacher", c: "#2E5CB8", bg: "#E8EEFA" },
-  branch: { labelKey: "senderBranch", c: "#4CAF7D", bg: "#E6F4EC" },
-  admin: { labelKey: "senderAdmin", c: "#234A9F", bg: "#efeefa" },
+  teacher: { labelKey: "senderTeacher", c: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
+  branch: { labelKey: "senderBranch", c: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
+  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "#efeefa" },
 };
 
 export default function ParentHomeV2() {
@@ -185,8 +185,8 @@ export default function ParentHomeV2() {
                     <span
                       className="rounded-full px-2 py-0.5 text-[9.5px] font-bold"
                       style={{
-                        color: isBeg ? "#4CAF7D" : "#8B5E3C",
-                        background: isBeg ? "#E6F4EC" : "#F0E6DC",
+                        color: isBeg ? "var(--color-pp-green)" : "var(--color-pp-amber)",
+                        background: isBeg ? "var(--color-pp-green-soft)" : "#F0E6DC",
                       }}
                     >
                       {c.level}
@@ -206,7 +206,7 @@ export default function ParentHomeV2() {
                         className="h-full rounded-full"
                         style={{
                           width: `${Math.round((c.credits / 20) * 100)}%`,
-                          background: low ? "#e3a45e" : "#2E5CB8",
+                          background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
                         }}
                       />
                     </div>
@@ -263,7 +263,7 @@ export default function ParentHomeV2() {
                           cy="10"
                           r="8.5"
                           fill="none"
-                          stroke="#E38A3E"
+                          stroke="var(--color-pp-amber)"
                           strokeWidth="3"
                           strokeLinecap="round"
                           strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`}
