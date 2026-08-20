@@ -1,24 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #f7f4ee;
-  --color-card: #fffdfa;
-  --color-navy: #2b4380;
-  --color-navy-deep: #1f3567;
-  --color-navy-soft: #d9e0ef;
-  --color-ink: #2b2b2b;
-  --color-muted: #8a8a86;
-  --color-line: #e4e0d8;
+  /* Base palette (teacher portal + sign-in) — the academy's colours from
+     jcachess.ac.th: navy #24417C on near-white blue #F7FAFD, like the student
+     portal and console. brick/olive stayed reds and greens (status colours);
+     the beige tokens were renamed when they turned blue (cream→paper,
+     peach→highlight). */
+  --color-paper: #f7fafd;
+  --color-card: #ffffff;
+  --color-navy: #24417c;
+  --color-navy-deep: #1b3260;
+  --color-navy-soft: #d9e4f5;
+  --color-ink: #22304a;
+  /* Dark enough to stay 4.5:1 on the tinted panels it sits on (navy-soft/70,
+     highlight), not just on white. */
+  --color-muted: #4e5f7b;
+  --color-line: #e2e9f3;
 
-  --color-brick: #c0392b;
-  --color-brick-soft: #f6d7ce;
-  --color-maroon: #7d3c3c;
+  --color-brick: #c24b4b;
+  --color-brick-soft: #fbeaea;
+  --color-maroon: #9d4343;
 
-  --color-olive: #8fa653;
-  --color-olive-soft: #dde3c4;
+  --color-olive: #2f7a4c;
+  --color-olive-soft: #e6f4ec;
 
-  --color-peach: #f8e3c9;
-  --color-peach-ink: #8c3a1e;
+  --color-highlight: #dce8f8;
+  --color-highlight-ink: #2f4d80;
+
+  /* Secondary accents, so screens stop reaching for Tailwind's default
+     teal/amber. Both clear 4.5:1 on card white. */
+  --color-accent: #3a5da5;
+  --color-gold: #8a5a1e;
 
   /* Cute restyle: chunky clay-style rounding + soft double shadow, same palette. */
   --radius-card: 1.25rem;
@@ -70,8 +82,8 @@
   --font-sans: var(--font-nunito), var(--font-mitr), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fredoka), var(--font-mitr), ui-sans-serif, sans-serif;
 
-  --shadow-clay: 0 4px 12px rgb(43 67 128 / 0.08), 0 1px 2px rgb(43 67 128 / 0.06);
-  --shadow-clay-lg: 0 8px 20px rgb(43 67 128 / 0.12), 0 2px 4px rgb(43 67 128 / 0.06);
+  --shadow-clay: 0 4px 12px rgb(36 65 124 / 0.08), 0 1px 2px rgb(36 65 124 / 0.06);
+  --shadow-clay-lg: 0 8px 20px rgb(36 65 124 / 0.12), 0 2px 4px rgb(36 65 124 / 0.06);
 
   --animate-pop: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
@@ -92,7 +104,7 @@
 }
 
 body {
-  background-color: var(--color-cream);
+  background-color: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

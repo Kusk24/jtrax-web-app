@@ -4,6 +4,7 @@ import type {
   NotificationItem,
   AttendanceRecord,
 } from "./types";
+import { AVATAR_TINTS } from "./avatar-colors";
 
 export const student: Student = {
   id: "penny",
@@ -11,7 +12,7 @@ export const student: Student = {
   studentId: "u6612127",
   level: "Beginner",
   age: 8,
-  avatarColor: "bg-amber-200 text-amber-900",
+  avatarColor: AVATAR_TINTS.sand,
   credits: { used: 18, remaining: 2, total: 20, validUntil: "20 May 2026" },
   lowCredits: true,
 };
@@ -20,14 +21,14 @@ export const parentContacts = [
   {
     name: "Sandy Jones",
     relationKey: "mother",
-    avatarColor: "bg-rose-200 text-rose-800",
+    avatarColor: AVATAR_TINTS.rose,
     phone: "+66123456789",
     email: "sandy01234@gmail.com",
   },
   {
     name: "Mile Jones",
     relationKey: "father",
-    avatarColor: "bg-sky-200 text-sky-900",
+    avatarColor: AVATAR_TINTS.sky,
     phone: "+66123456790",
     email: "mile.jones@gmail.com",
   },

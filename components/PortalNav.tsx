@@ -84,7 +84,7 @@ export function PortalSideNav({
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${
                   active
                     ? "bg-navy-soft/50 font-semibold text-navy"
-                    : "text-muted hover:bg-cream hover:text-ink"
+                    : "text-muted hover:bg-paper hover:text-ink"
                 }`}
               >
                 <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />

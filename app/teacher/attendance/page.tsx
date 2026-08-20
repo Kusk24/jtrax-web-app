@@ -34,7 +34,7 @@ export default function TeacherAttendancePage() {
                     <p className="font-bold text-navy">
                       {session.course} ({session.section})
                       {session.status === "ongoing" && (
-                        <span className="ml-2 inline-block rounded-full bg-peach px-2 py-0.5 align-middle text-[10px] font-bold text-peach-ink">
+                        <span className="ml-2 inline-block rounded-full bg-highlight px-2 py-0.5 align-middle text-[10px] font-bold text-highlight-ink">
                           {t("dismissal.ongoing")}
                         </span>
                       )}

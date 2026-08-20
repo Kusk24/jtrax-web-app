@@ -18,7 +18,7 @@ export function AttendanceActions() {
       <Link
         href="/teacher/checkin/scan"
         aria-label={t("takeByScan")}
-        className="flex size-11 items-center justify-center rounded-full bg-peach text-peach-ink shadow-clay hover:brightness-95"
+        className="flex size-11 items-center justify-center rounded-full bg-highlight text-highlight-ink shadow-clay hover:brightness-95"
       >
         <Nfc className="size-5" />
       </Link>
