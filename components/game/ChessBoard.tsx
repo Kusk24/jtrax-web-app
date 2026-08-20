@@ -80,9 +80,9 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
 
   return (
     <div className="relative rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
-      <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgba(208,158,97,0.5)]">
+      <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
         <div
-          className="grid overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(116,84,44)]"
+          className="grid overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(70,96,140)]"
           style={{
             gridTemplateColumns: `repeat(8, ${square}px)`,
             gridTemplateRows: `repeat(8, ${square}px)`,
@@ -99,10 +99,10 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
               const bg = isFrom
                 ? "rgb(220,232,248)"
                 : wasLast
-                  ? "rgb(238,222,168)"
+                  ? "var(--color-sv-board-last)"
                   : (r + c) % 2 === 0
-                    ? "rgb(248,246,235)"
-                    : "rgb(196,165,165)";
+                    ? "var(--color-sv-board-light)"
+                    : "var(--color-sv-board-dark)";
               return (
                 <button
                   key={name}
@@ -117,7 +117,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
                       className="select-none leading-none"
                       style={{
                         fontSize: square * 0.72,
-                        color: piece.color === "w" ? "rgb(255,251,240)" : "rgb(90,50,42)",
+                        color: piece.color === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
                         textShadow: piece.color === "w" ? "1px 1px 0 rgb(36,65,124)" : "none",
                       }}
                     >
@@ -148,7 +148,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
                   onClick={() => choosePromotion(p)}
                   aria-label={t(`piece.${p}`)}
                   className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-sv-gold text-3xl leading-none shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
-                  style={{ color: game.turn() === "w" ? "rgb(255,251,240)" : "rgb(90,50,42)",
+                  style={{ color: game.turn() === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
                            textShadow: game.turn() === "w" ? "1px 1px 0 rgb(36,65,124)" : "none" }}
                 >
                   {PIECE_GLYPH[game.turn() + p]}

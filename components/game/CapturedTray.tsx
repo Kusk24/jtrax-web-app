@@ -37,12 +37,12 @@ export function CapturedTray({
             fontSize: 17,
             /* The board's own piece colours, so a captured knight looks like
                the knight it was. */
-            color: glyphColour === "w" ? "rgb(255,251,240)" : "rgb(90,50,42)",
+            color: glyphColour === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
             /* On the board a white piece always has a square behind it. Here it
                sits on cream, so it needs its own edge — without this the white
                half of the tray is very nearly invisible, which is exactly how
                the first attempt came out. */
-            WebkitTextStroke: glyphColour === "w" ? "0.7px rgb(120,75,55)" : undefined,
+            WebkitTextStroke: glyphColour === "w" ? "0.7px rgb(36,65,124)" : undefined,
             /* Runs of the same piece tuck together, so eight pawns still fit
                beside a name without shrinking the glyphs. */
             marginLeft: i > 0 && pieces[i - 1] === type ? -4 : i > 0 ? 1 : 0,
