@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Bell, CheckSquare } from "lucide-react";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
+import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { todayActivityV2, type AnnouncementV2, type SenderKind } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
@@ -121,6 +122,8 @@ export default function ParentHomeV2() {
             />
           ))}
         </div>
+
+        <LiveTournamentCard />
 
         <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
           {t("upcomingTournament")}

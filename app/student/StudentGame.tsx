@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Check, Flame, LogOut, Star, X } from "lucide-react";
 import { getMyLichess } from "@/lib/lichess";
+import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournaments";
 import { LichessCard } from "@/components/student/LichessCard";
 import { SignOutButton } from "@/components/SignOutButton";
 import {
@@ -91,6 +92,19 @@ export default function StudentGame() {
      It was two invented ones — 10 stars and 32 fish, both hard-coded — sitting
      where a child would reasonably read them as something they had earned. */
   const [rating, setRating] = useState<{ perf: string; value: number } | null>(null);
+  /* The school's live tournament, when there is one — the banner points at the
+     public results page, the same link the hall's QR code carries. */
+  const [liveTournament, setLiveTournament] = useState<LiveTournament | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchLiveTournaments().then((list) => {
+      if (!cancelled && list.length > 0) setLiveTournament(list[0]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   /* One rating, chosen the way a coach would introduce a child: rapid is the
      format the academy actually plays, so it leads, and the others stand in
@@ -330,6 +344,21 @@ export default function StudentGame() {
             <HomeAction href="/student/play" label={tp("title")} />
             <HomeAction href="/student/challenge" label={tch("title")} />
           </div>
+
+          {liveTournament && (
+            <Link
+              href={`/t/${liveTournament.tournamentId}`}
+              className="flex min-h-[52px] items-center gap-3 rounded-[18px] bg-sv-mint px-4 shadow-[inset_0_0_0_1.5px_rgb(143,191,168)] transition-colors duration-150 hover:brightness-[1.03]"
+            >
+              <span className="flex min-w-0 flex-1 flex-col py-2">
+                <span className="text-[12px] font-bold uppercase tracking-wide text-sv-mint-ink">
+                  {t("liveTournament")}
+                </span>
+                <span className="truncate text-[14px] font-bold text-sv-ink">{liveTournament.name}</span>
+              </span>
+              <span className="shrink-0 text-[13px] font-bold text-sv-mint-ink">{t("seeResults")}</span>
+            </Link>
+          )}
         </div>
       )}
 
