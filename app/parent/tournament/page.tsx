@@ -27,7 +27,7 @@ function Radio({ selected }: { selected: boolean }) {
   return (
     <span
       className="flex size-5 flex-none items-center justify-center rounded-full border-[1.5px]"
-      style={{ borderColor: selected ? "#2E5CB8" : "#E7EBF3" }}
+      style={{ borderColor: selected ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
     >
       {selected && <span className="size-[11px] rounded-full bg-pp-blue" />}
     </span>
@@ -60,6 +60,9 @@ export default function TournamentFlow() {
   const router = useRouter();
   const { children: childrenV2, tournament: tournamentV2, register } = useParentData();
   const [submitting, setSubmitting] = useState(false);
+  /* Whatever the server said stays in the console. A parent gets one sentence
+     they can act on, in their own language, beside the button. */
+  const [registerFailed, setRegisterFailed] = useState(false);
   const [step, setStep] = useState<Step>("detail");
   const [child, setChild] = useState(childrenV2[0]?.key ?? "");
   const [pay, setPay] = useState("card");
@@ -106,7 +109,7 @@ export default function TournamentFlow() {
                 key={c.key}
                 onClick={() => setChild(c.key)}
                 className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-white p-4 text-left"
-                style={{ borderColor: child === c.key ? "#2E5CB8" : "#E7EBF3" }}
+                style={{ borderColor: child === c.key ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
               >
                 <Radio selected={child === c.key} />
                 <span className="flex flex-col">
@@ -197,7 +200,7 @@ export default function TournamentFlow() {
                 key={k}
                 onClick={() => setPay(k)}
                 className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-white px-4 py-3.5 text-left"
-                style={{ borderColor: pay === k ? "#2E5CB8" : "#E7EBF3" }}
+                style={{ borderColor: pay === k ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
               >
                 <Radio selected={pay === k} />
                 <span className="text-[13.5px] font-semibold text-pp-ink">{lbl}</span>
@@ -211,10 +214,16 @@ export default function TournamentFlow() {
             {tournamentV2.fee}
           </span>
         </div>
+        {registerFailed && (
+          <p role="alert" className="text-[12.5px] font-semibold text-pp-danger">
+            {t("registerFailed")}
+          </p>
+        )}
         <button
           disabled={submitting}
           onClick={async () => {
             setSubmitting(true);
+            setRegisterFailed(false);
             try {
               await register({
                 tournamentId: (tournamentV2 as { id?: string }).id ?? "",
@@ -224,8 +233,8 @@ export default function TournamentFlow() {
                 fee: Number(tournamentV2.fee.replace(/[^0-9.]/g, "")) || 0,
               });
               setStep("done");
-            } catch (e) {
-              window.alert(e instanceof Error ? e.message : "registration failed");
+            } catch {
+              setRegisterFailed(true);
             } finally {
               setSubmitting(false);
             }

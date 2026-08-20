@@ -288,6 +288,8 @@
     "bankTransfer": "Bank Transfer",
     "total": "Total",
     "payNow": "Pay Now",
+    "prefSaveFailed": "Could not save that setting. Please try again.",
+    "registerFailed": "We could not complete the registration. Please try again, or contact the academy.",
     "regConfirmed": "Registration Confirmed",
     "regConfirmedBody": "{name} is registered for the {event}. A confirmation has been sent to {email}.",
     "done": "Done",
