@@ -23,7 +23,11 @@ export function StudentBottomNav() {
   const ink = (active: boolean) => (active ? "rgb(36,65,124)" : "rgb(53,85,117)");
 
   return (
-    <nav className="absolute bottom-[24px] left-[25px] flex h-[70px] w-[340px] items-center justify-around rounded-[25px] bg-sv-cream shadow-[inset_0_0_0_1.25px_rgb(216,226,240),0_0_0_1.25px_rgb(216,226,240)]">
+    <nav
+      /* z-20: the shell's scroll area is z-10 and reaches under this bar (its
+         pb-[104px] reserves the space) — without a higher layer every nav item
+         is visually present and completely unclickable. */
+      className="absolute bottom-[24px] left-[25px] z-20 flex h-[70px] w-[340px] items-center justify-around rounded-[25px] bg-sv-cream shadow-[inset_0_0_0_1.25px_rgb(216,226,240),0_0_0_1.25px_rgb(216,226,240)]">
       <Link href="/student" aria-label="Home" className={item}>
         <svg width="26" height="24" viewBox="0 0 26 24" fill="none">
           <path d="M13 1.5L2 10.5V22.5H10V15.5H16V22.5H24V10.5L13 1.5Z" fill={ink(false)} stroke={ink(false)} strokeWidth="1.5" strokeLinejoin="round" />
