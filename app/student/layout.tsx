@@ -20,7 +20,7 @@ export default async function StudentLayout({
 
   return (
     <div
-      className={`${chewy.variable} ${comic.variable} flex min-h-dvh w-full items-center justify-center bg-[rgb(224,220,210)] font-sv-body sm:py-6`}
+      className={`${chewy.variable} ${comic.variable} flex min-h-dvh w-full items-center justify-center bg-sv-tan font-sv-body sm:py-6`}
     >
       {children}
     </div>

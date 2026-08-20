@@ -175,6 +175,30 @@ button:active {
   --font-sv-display: var(--font-chewy), var(--font-mitr), ui-sans-serif, sans-serif;
 }
 
+/* The student screens are drawn on a fixed 390×844 canvas — a designed phone
+   screen, framed like a device on larger displays. Phones narrower than the
+   canvas get the whole drawing scaled down rather than cropped: 390px on a
+   360px screen was a 15px horizontal scroll on every student route. */
+.sv-frame {
+  --sv-scale: 1;
+  width: calc(390px * var(--sv-scale));
+  height: calc(844px * var(--sv-scale));
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.sv-frame > * {
+  transform: scale(var(--sv-scale));
+  transform-origin: top left;
+}
+/* Discrete steps rather than calc(100vw / 390): scale() takes a unitless
+   number and CSS cannot divide a length down to one, so a continuous version
+   silently drops the declaration and the frame crops instead. Each step's
+   canvas fits the narrowest screen in its bucket. */
+@media (max-width: 389px) { .sv-frame { --sv-scale: 0.96; } }
+@media (max-width: 374px) { .sv-frame { --sv-scale: 0.92; } }
+@media (max-width: 359px) { .sv-frame { --sv-scale: 0.87; } }
+@media (max-width: 339px) { .sv-frame { --sv-scale: 0.82; } }
+
 /* Student game animations (from JTrax Chess.dc.html). */
 @keyframes sv-fish-zoom {
   from { transform: scale(1); }

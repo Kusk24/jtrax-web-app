@@ -26,7 +26,8 @@ export function PlayShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex h-[844px] w-[390px] shrink-0 flex-col overflow-hidden bg-sv-paper text-sv-ink sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(36,65,124,0.28)]">
+    <div className="sv-frame">
+    <div className="relative flex h-[844px] w-[390px] flex-col overflow-hidden bg-sv-paper text-sv-ink sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(36,65,124,0.28)]">
       {/* The academy's own colours rather than a picture of a room. The cottage
           art was warm raster and no palette change could reach it. */}
       <div className="absolute inset-x-0 top-0 h-[190px] bg-[linear-gradient(180deg,#24417C_0%,#3A5DA5_58%,#F7FAFD_100%)]" />
@@ -49,6 +50,7 @@ export function PlayShell({
         {children}
       </div>
       {nav && <StudentBottomNav />}
+    </div>
     </div>
   );
 }

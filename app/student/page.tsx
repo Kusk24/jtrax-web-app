@@ -1,5 +1,9 @@
 import StudentGame from "./StudentGame";
 
 export default function StudentPage() {
-  return <StudentGame />;
+  return (
+    <div className="sv-frame">
+      <StudentGame />
+    </div>
+  );
 }
