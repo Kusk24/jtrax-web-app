@@ -3,7 +3,7 @@
  * These pages are the academy's public face — a link on a poster, a QR code in
  * a hall, a message forwarded to a grandparent — so they use the clean-blue
  * `pp-*` system the admin console and the parent portal already share, rather
- * than the cream-and-brick palette of the student game. One product, one look,
+ * than the student game's own `sv-*` tokens. One product, one look,
  * and nothing here that hints at an app you have to sign in to.
  *
  * The fonts are loaded here rather than in the root layout because the root is

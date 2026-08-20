@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { StudentBottomNav } from "./StudentBottomNav";
 
-export const peachBtn =
+export const actionBtn =
   "cursor-pointer rounded-[20px] border-none bg-sv-primary font-bold text-white shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
 
 export function PlayShell({

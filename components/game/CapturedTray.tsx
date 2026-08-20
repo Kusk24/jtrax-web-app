@@ -39,7 +39,7 @@ export function CapturedTray({
                the knight it was. */
             color: glyphColour === "w" ? "rgb(255,251,240)" : "rgb(90,50,42)",
             /* On the board a white piece always has a square behind it. Here it
-               sits on cream, so it needs its own edge — without this the white
+               sits on the white panel, so it needs its own edge — without this the white
                half of the tray is very nearly invisible, which is exactly how
                the first attempt came out. */
             WebkitTextStroke: glyphColour === "w" ? "0.7px rgb(120,75,55)" : undefined,
@@ -50,7 +50,7 @@ export function CapturedTray({
         >
           {/* Always the filled silhouette, for both colours. The outline glyphs
               Unicode gives White are mostly whitespace at 17px and disappear
-              into the panel; a solid shape tinted cream reads at a glance. */}
+              into the panel; a solid shape tinted ivory reads at a glance. */}
           {PIECE_GLYPH["b" + type]}
         </span>
       ))}

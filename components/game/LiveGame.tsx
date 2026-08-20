@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { ExternalLink, Loader2, Swords, Wifi, WifiOff } from "lucide-react";
 import { ChessBoard } from "./ChessBoard";
 import { CapturedTray } from "./CapturedTray";
-import { Panel, peachBtn } from "./PlayShell";
+import { Panel, actionBtn } from "./PlayShell";
 import { useRoom } from "./useRoom";
 import { capturedIn, gameFrom, pairedMoves } from "@/lib/chess-core";
 
@@ -162,7 +162,7 @@ export function LiveGame({ roomId }: { roomId: string }) {
       {room.status === "Active" && seat !== "" && (
         confirmResign ? (
           <div className="flex gap-2">
-            <button onClick={() => void resign()} className={`${peachBtn} flex-1 py-3 text-sm`}>
+            <button onClick={() => void resign()} className={`${actionBtn} flex-1 py-3 text-sm`}>
               {t("resignConfirm")}
             </button>
             <button

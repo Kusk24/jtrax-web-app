@@ -15,7 +15,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Loader2, Search, Swords, X } from "lucide-react";
-import { PlayShell, Panel, peachBtn } from "@/components/game/PlayShell";
+import { PlayShell, Panel, actionBtn } from "@/components/game/PlayShell";
 import {
   CLOCKS, acceptChallenge, cancelChallenge, declineChallenge, listChallenges,
   searchPlayers, sendChallenge, type Challenge, type PlayerResult,
@@ -108,7 +108,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
             </span>
             <button
               onClick={() => router.push(`/student/play/room/${c.gameRoomId}`)}
-              className={`${peachBtn} min-h-[44px] px-4 text-[13.5px]`}
+              className={`${actionBtn} min-h-[44px] px-4 text-[13.5px]`}
             >
               {t("openBoard")}
             </button>
@@ -267,7 +267,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                       await reload();
                     })
                   }
-                  className={`${peachBtn} flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 text-[13px]`}
+                  className={`${actionBtn} flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 text-[13px]`}
                 >
                   <Swords className="size-4" strokeWidth={2.5} />
                   {t("challenge")}

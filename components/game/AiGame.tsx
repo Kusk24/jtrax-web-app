@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Chess } from "chess.js";
 import { ChessBoard } from "./ChessBoard";
 import { CapturedTray } from "./CapturedTray";
-import { Panel, peachBtn } from "./PlayShell";
+import { Panel, actionBtn } from "./PlayShell";
 import { useStockfish, type Level } from "./useStockfish";
 import { capturedIn, endingOf, gameFrom, pairedMoves, type Ending } from "@/lib/chess-core";
 
@@ -136,7 +136,7 @@ export function AiGame() {
         </Panel>
       )}
 
-      <button onClick={reset} className={`${peachBtn} py-3 text-sm`}>
+      <button onClick={reset} className={`${actionBtn} py-3 text-sm`}>
         {t("newGame")}
       </button>
     </div>

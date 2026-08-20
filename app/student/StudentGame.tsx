@@ -20,8 +20,8 @@ import {
 type Screen = "home" | "puzzles" | "puzzle" | "profile";
 
 
-/* Shared kawaii button chrome: peach pill with double outline. */
-const peachBtn =
+/* Shared button chrome: navy pill with a double outline. */
+const actionBtn =
   "cursor-pointer rounded-[20px] border-none bg-sv-primary font-bold text-white shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)]";
 
 function PuzzlePieceIcon({ fill, size = 20 }: { fill: string; size?: number }) {
@@ -316,7 +316,7 @@ export default function StudentGame() {
               </span>
               <button
                 onClick={() => go("puzzles")}
-                className={`${peachBtn} mt-1 flex min-h-[44px] w-[181px] items-center justify-center gap-2 text-base`}
+                className={`${actionBtn} mt-1 flex min-h-[44px] w-[181px] items-center justify-center gap-2 text-base`}
               >
                 {isDailyDone ? <PuzzlePieceIcon fill="#fff" size={18} /> : null}
                 <span>{isDailyDone ? t("freePlay") : t("start")}</span>
@@ -496,7 +496,7 @@ export default function StudentGame() {
               </div>
             </div>
 
-            <button onClick={resetPuzzle} className={`${peachBtn} mt-4 px-[26px] py-2.5 text-sm`}>
+            <button onClick={resetPuzzle} className={`${actionBtn} mt-4 px-[26px] py-2.5 text-sm`}>
               {t("reset")}
             </button>
           </div>
