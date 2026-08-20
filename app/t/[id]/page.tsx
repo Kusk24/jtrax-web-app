@@ -6,8 +6,10 @@
  *
  * Server-rendered and fetched straight from the backend rather than through
  * /api: that proxy exists to attach a session token, and this page has no
- * session to attach. It also revalidates on a short interval so a projector left
- * open follows the round without anybody pressing anything.
+ * session to attach. The client half polls a refresh once a
+ * minute, so a projector left open follows the round without anybody pressing
+ * anything — and that same poll is what nudges the backend to re-read
+ * chess-results while the event is live.
  *
  * # Two possible sources
  *
@@ -22,6 +24,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
 import { Bracket, knockoutRounds } from "./Bracket";
+import { ResultsView } from "./ResultsView";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
@@ -45,8 +48,15 @@ type Standing = {
   club?: string;
 };
 
-type Board = { board: number; white: string; black?: string; result: string };
-type Round = { round: number; status: string; pairings: Board[] };
+type Board = {
+  board: number;
+  white: string;
+  whiteRating?: number;
+  black?: string;
+  blackRating?: number;
+  result: string;
+};
+type Round = { round: number; date?: string; status: string; pairings: Board[] };
 
 type Results = {
   tournament: { name: string; status: string };
@@ -84,21 +94,6 @@ export async function generateMetadata({
     title: `${data.tournament.name} — JCA Chess Academy`,
     description: `Live standings for ${data.tournament.name}.`,
   };
-}
-
-/** Points the way a chess score reads: 1, ½, 1½ — never 0.5. */
-function points(value: number): string {
-  const whole = Math.floor(value);
-  const half = value - whole >= 0.5;
-  if (whole === 0) return half ? "½" : "0";
-  return half ? `${whole}½` : String(whole);
-}
-
-function boardResult(r: string): string {
-  if (r === "1/2-1/2") return "½–½";
-  if (r === "bye") return "bye";
-  if (r === "Pending") return "·";
-  return r;
 }
 
 export default async function PublicStandings({ params }: { params: Promise<{ id: string }> }) {
@@ -170,104 +165,10 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
           />
         )}
 
-        <PublicCard className="!p-0 overflow-hidden">
-          <h2 className="border-b border-pp-line px-5 py-3.5 font-pp-display text-[15px] font-bold text-pp-navy">
-            {t("standings")}
-          </h2>
-          {standings.length === 0 ? (
-            <p className="px-5 py-10 text-center text-sm text-pp-muted">{t("noPlayers")}</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-pp-mist text-[11px] uppercase tracking-wide text-pp-sub">
-                    <th scope="col" className="px-4 py-2.5 text-left font-semibold">#</th>
-                    <th scope="col" className="px-4 py-2.5 text-left font-semibold">{t("player")}</th>
-                    {external ? (
-                      <>
-                        <th scope="col" className="px-3 py-2.5 text-left font-semibold">{t("federation")}</th>
-                        <th scope="col" className="px-3 py-2.5 text-right font-semibold">{t("rating")}</th>
-                      </>
-                    ) : (
-                      <th scope="col" className="whitespace-nowrap px-3 py-2.5 text-right font-semibold">{t("wdl")}</th>
-                    )}
-                    <th scope="col" className="px-4 py-2.5 text-right font-semibold">{t("points")}</th>
-                    {/* The tiebreak is shown, not hidden: when two children
-                        finish level this number is the reason one is ahead. */}
-                    {!external && (
-                      <th scope="col" className="px-4 py-2.5 text-right font-semibold">{t("buchholz")}</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((s, i) => (
-                    <tr key={`${s.rank}-${s.name}-${i}`} className="border-t border-pp-line">
-                      <td className={`px-4 py-2.5 font-bold ${s.rank === 1 && started ? "text-pp-blue" : "text-pp-sub"}`}>
-                        {s.rank}
-                      </td>
-                      <td className="px-4 py-2.5 text-pp-ink">
-                        {s.name}
-                        {s.category && <span className="ml-2 text-xs text-pp-muted">{s.category}</span>}
-                      </td>
-                      {external ? (
-                        <>
-                          <td className="px-3 py-2.5 text-pp-muted">{s.federation || "—"}</td>
-                          <td className="px-3 py-2.5 text-right text-pp-muted">{s.rating || "—"}</td>
-                        </>
-                      ) : (
-                        <td className="whitespace-nowrap px-3 py-2.5 text-right text-pp-muted">
-                          {s.wins ?? 0}/{s.draws ?? 0}/{s.losses ?? 0}
-                        </td>
-                      )}
-                      <td className="px-4 py-2.5 text-right font-bold text-pp-ink">{points(s.points)}</td>
-                      {!external && (
-                        <td className="px-4 py-2.5 text-right text-pp-muted">{points(s.buchholz ?? 0)}</td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </PublicCard>
-
-        {!knockout && rounds.map((round) => (
-          <PublicCard key={round.round} className="!p-0 overflow-hidden">
-            <h2 className="flex items-center gap-2 border-b border-pp-line px-5 py-3.5 font-pp-display text-[15px] font-bold text-pp-navy">
-              {t("round", { n: round.round })}
-              <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                  round.status === "Completed"
-                    ? "bg-pp-green-soft text-pp-green-dot"
-                    : "bg-pp-soft text-pp-blue"
-                }`}
-              >
-                {round.status === "Completed"
-                  ? t("finished")
-                  : round.status === "Playing"
-                    ? t("playing")
-                    : t("notStarted")}
-              </span>
-            </h2>
-            {round.pairings.length === 0 ? (
-              <p className="px-5 py-6 text-center text-sm text-pp-muted">{t("notPaired")}</p>
-            ) : (
-              <ul>
-                {round.pairings.map((b) => (
-                  <li key={b.board} className="flex items-center gap-3 border-t border-pp-line px-5 py-2.5 text-sm first:border-t-0">
-                    <span className="w-5 shrink-0 text-xs text-pp-muted">{b.board}</span>
-                    <span className="min-w-0 flex-1 text-pp-ink">
-                      {b.white}
-                      {b.black ? <span className="text-pp-muted"> vs </span> : <span className="text-pp-muted"> — {t("bye")}</span>}
-                      {b.black}
-                    </span>
-                    <span className="shrink-0 font-mono text-xs font-bold text-pp-sub">{boardResult(b.result)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </PublicCard>
-        ))}
+        {/* Search, round picker and tables live in a client component: finding a
+            player and switching rounds are interactions, and the once-a-minute
+            refresh that keeps a projector honest can only run in the browser. */}
+        <ResultsView standings={standings} rounds={knockout ? [] : rounds} external={external} />
 
         <p className="text-center text-xs text-pp-sub">{t("updatesAutomatically")}</p>
       </div>
