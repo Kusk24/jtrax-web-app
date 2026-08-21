@@ -5,6 +5,7 @@
    state, and a game deserves a URL — a player reloading mid-game should land
    back at the board, not at the home screen. */
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import { StudentBottomNav } from "./StudentBottomNav";
 
@@ -25,6 +26,7 @@ export function PlayShell({
   nav?: boolean;
   children: React.ReactNode;
 }) {
+  const tCommon = useTranslations("common");
   return (
     <div className="sv-frame">
     <div className="relative flex h-[844px] w-[390px] flex-col overflow-hidden bg-sv-paper text-sv-ink sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(36,65,124,0.28)]">
@@ -35,7 +37,7 @@ export function PlayShell({
       <header className="relative z-10 flex items-center gap-3 px-5 pt-[44px]">
         <Link
           href={back}
-          aria-label="Back"
+          aria-label={tCommon("back")}
           className="flex size-11 items-center justify-center rounded-full bg-sv-cream text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
         >
           <ArrowLeft className="size-[18px]" strokeWidth={2.5} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Globe } from "lucide-react";
 
@@ -13,6 +13,7 @@ const locales = [
 /** EN ⇄ ไทย pill. Persists the choice in a cookie and re-renders the tree. */
 export function LanguageToggle({ className = "" }: { className?: string }) {
   const locale = useLocale();
+  const t = useTranslations("common");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -26,7 +27,7 @@ export function LanguageToggle({ className = "" }: { className?: string }) {
     <div
       className={`flex items-center gap-1 rounded-full border-2 border-line bg-card p-1 shadow-clay ${className}`}
       role="group"
-      aria-label="Language"
+      aria-label={t("language")}
     >
       <Globe className="ml-1.5 size-4 shrink-0 text-muted" />
       {locales.map(({ code, label }) => (
