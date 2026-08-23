@@ -3,24 +3,25 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { MAY, MONTHS, type ChildKey } from "@/lib/parent-v2-data";
+import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
 export default function ParentAttendanceV2() {
   const t = useTranslations("pv2");
-  const { children: childrenV2, att: ATT, hist: histV2 } = useParentData();
+  const { children: childrenV2, att: ATT, hist: histV2, months } = useParentData();
   const [filter, setFilter] = useState<"all" | ChildKey>("all");
-  const [month, setMonth] = useState(MAY);
+  const [month, setMonth] = useState(CURRENT);
 
-  const M = MONTHS[month];
+  const M = months[month];
+  const todayDate = new Date().getDate();
   const cells: { label: string; present: boolean; today: boolean }[] = [];
   for (let i = 0; i < M.offset; i++) cells.push({ label: "", present: false, today: false });
   for (let d = 1; d <= M.days; d++) {
     const keys: ChildKey[] = filter === "all" ? childrenV2.map((c) => c.key) : [filter];
-    const present = keys.some((k) => (ATT[k][month] ?? { present: [] }).present.includes(d));
-    cells.push({ label: String(d), present, today: month === MAY && d === 20 });
+    const present = keys.some((k) => (ATT[k]?.[month] ?? { present: [] }).present.includes(d));
+    cells.push({ label: String(d), present, today: month === CURRENT && d === todayDate });
   }
 
   const groups: { date: string; items: typeof histV2 }[] = [];
@@ -57,7 +58,7 @@ export default function ParentAttendanceV2() {
           </button>
           <span className="font-pp-display text-[17px] font-semibold">{M.name}</span>
           <button
-            onClick={() => setMonth((m) => Math.min(MONTHS.length - 1, m + 1))}
+            onClick={() => setMonth((m) => Math.min(months.length - 1, m + 1))}
             className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-white text-sm text-pp-blue hover:bg-pp-soft"
           >
             ›
@@ -136,9 +137,20 @@ export default function ParentAttendanceV2() {
                   <span className="text-[13.5px] font-semibold">
                     {c.name} · ♟ {c.clsTitle}
                   </span>
-                  <span className="flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-pp-muted">
+                  <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-pp-muted">
                     <span>◷ {h.time}</span>
-                    <span>⌂ {c.branch}</span>
+                    {/* This slot used to show a branch name the backend does
+                        not record; whether the child was there is what the
+                        row actually knows. */}
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em]"
+                      style={{
+                        background: h.status === "Present" ? "var(--color-pp-green-soft)" : "#fdece0",
+                        color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
+                      }}
+                    >
+                      {h.status === "Present" ? t("present") : t("absent")}
+                    </span>
                   </span>
                 </span>
               </Link>

@@ -8,7 +8,6 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Clock3, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
-import { MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
 
@@ -22,14 +21,24 @@ export default function ChildProfileV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
-  const { children: kids, att: ATT } = useParentData();
+  const { children: kids, hist } = useParentData();
   const [hover, setHover] = useState<number | null>(null);
   const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
 
-  const expSoon = ch.daysLeft <= 14;
+  const hasExpiry = ch.valid !== "—";
+  /* Three states, not two: a date that has already passed is expired, and
+     saying "expires soon · 0 days" about it understates what happened. */
+  const expired = hasExpiry && !ch.expiresAhead;
+  const expSoon = hasExpiry && ch.expiresAhead && ch.daysLeft <= 14;
   const low = ch.credits <= 2;
-  const leftN = ch.total - ch.attended;
+
+  /* The class's next session on the books — a class has no fixed weekly hours,
+     so this is the schedule, not a stand-in for one. */
+  const sched = ch.nextSession
+    ? `${new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" })
+        .format(new Date(ch.nextSession.dateISO))} · ${ch.nextSession.start} – ${ch.nextSession.end}`
+    : t("noUpcomingSession");
 
   /* This-week practice line chart */
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -45,13 +54,9 @@ export default function ChildProfileV2({
   const area = `${line} L${pts[pts.length - 1][0].toFixed(1)},${H} L${pts[0][0].toFixed(1)},${H} Z`;
   const weekMins = vals.reduce((a, b) => a + b, 0);
 
-  const rec = ATT[ch.key][MAY];
-  const histRows = [...rec.present]
-    .sort((a, b) => b - a)
-    .slice(0, 3)
-    .map((d) => ({
-      date: `${MONTHS[MAY].name.split(" ")[0].slice(0, 3)} ${d}, ${wdOfMonth(MAY, d)} · ${ch.time}`,
-    }));
+  /* The three most recent attendance rows, with each session's own times —
+     not reconstructed from calendar dots and a fixed clock. */
+  const histRows = hist.filter((h) => h.child === ch.key).slice(0, 3);
 
   return (
     <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-5">
@@ -78,7 +83,8 @@ export default function ChildProfileV2({
           <span className="font-pp-display text-[22px] font-semibold">{ch.name}</span>
           <span className="text-xs text-pp-muted">{t("idLabel", { id: ch.id })}</span>
           <span className="text-[12.5px] font-semibold text-pp-ink">
-            {ch.level} · {ch.age}
+            {ch.level || "—"}
+            {ch.age > 0 ? ` · ${ch.age}` : ""}
           </span>
         </div>
       </div>
@@ -91,34 +97,40 @@ export default function ChildProfileV2({
           </span>
           <span className="font-pp-display text-[34px] font-semibold leading-none">
             {ch.credits}
-            <span className="text-lg text-[#b4c5e4]"> / 20</span>
+            {ch.creditsBought > 0 && (
+              <span className="text-lg text-[#b4c5e4]"> / {ch.creditsBought}</span>
+            )}
           </span>
         </div>
         <div
           className="flex items-center justify-between gap-2.5 rounded-[13px] px-3.5 py-2.5"
-          style={{ background: expSoon ? "#fdece0" : "rgba(251,255,241,.12)" }}
+          style={{ background: expSoon || expired ? "#fdece0" : "rgba(251,255,241,.12)" }}
         >
           <div className="flex flex-col gap-0.5">
             <span
               className="text-[12.5px] font-bold"
-              style={{ color: expSoon ? "var(--color-pp-danger)" : "#fbfff1" }}
+              style={{ color: expSoon || expired ? "var(--color-pp-danger)" : "#fbfff1" }}
             >
-              {expSoon ? t("expiresSoon") : t("validUntil")}
+              {expired ? t("expired") : expSoon ? t("expiresSoon") : t("validUntil")}
             </span>
-            <span className="text-[11px]" style={{ color: expSoon ? "var(--color-pp-amber)" : "#b4c5e4" }}>
+            <span className="text-[11px]" style={{ color: expSoon || expired ? "var(--color-pp-amber)" : "#b4c5e4" }}>
               {ch.valid}
             </span>
           </div>
-          <span
-            className="flex-none font-pp-display text-[19px] font-semibold"
-            style={{ color: expSoon ? "var(--color-pp-danger)" : "#fbfff1" }}
-          >
-            {t("daysLeftShort", { count: ch.daysLeft })}
-          </span>
+          {hasExpiry && ch.expiresAhead && (
+            <span
+              className="flex-none font-pp-display text-[19px] font-semibold"
+              style={{ color: expSoon ? "var(--color-pp-danger)" : "#fbfff1" }}
+            >
+              {t("daysLeftShort", { count: ch.daysLeft })}
+            </span>
+          )}
         </div>
-        <span className="text-[10.5px] leading-relaxed text-[#b4c5e4]">
-          {t("creditsExpireNote", { date: ch.valid })}
-        </span>
+        {hasExpiry && (
+          <span className="text-[10.5px] leading-relaxed text-[#b4c5e4]">
+            {t("creditsExpireNote", { date: ch.valid })}
+          </span>
+        )}
       </div>
 
       {/* Practice progress */}
@@ -207,17 +219,20 @@ export default function ChildProfileV2({
               <span className="text-sm font-semibold">{ch.clsTitle}</span>
               <span className="flex items-center gap-1 text-[11.5px] text-pp-muted">
                 <Clock3 className="size-3" strokeWidth={2} />
-                {ch.sched} · {ch.time}
+                {sched}
               </span>
             </div>
           </div>
+          {/* Branch, room and a teacher's name used to sit here, invented on
+              the client — the backend has no room or branch column and no
+              teacher-to-class link, so there is nothing real to show yet. */}
           <div className="grid grid-cols-2 gap-x-3.5 gap-y-2.5">
             {(
               [
-                [t("branch"), ch.branch, false],
-                [t("room"), ch.room.replace("Bangkok · ", ""), false],
-                [t("scheduleLabel"), `${ch.sched} · ${ch.time}`, false],
-                [t("creditsExpire"), ch.valid, expSoon],
+                [t("scheduleLabel"), sched, false],
+                [t("creditsExpire"), ch.valid, expSoon || expired],
+                [t("levelLabel"), ch.level || "—", false],
+                [t("enrolledSince"), ch.enrolledSince || "—", false],
               ] as const
             ).map(([k, v, danger]) => (
               <div key={k} className="flex flex-col gap-0.5">
@@ -231,7 +246,7 @@ export default function ChildProfileV2({
               <div
                 className="h-full rounded-full"
                 style={{
-                  width: `${Math.round((ch.credits / 20) * 100)}%`,
+                  width: `${ch.creditsBought > 0 ? Math.min(100, Math.round((ch.credits / ch.creditsBought) * 100)) : 0}%`,
                   background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
                 }}
               />
@@ -239,14 +254,14 @@ export default function ChildProfileV2({
             <div className="flex justify-between text-[11.5px] text-pp-muted">
               <span>{t("creditsRemaining")}</span>
               <span className={`font-bold ${low ? "text-pp-amber" : "text-pp-ink"}`}>
-                {ch.credits} / 20
+                {ch.credits}{ch.creditsBought > 0 ? ` / ${ch.creditsBought}` : ""}
               </span>
             </div>
           </div>
           <div className="flex items-center gap-3.5 rounded-[13px] border-[1.5px] border-pp-soft bg-pp-mist px-3.5 py-3">
             <div className="flex min-w-[78px] flex-none flex-col">
               <span className="font-pp-display text-[32px] font-bold leading-none text-pp-deep">
-                {leftN}
+                {ch.upcomingSessions}
               </span>
               <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
                 {t("classesLeft")}
@@ -254,31 +269,18 @@ export default function ChildProfileV2({
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <div className="flex justify-between text-[11px] text-pp-muted">
-                <span>{t("attendedOf", { attended: ch.attended, total: ch.total })}</span>
-                <span>{t("remainingOf", { count: leftN })}</span>
+                <span>{t("attendedOf", { attended: ch.attended, total: ch.heldSessions })}</span>
+                <span>{t("remainingOf", { count: ch.upcomingSessions })}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-pp-soft">
                 <div
                   className="h-full rounded-full bg-pp-blue"
-                  style={{ width: `${Math.round((ch.attended / ch.total) * 100)}%` }}
+                  style={{
+                    width: `${ch.heldSessions > 0 ? Math.min(100, Math.round((ch.attended / ch.heldSessions) * 100)) : 0}%`,
+                  }}
                 />
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3 border-t border-[#e8edf8] pt-3.5">
-            <span className="size-[38px] flex-none overflow-hidden rounded-full bg-pp-soft">
-              <Image src="/parent/teacher-avatar.jpeg" alt={ch.teacher} width={38} height={38} className="size-full object-cover" />
-            </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="text-[13px] font-semibold">{ch.teacher}</span>
-              <span className="text-[10.5px] text-pp-muted">{t("teacher")}</span>
-            </div>
-            <a
-              href="tel:+66123456789"
-              className="flex-none rounded-xl border-[1.5px] border-pp-line bg-white px-3.5 py-2 text-xs font-bold text-pp-blue hover:bg-pp-soft"
-            >
-              ✆ {t("contactTeacher")}
-            </a>
           </div>
         </div>
       </div>
@@ -292,14 +294,23 @@ export default function ChildProfileV2({
           </Link>
         </div>
         <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+          {histRows.length === 0 && (
+            <div className="px-4 py-5 text-center text-[12.5px] text-pp-muted">{t("noSessions")}</div>
+          )}
           {histRows.map((h, i) => (
             <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[12.5px] font-semibold">{ch.clsTitle}</span>
-                <span className="text-[11px] text-pp-muted">{h.date}</span>
+                <span className="text-[11px] text-pp-muted">{h.date} · {h.time}</span>
               </div>
-              <span className="flex-none rounded-full bg-pp-green-soft px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em] text-pp-green">
-                {t("present")}
+              <span
+                className="flex-none rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em]"
+                style={{
+                  background: h.status === "Present" ? "var(--color-pp-green-soft)" : "#fdece0",
+                  color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
+                }}
+              >
+                {h.status === "Present" ? t("present") : t("absent")}
               </span>
             </div>
           ))}

@@ -20,7 +20,7 @@ export default function ParentProfileV2() {
   const locale = useLocale();
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const { children: childrenV2, prefs, savePrefs } = useParentData();
+  const { children: childrenV2, parent, prefs, savePrefs } = useParentData();
   const [theme, setTheme] = useState("system");
   const [screenTime, setScreenTime] = useState({ h: 1, m: 30 });
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -75,7 +75,7 @@ export default function ParentProfileV2() {
         <div className="size-[102px] flex-none overflow-hidden rounded-full border-[3px] border-white shadow-[0_10px_24px_rgba(46,92,184,.32)]">
           <ParentAvatar className="size-full text-4xl" />
         </div>
-        <span className="font-pp-display text-[22px] font-semibold">Sandy Jones</span>
+        <span className="font-pp-display text-[22px] font-semibold">{parent.name}</span>
       </div>
 
       {/* Column 1 */}
@@ -109,11 +109,11 @@ export default function ParentProfileV2() {
           <div className={panel}>
             <div className="flex items-center justify-between border-b border-[#e8edf8] px-4 py-4">
               <span className="text-[13px] text-pp-muted">{t("phone")}</span>
-              <span className="text-[13.5px] font-semibold">+66 12 345 6789</span>
+              <span className="text-[13.5px] font-semibold">{parent.phone || "—"}</span>
             </div>
             <div className="flex items-center justify-between px-4 py-4">
               <span className="text-[13px] text-pp-muted">{t("email")}</span>
-              <span className="text-[13.5px] font-semibold">sandy01234@gmail.com</span>
+              <span className="truncate pl-3 text-[13.5px] font-semibold">{parent.email || "—"}</span>
             </div>
           </div>
         </div>

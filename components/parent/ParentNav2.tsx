@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ClipboardCheck, Home, UserRound, type LucideIcon } from "lucide-react";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
+import { useParentData } from "@/components/parent/ParentData";
 
 type Tab = {
   href: string;
@@ -40,6 +41,7 @@ function isActive(pathname: string, tab: Tab) {
 export function ParentSideNav() {
   const pathname = usePathname();
   const t = useTranslations("pv2");
+  const { parent, parentId } = useParentData();
   return (
     <aside className="sticky top-0 hidden h-dvh w-[232px] flex-none flex-col gap-1 border-r border-pp-line px-4 pb-5 pt-6 lg:flex">
       <div className="flex items-center gap-2.5 px-2.5 pb-4">
@@ -83,8 +85,8 @@ export function ParentSideNav() {
       >
         <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
         <span className="flex min-w-0 flex-col">
-          <span className="text-[12.5px] font-semibold text-pp-ink">Sandy Jones</span>
-          <span className="text-[10px] text-pp-muted">{t("roleParent")} · p10012</span>
+          <span className="truncate text-[12.5px] font-semibold text-pp-ink">{parent.name}</span>
+          <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
         </span>
       </Link>
     </aside>

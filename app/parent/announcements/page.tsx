@@ -9,9 +9,8 @@ import { AnnouncementModal, SENDER_STYLE } from "@/components/parent/Announcemen
 
 export default function ParentAnnouncementsV2() {
   const t = useTranslations("pv2");
-  const { announcements: announcementsV2 } = useParentData();
+  const { announcements: announcementsV2, isAnnRead, markAnnRead } = useParentData();
   const router = useRouter();
-  const [read, setRead] = useState<Record<string, boolean>>({});
   const [modalId, setModalId] = useState<string | null>(null);
   const modal = announcementsV2.find((a) => a.id === modalId);
 
@@ -33,12 +32,12 @@ export default function ParentAnnouncementsV2() {
       <div className="flex flex-col gap-3">
         {announcementsV2.map((a) => {
           const ss = SENDER_STYLE[a.sender];
-          const isUnread = !read[a.id];
+          const isUnread = !isAnnRead(a.id);
           return (
             <button
               key={a.id}
               onClick={() => {
-                setRead((p) => ({ ...p, [a.id]: true }));
+                markAnnRead(a.id);
                 setModalId(a.id);
               }}
               className="flex w-full cursor-pointer flex-col gap-2 rounded-xl border-[1.5px] p-4 text-left shadow-[0_6px_18px_rgba(35,53,94,.07)]"

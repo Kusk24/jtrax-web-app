@@ -3,7 +3,7 @@
 import { use, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { MAY, MONTHS, wdOfMonth } from "@/lib/parent-v2-data";
+import { CURRENT } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
@@ -16,14 +16,15 @@ export default function ChildHistoryV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
-  const { children: kids, att: ATT } = useParentData();
-  const [month, setMonth] = useState(MAY);
+  const { children: kids, att: ATT, hist, months } = useParentData();
+  const [month, setMonth] = useState(CURRENT);
   const [sel, setSel] = useState<{ m: number; d: number } | null>(null);
   const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
 
-  const M = MONTHS[month];
-  const rec = ATT[ch.key][month] ?? { present: [], absent: [] };
+  const M = months[month];
+  const rec = ATT[ch.key]?.[month] ?? { present: [], absent: [] };
+  const todayDate = new Date().getDate();
 
   const cells: { d: number | null; present: boolean; today: boolean; selected: boolean }[] = [];
   for (let i = 0; i < M.offset; i++) cells.push({ d: null, present: false, today: false, selected: false });
@@ -31,17 +32,17 @@ export default function ChildHistoryV2({
     cells.push({
       d,
       present: rec.present.includes(d),
-      today: month === MAY && d === 10,
+      today: month === CURRENT && d === todayDate,
       selected: sel?.m === month && sel?.d === d,
     });
   }
 
-  const rows = [...rec.present]
-    .filter((d) => !sel || sel.d === d)
-    .sort((a, b) => b - a)
-    .map((d) => ({
-      date: `${M.name.split(" ")[0].slice(0, 3)} ${d}, ${wdOfMonth(month, d)} · ${ch.time}`,
-    }));
+  /* The month's real attendance rows, each with its session's own times. */
+  const prefix = `${M.year}-${String(M.month + 1).padStart(2, "0")}`;
+  const rows = hist.filter((h) =>
+    h.child === ch.key
+    && h.iso.startsWith(prefix)
+    && (!sel || Number(h.iso.slice(8, 10)) === sel.d));
 
   return (
     <div className="grid content-start gap-4 px-4 pb-10 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-5">
@@ -74,7 +75,7 @@ export default function ChildHistoryV2({
             </button>
             <span className="font-pp-display text-[17px] font-semibold">{M.name}</span>
             <button
-              onClick={() => { setMonth((m) => Math.min(MONTHS.length - 1, m + 1)); setSel(null); }}
+              onClick={() => { setMonth((m) => Math.min(months.length - 1, m + 1)); setSel(null); }}
               className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-white text-sm text-pp-blue hover:bg-pp-soft"
             >
               ›
@@ -150,10 +151,16 @@ export default function ChildHistoryV2({
               <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[13px] font-semibold">{ch.clsTitle}</span>
-                  <span className="text-[11.5px] text-pp-muted">{h.date}</span>
+                  <span className="text-[11.5px] text-pp-muted">{h.date} · {h.time}</span>
                 </div>
-                <span className="flex-none rounded-full bg-pp-green-soft px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em] text-pp-green">
-                  {t("present")}
+                <span
+                  className="flex-none rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em]"
+                  style={{
+                    background: h.status === "Present" ? "var(--color-pp-green-soft)" : "#fdece0",
+                    color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
+                  }}
+                >
+                  {h.status === "Present" ? t("present") : t("absent")}
                 </span>
               </div>
             ))}

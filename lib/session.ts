@@ -19,8 +19,14 @@ export type BackendIdentity = {
   studentId?: string;
 };
 
-/** Resolves a session token to the signed-in identity, or undefined. */
-export async function fetchMe(token: string | undefined): Promise<BackendIdentity | undefined> {
+/** Resolves a session token to the signed-in identity; "down" when the
+    backend cannot be reached at all. The two are different answers: a missing
+    or stale session belongs at the sign-in screen, an unreachable server does
+    not — bouncing a signed-in parent to login when the backend restarts reads
+    as "your account is gone". */
+export async function fetchMeOrDown(
+  token: string | undefined,
+): Promise<BackendIdentity | "down" | undefined> {
   if (!token) return undefined;
   try {
     const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
@@ -30,8 +36,14 @@ export async function fetchMe(token: string | undefined): Promise<BackendIdentit
     if (!res.ok) return undefined;
     return (await res.json()) as BackendIdentity;
   } catch {
-    return undefined;
+    return "down";
   }
+}
+
+/** Resolves a session token to the signed-in identity, or undefined. */
+export async function fetchMe(token: string | undefined): Promise<BackendIdentity | undefined> {
+  const me = await fetchMeOrDown(token);
+  return me === "down" ? undefined : me;
 }
 
 /** Where each role lands after sign-in, or null when this app has no portal
