@@ -3,13 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Bell, CheckSquare } from "lucide-react";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
 import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
-import { todayActivityV2, type AnnouncementV2, type SenderKind } from "@/lib/parent-v2-data";
+import type { AnnouncementV2, SenderKind } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 
 const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string }> = {
@@ -20,16 +20,25 @@ const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string
 
 export default function ParentHomeV2() {
   const t = useTranslations("pv2");
-  const { children: childrenV2, announcements: announcementsV2, tournament: tournamentV2 } = useParentData();
-  const [read, setRead] = useState<Record<string, boolean>>({});
+  const locale = useLocale();
+  const {
+    children: childrenV2, announcements: announcementsV2, tournament,
+    parent, unreadNotifs, isAnnRead, markAnnRead, todayActivity,
+  } = useParentData();
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
 
   const modal = announcementsV2.find((a) => a.id === modalId);
   const open = (a: AnnouncementV2) => {
-    setRead((p) => ({ ...p, [a.id]: true }));
+    markAnnRead(a.id);
     setModalId(a.id);
   };
+
+  /* The actual today — this used to be a fixed date in the message catalogue,
+     ringing 10 May forever. th-TH gives the Buddhist year Thai readers use. */
+  const todayLabel = new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  }).format(new Date());
 
   return (
     <div className="grid content-start gap-9 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-8">
@@ -38,13 +47,13 @@ export default function ParentHomeV2() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <span className="font-pp-display text-2xl font-semibold leading-tight">
-              {t("hi", { name: "Sandy" })}
+              {t("hi", { name: parent.name.split(/\s+/)[0] || parent.name })}
             </span>
             <span className="rounded-full border-[1.5px] border-pp-navy px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-pp-navy">
               {t("roleParent")}
             </span>
           </div>
-          <span className="text-[13px] text-pp-muted">{t("todayDate")}</span>
+          <span className="text-[13px] text-pp-muted">{todayLabel}</span>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -53,7 +62,9 @@ export default function ParentHomeV2() {
             className="relative flex size-[42px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-white hover:bg-pp-soft"
           >
             <Bell className="size-[19px] text-pp-ink" strokeWidth={1.8} />
-            <span className="absolute right-2 top-2 size-[9px] rounded-full border-2 border-white bg-pp-red" />
+            {unreadNotifs > 0 && (
+              <span className="absolute right-2 top-2 size-[9px] rounded-full border-2 border-white bg-pp-red" />
+            )}
           </Link>
           <Link
             href="/parent/profile"
@@ -95,7 +106,7 @@ export default function ParentHomeV2() {
                   <span className="min-w-0 flex-1 text-sm font-bold leading-snug text-pp-ink">
                     {a.title}
                   </span>
-                  {!read[a.id] && (
+                  {!isAnnRead(a.id) && (
                     <span className="flex-none rounded-full bg-pp-blue px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.06em] text-white">
                       {t("new")}
                     </span>
@@ -125,36 +136,42 @@ export default function ParentHomeV2() {
 
         <LiveTournamentCard />
 
-        <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
-          {t("upcomingTournament")}
-        </span>
-        <div className="max-w-[520px] overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_rgba(35,53,94,.12)]">
-          <div className="relative">
-            <TournamentBanner className="h-[158px] w-full" />
-            <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
-              <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
-                {t("registerCloses")}
-              </span>
-              <span className="font-pp-display text-xl font-bold leading-none">
-                {tournamentV2.closesInDays}
-              </span>
-              <span className="text-[8px] font-bold uppercase leading-none tracking-[.06em]">
-                {t("days")}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 px-4 pb-4 pt-4">
-            <span className="font-pp-display text-lg font-semibold leading-tight text-pp-ink">
-              {tournamentV2.name}
+        {/* Only when an event is actually open — the mock card advertised the
+            same tournament forever, whatever the academy was running. */}
+        {tournament && (
+          <>
+            <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
+              {t("upcomingTournament")}
             </span>
-            <Link
-              href="/parent/tournament"
-              className="mt-1 rounded-xl bg-pp-navy py-3 text-center text-sm font-bold text-white"
-            >
-              {t("registerNow")}
-            </Link>
-          </div>
-        </div>
+            <div className="max-w-[520px] overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_rgba(35,53,94,.12)]">
+              <div className="relative">
+                <TournamentBanner className="h-[158px] w-full" />
+                <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
+                  <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
+                    {t("registerCloses")}
+                  </span>
+                  <span className="font-pp-display text-xl font-bold leading-none">
+                    {tournament.closesInDays}
+                  </span>
+                  <span className="text-[8px] font-bold uppercase leading-none tracking-[.06em]">
+                    {t("days")}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 px-4 pb-4 pt-4">
+                <span className="font-pp-display text-lg font-semibold leading-tight text-pp-ink">
+                  {tournament.name}
+                </span>
+                <Link
+                  href="/parent/tournament"
+                  className="mt-1 rounded-xl bg-pp-navy py-3 text-center text-sm font-bold text-white"
+                >
+                  {t("registerNow")}
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* My children */}
@@ -199,7 +216,7 @@ export default function ParentHomeV2() {
                     <CheckSquare className="size-4 flex-none text-pp-muted" strokeWidth={1.8} />
                     <span className="text-xs font-semibold text-pp-ink">
                       {t("completedClasses", {
-                        label: `${c.completedSessions} / ${c.totalSessions}`,
+                        label: `${c.attended} / ${c.heldSessions}`,
                       })}
                     </span>
                   </div>
@@ -208,7 +225,7 @@ export default function ParentHomeV2() {
                       <div
                         className="h-full rounded-full"
                         style={{
-                          width: `${Math.round((c.credits / 20) * 100)}%`,
+                          width: `${c.creditsBought > 0 ? Math.min(100, Math.round((c.credits / c.creditsBought) * 100)) : 0}%`,
                           background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
                         }}
                       />
@@ -242,14 +259,17 @@ export default function ParentHomeV2() {
               {t("challenge")}
             </span>
           </div>
-          {todayActivityV2.map((r, i) => {
+          {todayActivity.length === 0 && (
+            <span className="px-0.5 py-3 text-[12.5px] text-pp-muted">{t("noPracticeToday")}</span>
+          )}
+          {todayActivity.map((r, i) => {
             const pct = Math.max(4, Math.min(100, Math.round((r.mins / 30) * 100)));
             const circ = 2 * Math.PI * 8.5;
             return (
               <div
                 key={r.child}
                 className={`flex items-center gap-5 px-0.5 py-3.5 ${
-                  i < todayActivityV2.length - 1 ? "border-b border-[#EEF1F7]" : ""
+                  i < todayActivity.length - 1 ? "border-b border-[#EEF1F7]" : ""
                 }`}
               >
                 <span className="relative flex size-5 flex-none items-center justify-center rounded-full">

@@ -1,109 +1,46 @@
-/* Parent portal redesign mock data, ported from JTrax Parent.dc.html.
-   Names/courses stay English (backend data); UI strings live in pv2.* */
+/* Display types for the parent portal, and the calendar months it shows.
+   The shapes come from the JTrax Parent design port; the data behind them is
+   real backend rows, joined in components/parent/ParentData.tsx. */
 
 export type ChildKey = string;
 
 export interface ChildV2 {
+  /** student_id — doubles as the route segment under /parent/child. */
   key: ChildKey;
   name: string;
   id: string;
-  level: "Beginner" | "Intermediate";
+  /** current_level, or "" when the office has not set one. */
+  level: string;
+  /** Years old, or 0 when no date of birth is on file. */
   age: number;
   photo: string;
   avBg: string;
+  /** The enrolled class's name, or "—" when the child is in none. */
   clsTitle: string;
-  sched: string;
-  time: string;
-  branch: string;
-  room: string;
-  teacher: string;
+  /** enrolled_date, formatted, or "" when the child is in no class. */
+  enrolledSince: string;
+  /** The class's next scheduled session. A class has no fixed hours — sessions
+      are written one at a time by the desk — so this is the only honest
+      "schedule" the data can produce. */
+  nextSession: { dateISO: string; start: string; end: string } | null;
+  /** Ledger balance. Fractional — an hour of class costs an hour of credit. */
   credits: number;
+  /** Sum of everything ever added, the denominator of the progress bars. */
+  creditsBought: number;
+  /** Latest expiry date on the ledger, formatted, or "—" when none is set. */
   valid: string;
   daysLeft: number;
+  /** False once the expiry date has passed — expired, not "expiring soon". */
+  expiresAhead: boolean;
+  /** Attendance rows on file for this child. */
   attended: number;
-  total: number;
-  completedSessions: number;
-  totalSessions: number;
+  /** Sessions the enrolled class has held up to today. */
+  heldSessions: number;
+  /** Sessions the class has scheduled after today. */
+  upcomingSessions: number;
   streak: number;
   practiceWeek: number[];
 }
-
-export const childrenV2: ChildV2[] = [
-  {
-    key: "penny",
-    name: "Penny",
-    id: "u6612127",
-    level: "Beginner",
-    age: 8,
-    photo: "/parent/penny.jpeg",
-    avBg: "#b4c5e4",
-    clsTitle: "Beginner Chess (Sec 101)",
-    sched: "Mon & Wed",
-    time: "2:00 – 3:00 PM",
-    branch: "Bangkok",
-    room: "Room 1A",
-    teacher: "Ms. Serene",
-    credits: 2,
-    valid: "20 May 2026",
-    daysLeft: 10,
-    attended: 18,
-    total: 20,
-    completedSessions: 18,
-    totalSessions: 50,
-    streak: 12,
-    practiceWeek: [18, 26, 15, 32, 20, 40, 17],
-  },
-  {
-    key: "uri",
-    name: "Uri",
-    id: "u6612129",
-    level: "Intermediate",
-    age: 10,
-    photo: "/parent/uri.jpeg",
-    avBg: "#cfd9f0",
-    clsTitle: "Intermediate Chess (Sec 101)",
-    sched: "Mon",
-    time: "9:00 – 10:00 AM",
-    branch: "Bangkok",
-    room: "Room 1A",
-    teacher: "Ms. Serene",
-    credits: 14,
-    valid: "20 Jun 2026",
-    daysLeft: 41,
-    attended: 6,
-    total: 20,
-    completedSessions: 32,
-    totalSessions: 50,
-    streak: 5,
-    practiceWeek: [10, 0, 22, 14, 0, 18, 12],
-  },
-];
-
-export const getChildV2 = (key: string) =>
-  childrenV2.find((c) => c.key === key);
-
-/* Months shown in the attendance calendars. offset = weekday index of day 1
-   (Monday-first). */
-export const MONTHS = [
-  { name: "April 2026", days: 30, offset: 2 },
-  { name: "May 2026", days: 31, offset: 5 },
-  { name: "June 2026", days: 30, offset: 0 },
-];
-export const MAY = 1;
-
-/* Per-child attendance records by month index. */
-export const ATT: Record<ChildKey, Record<number, { present: number[]; absent: number[] }>> = {
-  penny: {
-    0: { present: [22, 27, 29], absent: [] },
-    1: { present: [5, 10], absent: [3] },
-    2: { present: [], absent: [] },
-  },
-  uri: {
-    0: { present: [20, 27], absent: [] },
-    1: { present: [10], absent: [3] },
-    2: { present: [], absent: [] },
-  },
-};
 
 export type SenderKind = "teacher" | "branch" | "admin";
 
@@ -120,100 +57,81 @@ export interface AnnouncementV2 {
   time: string;
 }
 
-export const announcementsV2: AnnouncementV2[] = [
-  {
-    id: "a1",
-    sender: "teacher",
-    senderName: "Ms. Serene",
-    title: "Class Moved to Room 1B",
-    msg: "Penny's Beginner Chess class on Wed will be held in Room 1B instead of 1A due to maintenance.",
-    child: "Penny",
-    cls: "Beginner Chess (Sec 101)",
-    attachment: true,
-    attachmentImg: "/parent/classroom-room1b.jpeg",
-    time: "Today · 8:10 AM",
-  },
-  {
-    id: "a2",
-    sender: "branch",
-    senderName: "Bangkok Branch",
-    title: "Public Holiday Closure",
-    msg: "The Bangkok branch will be closed on May 12 for a public holiday. All classes that day are rescheduled.",
-    child: null,
-    cls: null,
-    attachment: true,
-    time: "Yesterday · 5:00 PM",
-  },
-  {
-    id: "a3",
-    sender: "admin",
-    senderName: "JCA Head Office",
-    title: "New Term Starts June 1",
-    msg: "Registration for Term 3 opens June 1. Existing students get priority enrollment for two weeks.",
-    child: null,
-    cls: null,
-    attachment: true,
-    time: "May 8 · 10:00 AM",
-  },
-];
+/** One thing that happened to a child, derived from real rows: an attendance
+    check-in or pick-up, or a credit balance about to expire. */
+export type NotifKind = "checkin" | "pickup" | "credits";
 
 export interface NotifV2 {
   id: string;
-  icon: string;
-  iconBg: string;
-  title: string;
-  body: string;
-  time: string;
-  child: ChildKey;
+  kind: NotifKind;
+  /** ISO timestamp — ordering and the time label. */
+  at: string;
+  /** Where tapping it lands. */
+  href: string;
+  name: string;
+  cls: string;
+  /** credits only: days until the balance expires, and the date it does. */
+  days?: number;
+  date?: string;
 }
 
-export const notifsV2: NotifV2[] = [
-  {
-    id: "n2",
-    icon: "✓",
-    iconBg: "#E6F4EC",
-    title: "Uri — Checked in Successfully",
-    body: "Uri is present on May 10, 2026 for Beginner Chess, checked in at 9:00 AM.",
-    time: "Today · 9:02 AM",
-    child: "uri",
-  },
-  {
-    id: "n4",
-    icon: "⏱",
-    iconBg: "#FBEEDF",
-    title: "Penny — Screen Time Limit Exceeded",
-    body: "Penny has exceeded her daily screen time limit of 1 hr 30 min. Consider reviewing her app usage.",
-    time: "Today · 4:15 PM",
-    child: "penny",
-  },
-];
+export interface TournamentV2 {
+  id: string;
+  name: string;
+  venue: string;
+  date: string;
+  regDeadline: string;
+  day: string;
+  fee: string;
+  feeAmount: number;
+  closesInDays: number;
+}
 
-export const tournamentV2 = {
-  id: "trn_wellington",
-  name: "Wellington College Chess Championship 2026",
-  venue: "Wellington College International School Bangkok",
-  date: "Saturday, 7 June 2026",
-  timeRange: "9:00 AM – 5:00 PM",
-  regDeadline: "5 June 2026",
-  day: "7 June 2026",
-  fee: "THB 300",
-  closesInDays: 5,
-};
+/** One attendance row joined to its session, for the history lists. */
+export interface HistRow {
+  date: string;
+  iso: string;
+  child: ChildKey;
+  status: "Present" | "Absent";
+  time: string;
+}
 
-/* Grouped attendance history rows (all children). */
-export const histV2: { date: string; child: ChildKey; status: "Present" | "Absent"; time: string }[] = [
-  { date: "May 10, 2026", child: "uri", status: "Present", time: "9:00 – 10:00 AM" },
-  { date: "May 10, 2026", child: "penny", status: "Present", time: "2:00 – 3:00 PM" },
-  { date: "May 5, 2026", child: "penny", status: "Present", time: "2:00 – 3:00 PM" },
-  { date: "May 3, 2026", child: "penny", status: "Absent", time: "2:00 – 3:00 PM" },
-  { date: "May 3, 2026", child: "uri", status: "Absent", time: "9:00 – 10:00 AM" },
-];
+/* ---- calendar months ----
 
-export const todayActivityV2 = [
-  { child: "Penny", mins: 32, done: true },
-  { child: "Uri", mins: 18, done: false },
-];
+   The attendance calendars show the three most recent months, ending with the
+   current one. They used to be a fixed Apr–Jun 2026 with "today" pinned to a
+   hard-coded date, which read as live data long after those months had
+   passed. */
 
-const WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-export const wdOfMonth = (m: number, d: number) =>
-  WD[(MONTHS[m].offset + d - 1) % 7];
+export interface MonthDef {
+  year: number;
+  /** 0-11 */
+  month: number;
+  name: string;
+  days: number;
+  /** Weekday index of day 1, Monday-first. */
+  offset: number;
+}
+
+/** Index of the current month inside recentMonths(). */
+export const CURRENT = 2;
+
+export function recentMonths(now = new Date()): MonthDef[] {
+  return Array.from({ length: 3 }, (_, i) => {
+    const first = new Date(now.getFullYear(), now.getMonth() - (2 - i), 1);
+    return {
+      year: first.getFullYear(),
+      month: first.getMonth(),
+      name: new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(first),
+      days: new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate(),
+      offset: (first.getDay() + 6) % 7,
+    };
+  });
+}
+
+/** Local calendar day as YYYY-MM-DD. `toISOString` would shift Bangkok's
+    first seven hours of every morning back to yesterday. */
+export function todayISO(now = new Date()): string {
+  const pad = (v: number) => String(v).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}

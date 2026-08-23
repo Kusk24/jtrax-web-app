@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Check,
   CircleDollarSign,
-  Clock3,
   FileText,
   Layers,
   MapPin,
@@ -58,7 +57,7 @@ const cta =
 export default function TournamentFlow() {
   const t = useTranslations("pv2");
   const router = useRouter();
-  const { children: childrenV2, tournament: tournamentV2, register } = useParentData();
+  const { children: childrenV2, tournament: tournamentV2, parent, register } = useParentData();
   const [submitting, setSubmitting] = useState(false);
   /* Whatever the server said stays in the console. A parent gets one sentence
      they can act on, in their own language, beside the button. */
@@ -66,13 +65,30 @@ export default function TournamentFlow() {
   const [step, setStep] = useState<Step>("detail");
   const [child, setChild] = useState(childrenV2[0]?.key ?? "");
   const [pay, setPay] = useState("card");
+  /* Prefilled with the signed-in parent — it used to arrive filled in with a
+     sample parent's details, and a family who did not notice registered their
+     child under her email. Still editable: the contact for the day is not
+     always the account holder. */
   const [contact, setContact] = useState({
-    name: "Sandy Jones",
-    phone: "081-234-5678",
-    email: "sandy.jones@email.com",
+    name: parent.name,
+    phone: parent.phone,
+    email: parent.email,
   });
 
   const participant = childrenV2.find((c) => c.key === child) ?? childrenV2[0];
+
+  /* No event open — nothing to register for. The home screen only links here
+     while a tournament exists, but the URL can always be typed. */
+  if (!tournamentV2) {
+    return (
+      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+        <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
+        <div className="rounded-xl border-[1.5px] border-dashed border-[#d5cdbd] p-6 text-center text-[12.5px] text-pp-muted">
+          ♞ {t("noTournament")}
+        </div>
+      </div>
+    );
+  }
 
   if (step === "done") {
     return (
@@ -115,7 +131,7 @@ export default function TournamentFlow() {
                 <span className="flex flex-col">
                   <span className="text-sm font-semibold text-pp-ink">{c.name}</span>
                   <span className="text-[11.5px] text-pp-muted">
-                    {c.clsTitle.replace(" (Sec 101)", "")}
+                    {c.clsTitle}
                   </span>
                 </span>
               </button>
@@ -226,11 +242,11 @@ export default function TournamentFlow() {
             setRegisterFailed(false);
             try {
               await register({
-                tournamentId: (tournamentV2 as { id?: string }).id ?? "",
+                tournamentId: tournamentV2.id,
                 studentId: participant.id,
                 participantName: participant.name,
                 contact: contact.phone,
-                fee: Number(tournamentV2.fee.replace(/[^0-9.]/g, "")) || 0,
+                fee: tournamentV2.feeAmount,
               });
               setStep("done");
             } catch {
@@ -263,10 +279,8 @@ export default function TournamentFlow() {
           <CalendarDays className="size-4 flex-none text-pp-blue" strokeWidth={1.8} />
           <span className="text-[13px] text-pp-ink">{tournamentV2.date}</span>
         </div>
-        <div className="flex items-center gap-2.5">
-          <Clock3 className="size-4 flex-none text-pp-blue" strokeWidth={1.8} />
-          <span className="text-[13px] text-pp-ink">{tournamentV2.timeRange}</span>
-        </div>
+        {/* A time-of-day row sat here showing "9:00 AM – 5:00 PM" for every
+            event; the backend records no such times. */}
         <div className="flex items-center justify-between gap-2.5 border-t border-pp-line pt-3">
           <span className="flex items-center gap-2 text-[12.5px] font-bold text-pp-amber">
             <CalendarClock className="size-[15px]" strokeWidth={1.8} />

@@ -2,17 +2,44 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { notifsV2 } from "@/lib/parent-v2-data";
+import { useLocale, useTranslations } from "next-intl";
+import { Check, Clock3, DoorOpen, type LucideIcon } from "lucide-react";
+import type { NotifKind } from "@/lib/parent-v2-data";
+import { useParentData } from "@/components/parent/ParentData";
+
+/* Each kind of real event gets a face; the mock list drew emoji glyphs for
+   events that had never happened. */
+const KIND_STYLE: Record<NotifKind, { icon: LucideIcon; color: string; bg: string }> = {
+  checkin: { icon: Check, color: "var(--color-pp-green)", bg: "#E6F4EC" },
+  pickup: { icon: DoorOpen, color: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
+  credits: { icon: Clock3, color: "var(--color-pp-amber)", bg: "#FBEEDF" },
+};
 
 export default function ParentNotificationsV2() {
   const t = useTranslations("pv2");
+  const locale = useLocale();
   const router = useRouter();
-  const [read, setRead] = useState<Record<string, boolean>>({});
+  const { notifs, unreadNotifs, isNotifRead, markNotifRead, markAllNotifsRead } = useParentData();
   const [tab, setTab] = useState<"all" | "unread">("all");
 
-  const unread = notifsV2.filter((n) => !read[n.id]).length;
-  const shown = notifsV2.filter((n) => tab === "all" || !read[n.id]);
+  const shown = notifs.filter((n) => tab === "all" || !isNotifRead(n.id));
+
+  /* A credits notification carries a date, not a moment — formatting its
+     midnight stamp as a clock time invented "07:00" out of the timezone. */
+  const whenLabel = (iso: string, dateOnly: boolean) => {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
+      day: "numeric", month: "short",
+      ...(dateOnly ? {} : { hour: "2-digit", minute: "2-digit" } as const),
+    }).format(d);
+  };
+
+  const timeOf = (iso: string) => {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" }).format(d);
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
@@ -29,15 +56,11 @@ export default function ParentNotificationsV2() {
             {t("notificationsTitle")}
           </span>
           <span className="text-[12.5px] text-pp-muted">
-            {unread > 0 ? t("unreadCount", { count: unread }) : t("allCaughtUp")}
+            {unreadNotifs > 0 ? t("unreadCount", { count: unreadNotifs }) : t("allCaughtUp")}
           </span>
         </div>
         <button
-          onClick={() => {
-            const all: Record<string, boolean> = {};
-            notifsV2.forEach((n) => (all[n.id] = true));
-            setRead(all);
-          }}
+          onClick={markAllNotifsRead}
           className="flex-none cursor-pointer text-xs font-bold text-pp-blue"
         >
           {t("markAllRead")}
@@ -54,7 +77,7 @@ export default function ParentNotificationsV2() {
             }`}
           >
             {k === "all" ? t("tabAll") : t("tabUnread")}
-            {k === "unread" && unread > 0 ? ` (${unread})` : ""}
+            {k === "unread" && unreadNotifs > 0 ? ` (${unreadNotifs})` : ""}
           </button>
         ))}
       </div>
@@ -67,13 +90,23 @@ export default function ParentNotificationsV2() {
 
       <div className="flex flex-col gap-3">
         {shown.map((n) => {
-          const isUnread = !read[n.id];
+          const isUnread = !isNotifRead(n.id);
+          const ks = KIND_STYLE[n.kind];
+          const Icon = ks.icon;
+          const title =
+            n.kind === "checkin" ? t("notifCheckinTitle", { name: n.name })
+            : n.kind === "pickup" ? t("notifPickupTitle", { name: n.name })
+            : t("notifCreditsTitle", { name: n.name });
+          const body =
+            n.kind === "checkin" ? t("notifCheckinBody", { name: n.name, cls: n.cls, time: timeOf(n.at) })
+            : n.kind === "pickup" ? t("notifPickupBody", { name: n.name, cls: n.cls, time: timeOf(n.at) })
+            : t("notifCreditsBody", { date: n.date ?? "—", days: n.days ?? 0 });
           return (
             <button
               key={n.id}
               onClick={() => {
-                setRead((p) => ({ ...p, [n.id]: true }));
-                router.push(`/parent/child/${n.child}`);
+                markNotifRead(n.id);
+                router.push(n.href);
               }}
               className="flex w-full cursor-pointer items-start gap-3 rounded-xl border-[1.5px] p-4 text-left shadow-[0_6px_18px_rgba(35,53,94,.07)]"
               style={{
@@ -82,18 +115,18 @@ export default function ParentNotificationsV2() {
               }}
             >
               <span
-                className="flex size-10 flex-none items-center justify-center rounded-[13px] text-base"
-                style={{ background: n.iconBg }}
+                className="flex size-10 flex-none items-center justify-center rounded-[13px]"
+                style={{ background: ks.bg }}
               >
-                {n.icon}
+                <Icon className="size-[18px]" style={{ color: ks.color }} strokeWidth={2.2} />
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[13.5px] font-bold text-pp-ink">{n.title}</span>
+                  <span className="text-[13.5px] font-bold text-pp-ink">{title}</span>
                   {isUnread && <span className="size-[7px] flex-none rounded-full bg-pp-blue" />}
                 </div>
-                <span className="text-[12.5px] leading-relaxed text-pp-muted">{n.body}</span>
-                <span className="text-[10.5px] text-pp-faint">{n.time}</span>
+                <span className="text-[12.5px] leading-relaxed text-pp-muted">{body}</span>
+                <span className="text-[10.5px] text-pp-faint">{whenLabel(n.at, n.kind === "credits")}</span>
               </div>
             </button>
           );
