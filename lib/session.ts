@@ -36,10 +36,11 @@ export async function fetchMe(token: string | undefined): Promise<BackendIdentit
 
 /** Where each role lands after sign-in, or null when this app has no portal
     for it (staff use the separate admin console) — returning a portal the
-    role can't enter would bounce between "/" and that portal forever. */
+    role can't enter would bounce between "/" and that portal forever.
+    Teacher is one of those: the academy has no teacher workflow, so no
+    teacher accounts are issued and there is no portal to send one to. */
 export function homeFor(role: string): string | null {
   if (role === "Parent") return "/parent";
   if (role === "Student") return "/student";
-  if (role === "Teacher") return "/teacher";
   return null;
 }
