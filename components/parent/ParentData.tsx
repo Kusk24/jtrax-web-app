@@ -452,7 +452,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   if (status === "error") {
     return (
       <div className="flex min-h-[70dvh] items-center justify-center px-5">
-        <div className="flex w-full max-w-[380px] flex-col items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-white p-6 text-center shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex w-full max-w-[380px] flex-col items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-pp-card p-6 text-center shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <span className="font-pp-display text-lg font-semibold text-pp-ink">{t("serverDownTitle")}</span>
           <span className="text-[12.5px] leading-relaxed text-pp-muted">{t("serverDownBody")}</span>
           <button

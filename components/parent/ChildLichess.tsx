@@ -51,7 +51,7 @@ export function ChildLichess({ studentId }: { studentId: string }) {
   const ratings = sortRatings(link.ratings).filter((r) => PERF_ORDER.includes(r.perf));
 
   return (
-    <section className="flex flex-col gap-3 rounded-[14px] border-[1.5px] border-pp-line bg-white p-4">
+    <section className="flex flex-col gap-3 rounded-[14px] border-[1.5px] border-pp-line bg-pp-card p-4">
       <div className="flex items-center justify-between gap-2">
         <span className={label}>{t("lichess.title")}</span>
         <a

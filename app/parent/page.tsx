@@ -59,7 +59,7 @@ export default function ParentHomeV2() {
           <Link
             href="/parent/notifications"
             aria-label={t("notificationsTitle")}
-            className="relative flex size-[42px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-white hover:bg-pp-soft"
+            className="relative flex size-[42px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-pp-card hover:bg-pp-soft"
           >
             <Bell className="size-[19px] text-pp-ink" strokeWidth={1.8} />
             {unreadNotifs > 0 && (
@@ -143,7 +143,7 @@ export default function ParentHomeV2() {
             <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
               {t("upcomingTournament")}
             </span>
-            <div className="max-w-[520px] overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_rgba(35,53,94,.12)]">
+            <div className="max-w-[520px] overflow-hidden rounded-2xl bg-pp-card shadow-[0_12px_32px_rgba(35,53,94,.12)]">
               <div className="relative">
                 <TournamentBanner className="h-[158px] w-full" />
                 <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
