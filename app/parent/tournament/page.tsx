@@ -20,7 +20,7 @@ import { TournamentBanner } from "@/components/parent/TournamentBanner";
 type Step = "detail" | "register" | "payment" | "done";
 
 const inputCls =
-  "w-full rounded-[13px] border-[1.5px] border-pp-line bg-white px-3.5 py-3 text-[13px] text-pp-ink outline-none focus:border-pp-blue/60";
+  "w-full rounded-[13px] border-[1.5px] border-pp-line bg-pp-card px-3.5 py-3 text-[13px] text-pp-ink outline-none focus:border-pp-blue/60";
 
 function Radio({ selected }: { selected: boolean }) {
   return (
@@ -40,7 +40,7 @@ function BackHeader({ title, onBack }: { title: string; onBack: () => void }) {
       <button
         onClick={onBack}
         aria-label={t("back")}
-        className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-white text-base text-pp-ink hover:bg-pp-soft"
+        className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-pp-card text-base text-pp-ink hover:bg-pp-soft"
       >
         ←
       </button>
@@ -49,7 +49,7 @@ function BackHeader({ title, onBack }: { title: string; onBack: () => void }) {
   );
 }
 
-const card = "rounded-xl bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]";
+const card = "rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]";
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const cta =
   "cursor-pointer rounded-[14px] bg-pp-blue py-3.5 text-center text-sm font-bold text-white shadow-[0_10px_24px_rgba(46,92,184,.3)]";
@@ -124,7 +124,7 @@ export default function TournamentFlow() {
               <button
                 key={c.key}
                 onClick={() => setChild(c.key)}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-white p-4 text-left"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-pp-card p-4 text-left"
                 style={{ borderColor: child === c.key ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
               >
                 <Radio selected={child === c.key} />
@@ -215,7 +215,7 @@ export default function TournamentFlow() {
               <button
                 key={k}
                 onClick={() => setPay(k)}
-                className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-white px-4 py-3.5 text-left"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-pp-card px-4 py-3.5 text-left"
                 style={{ borderColor: pay === k ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
               >
                 <Radio selected={pay === k} />
@@ -334,7 +334,7 @@ export default function TournamentFlow() {
       </div>
       <div className="flex flex-col gap-2">
         <span className={label}>{t("viewDetailsOn")}</span>
-        <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <a href="#" className="flex items-center gap-3 border-b border-pp-line px-4 py-3.5">
             <FileText className="size-[17px] flex-none text-pp-blue" strokeWidth={1.8} />
             <span className="flex-1 text-[13px] text-pp-ink">{t("regulationsPdf")}</span>

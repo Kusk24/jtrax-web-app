@@ -59,7 +59,7 @@ export default function ChildProfileV2({
         <button
           onClick={() => router.back()}
           aria-label={t("back")}
-          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-white text-base text-pp-ink hover:bg-pp-soft"
+          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-pp-card text-base text-pp-ink hover:bg-pp-soft"
         >
           ←
         </button>
@@ -138,7 +138,7 @@ export default function ChildProfileV2({
             {t("dayStreak", { count: ch.streak })}
           </span>
         </div>
-        <div className="flex flex-col gap-2.5 rounded-xl bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex flex-col gap-2.5 rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <span className="text-[11px] font-bold uppercase tracking-[.08em] text-pp-faint">
             {t("thisWeek")}
           </span>
@@ -206,7 +206,7 @@ export default function ChildProfileV2({
       {/* Enrolled classes */}
       <div className="flex flex-col gap-3">
         <span className={label}>{t("enrolledClasses")}</span>
-        <div className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex flex-col gap-4 rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <div className="flex items-center gap-3">
             <span className="flex size-10 flex-none items-center justify-center rounded-xl bg-pp-mist text-pp-ink">
               <PawnIcon className="size-[17px]" />
@@ -240,7 +240,7 @@ export default function ChildProfileV2({
               used to be here and grew or shrank with every purchase. */}
           <div className="flex items-center gap-3.5 rounded-[13px] border-[1.5px] border-pp-soft bg-pp-mist px-3.5 py-3">
             <div className="flex min-w-[78px] flex-none flex-col">
-              <span className="font-pp-display text-[32px] font-bold leading-none text-pp-deep">
+              <span className="font-pp-display text-[32px] font-bold leading-none text-pp-blue">
                 {ch.attended}
               </span>
               <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
@@ -274,12 +274,12 @@ export default function ChildProfileV2({
             {t("viewAll")} →
           </Link>
         </div>
-        <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           {histRows.length === 0 && (
             <div className="px-4 py-5 text-center text-[12.5px] text-pp-muted">{t("noSessions")}</div>
           )}
           {histRows.map((h, i) => (
-            <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
+            <div key={i} className="flex items-center justify-between gap-2.5 border-b border-pp-panel px-4 py-3.5 last:border-0">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[12.5px] font-semibold">{h.cls}</span>
                 <span className="text-[11px] text-pp-muted">{h.date} · {h.time}</span>

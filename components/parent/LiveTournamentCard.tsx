@@ -34,7 +34,7 @@ export function LiveTournamentCard() {
         <Link
           key={e.tournamentId}
           href={`/t/${e.tournamentId}`}
-          className="flex min-h-[56px] items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_8px_24px_rgba(35,53,94,.10)] transition-colors hover:bg-pp-mist"
+          className="flex min-h-[56px] items-center gap-3 rounded-2xl bg-pp-card px-4 py-3 shadow-[0_8px_24px_rgba(35,53,94,.10)] transition-colors hover:bg-pp-mist"
         >
           <span className="flex size-9 flex-none items-center justify-center rounded-full bg-pp-green-soft text-pp-green">
             <Trophy className="size-[18px]" />
