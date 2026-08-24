@@ -164,19 +164,15 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         : 0;
       const daysLeft = Math.max(0, daysRaw);
 
-      /* The class's own sessions carry the timetable. Sessions are written one
-         at a time by the desk — there is no weekly pattern to read — so the
-         schedule is the next session that is actually on the books. */
+      /* Sessions the class has already held. Sessions are written one at a
+         time by the desk — there is no weekly pattern — which is also why the
+         screen shows no upcoming schedule: a session not yet written is not a
+         plan a parent can rely on. */
       const mySessions = cls
         ? sessions.filter((x) => s(x, "class_id") === s(cls, "class_id"))
         : [];
-      const upcoming = mySessions
-        .filter((x) => s(x, "session_date") > todayStr
-          || (s(x, "session_date") === todayStr && s(x, "end_time") >= nowClock))
-        .sort((a, b) => (s(a, "session_date") + s(a, "start_time"))
-          .localeCompare(s(b, "session_date") + s(b, "start_time")));
-      const held = mySessions.length - upcoming.length;
-      const next = upcoming[0];
+      const held = mySessions.filter((x) => s(x, "session_date") < todayStr
+        || (s(x, "session_date") === todayStr && s(x, "end_time") < nowClock)).length;
 
       const attended = attendance.filter((a) => s(a, "student_id") === sid).length;
       const acts = activities.filter((a) => s(a, "student_id") === sid);
@@ -195,9 +191,6 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         avBg: i % 2 ? "#cfd9f0" : "#b4c5e4",
         clsTitle: cls ? s(cls, "name") : "—",
         enrolledSince: enr ? fmtDate(s(enr, "enrolled_date")) : "",
-        nextSession: next
-          ? { dateISO: s(next, "session_date"), start: s(next, "start_time"), end: s(next, "end_time") }
-          : null,
         credits,
         creditsBought: bought,
         valid: fmtDate(expiry),
@@ -205,7 +198,6 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         expiresAhead: daysRaw >= 0,
         attended,
         heldSessions: held,
-        upcomingSessions: upcoming.length,
         streak: n(st, "streak_count"),
         practiceWeek: week,
       };
@@ -240,12 +232,16 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         const ses = sessions.find((x) => s(x, "session_id") === s(a, "session_id"));
         const child = mapped.find((c) => c.id === s(a, "student_id"));
         if (!ses || !child) return null;
+        const sesCls = classes.find((c) => s(c, "class_id") === s(ses, "class_id"));
         return {
           date: fmtDate(s(ses, "session_date")),
           iso: s(ses, "session_date"),
           child: child.key as ChildKey,
           status: (s(a, "check_in_time") ? "Present" : "Absent") as HistRow["status"],
           time: `${s(ses, "start_time")} – ${s(ses, "end_time")}`,
+          /* The session's own class. Printing the child's current class here
+             relabelled every old row the day they moved. */
+          cls: sesCls ? s(sesCls, "name") : "—",
         };
       })
       .filter((r): r is HistRow => r !== null)

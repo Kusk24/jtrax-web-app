@@ -19,13 +19,13 @@ export interface ChildV2 {
   clsTitle: string;
   /** enrolled_date, formatted, or "" when the child is in no class. */
   enrolledSince: string;
-  /** The class's next scheduled session. A class has no fixed hours — sessions
-      are written one at a time by the desk — so this is the only honest
-      "schedule" the data can produce. */
-  nextSession: { dateISO: string; start: string; end: string } | null;
-  /** Ledger balance. Fractional — an hour of class costs an hour of credit. */
+  /** Ledger balance. Fractional — an hour of class costs an hour of credit.
+      The child screen shows this figure alone: a "total bought" beside it
+      grows with every top-up and every balance moved in, so it reads as a
+      quota when it is only history. */
   credits: number;
-  /** Sum of everything ever added, the denominator of the progress bars. */
+  /** Sum of everything ever added — the home card's bar proportion only,
+      never shown as a number (see `credits` for why). */
   creditsBought: number;
   /** Latest expiry date on the ledger, formatted, or "—" when none is set. */
   valid: string;
@@ -36,11 +36,13 @@ export interface ChildV2 {
   attended: number;
   /** Sessions the enrolled class has held up to today. */
   heldSessions: number;
-  /** Sessions the class has scheduled after today. */
-  upcomingSessions: number;
   streak: number;
   practiceWeek: number[];
 }
+
+/** The academy awards a certificate after this many classes attended — the
+    milestone the child screen counts toward. */
+export const CERT_SESSIONS = 50;
 
 export type SenderKind = "teacher" | "branch" | "admin";
 
@@ -94,6 +96,9 @@ export interface HistRow {
   child: ChildKey;
   status: "Present" | "Absent";
   time: string;
+  /** The session's own class — not the child's current one, which would
+      relabel every old row the day the child changes class. */
+  cls: string;
 }
 
 /* ---- calendar months ----

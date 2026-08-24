@@ -6,8 +6,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Check, Clock3, Flame } from "lucide-react";
+import { Check, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
+import { CERT_SESSIONS } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
 
@@ -31,14 +32,8 @@ export default function ChildProfileV2({
      saying "expires soon · 0 days" about it understates what happened. */
   const expired = hasExpiry && !ch.expiresAhead;
   const expSoon = hasExpiry && ch.expiresAhead && ch.daysLeft <= 14;
-  const low = ch.credits <= 2;
-
-  /* The class's next session on the books — a class has no fixed weekly hours,
-     so this is the schedule, not a stand-in for one. */
-  const sched = ch.nextSession
-    ? `${new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" })
-        .format(new Date(ch.nextSession.dateISO))} · ${ch.nextSession.start} – ${ch.nextSession.end}`
-    : t("noUpcomingSession");
+  /* Progress toward the certificate the academy awards at 50 classes. */
+  const toCert = Math.max(0, CERT_SESSIONS - ch.attended);
 
   /* This-week practice line chart */
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -95,11 +90,12 @@ export default function ChildProfileV2({
           <span className="text-[11px] font-bold uppercase tracking-[.12em] text-[#b4c5e4]">
             {t("remainingCredits")}
           </span>
+          {/* The balance alone. A "/ total bought" used to sit beside it, and
+              it read as a quota when it is only history: every top-up and
+              every balance moved in from another class made it grow, so the
+              figure got bigger for ever and doubled after a class change. */}
           <span className="font-pp-display text-[34px] font-semibold leading-none">
             {ch.credits}
-            {ch.creditsBought > 0 && (
-              <span className="text-lg text-[#b4c5e4]"> / {ch.creditsBought}</span>
-            )}
           </span>
         </div>
         <div
@@ -217,19 +213,17 @@ export default function ChildProfileV2({
             </span>
             <div className="flex flex-1 flex-col gap-0.5">
               <span className="text-sm font-semibold">{ch.clsTitle}</span>
-              <span className="flex items-center gap-1 text-[11.5px] text-pp-muted">
-                <Clock3 className="size-3" strokeWidth={2} />
-                {sched}
-              </span>
             </div>
           </div>
-          {/* Branch, room and a teacher's name used to sit here, invented on
-              the client — the backend has no room or branch column and no
-              teacher-to-class link, so there is nothing real to show yet. */}
+          {/* Branch, room, a teacher's name and an upcoming-session line all
+              used to sit here. The first three were invented on the client —
+              the backend has no room or branch column and no teacher-to-class
+              link — and the schedule went too: sessions are written one at a
+              time by the desk, so "the next class" is not a plan a parent can
+              rely on. */}
           <div className="grid grid-cols-2 gap-x-3.5 gap-y-2.5">
             {(
               [
-                [t("scheduleLabel"), sched, false],
                 [t("creditsExpire"), ch.valid, expSoon || expired],
                 [t("levelLabel"), ch.level || "—", false],
                 [t("enrolledSince"), ch.enrolledSince || "—", false],
@@ -241,45 +235,32 @@ export default function ChildProfileV2({
               </div>
             ))}
           </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="h-[7px] overflow-hidden rounded-full bg-[#e8edf8]">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${ch.creditsBought > 0 ? Math.min(100, Math.round((ch.credits / ch.creditsBought) * 100)) : 0}%`,
-                  background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
-                }}
-              />
-            </div>
-            <div className="flex justify-between text-[11.5px] text-pp-muted">
-              <span>{t("creditsRemaining")}</span>
-              <span className={`font-bold ${low ? "text-pp-amber" : "text-pp-ink"}`}>
-                {ch.credits}{ch.creditsBought > 0 ? ` / ${ch.creditsBought}` : ""}
-              </span>
-            </div>
-          </div>
+          {/* Progress toward the 50-class certificate — a milestone that only
+              moves forward, unlike the credit totals and session counts that
+              used to be here and grew or shrank with every purchase. */}
           <div className="flex items-center gap-3.5 rounded-[13px] border-[1.5px] border-pp-soft bg-pp-mist px-3.5 py-3">
             <div className="flex min-w-[78px] flex-none flex-col">
               <span className="font-pp-display text-[32px] font-bold leading-none text-pp-deep">
-                {ch.upcomingSessions}
+                {ch.attended}
               </span>
               <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
-                {t("classesLeft")}
+                {t("classesAttended")}
               </span>
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <div className="flex justify-between text-[11px] text-pp-muted">
-                <span>{t("attendedOf", { attended: ch.attended, total: ch.heldSessions })}</span>
-                <span>{t("remainingOf", { count: ch.upcomingSessions })}</span>
+                <span>{t("attendedOf", { attended: ch.attended, total: CERT_SESSIONS })}</span>
+                <span>{t("remainingOf", { count: toCert })}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-pp-soft">
                 <div
                   className="h-full rounded-full bg-pp-blue"
-                  style={{
-                    width: `${ch.heldSessions > 0 ? Math.min(100, Math.round((ch.attended / ch.heldSessions) * 100)) : 0}%`,
-                  }}
+                  style={{ width: `${Math.min(100, Math.round((ch.attended / CERT_SESSIONS) * 100))}%` }}
                 />
               </div>
+              <span className="text-[10.5px] text-pp-faint">
+                {t("certNote", { count: CERT_SESSIONS })}
+              </span>
             </div>
           </div>
         </div>
@@ -300,7 +281,7 @@ export default function ChildProfileV2({
           {histRows.map((h, i) => (
             <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
               <div className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-[12.5px] font-semibold">{ch.clsTitle}</span>
+                <span className="text-[12.5px] font-semibold">{h.cls}</span>
                 <span className="text-[11px] text-pp-muted">{h.date} · {h.time}</span>
               </div>
               <span

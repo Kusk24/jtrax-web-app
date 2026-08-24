@@ -150,10 +150,7 @@
     "weekTotal": "{h}h {m}m total",
     "minsTip": "{count} mins",
     "enrolledClasses": "Enrolled Classes",
-    "scheduleLabel": "Schedule",
     "creditsExpire": "Credits expire",
-    "creditsRemaining": "Credits remaining",
-    "classesLeft": "Classes left",
     "attendedOf": "{attended} of {total} attended",
     "remainingOf": "{count} remaining",
     "myProfile": "My Profile",
@@ -203,7 +200,6 @@
     "serverDownTitle": "Cannot reach the server",
     "serverDownBody": "JTrax cannot reach the academy's server right now, so nothing can be shown. Check your connection and try again.",
     "retry": "Try again",
-    "noUpcomingSession": "No upcoming session scheduled",
     "enrolledSince": "Enrolled since",
     "levelLabel": "Level",
     "noPracticeToday": "No practice recorded today.",
@@ -214,7 +210,9 @@
     "notifPickupBody": "{name} left {cls} at {time}.",
     "notifCreditsTitle": "{name} — Credits expiring soon",
     "notifCreditsBody": "Credits expire on {date} — {days} days left.",
-    "expired": "Expired"
+    "expired": "Expired",
+    "classesAttended": "Classes attended",
+    "certNote": "A certificate is awarded after {count} classes."
   },
   "sv2": {
     "home": "Home",

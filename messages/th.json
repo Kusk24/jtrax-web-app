@@ -150,10 +150,7 @@
     "weekTotal": "รวม {h} ชม. {m} นาที",
     "minsTip": "{count} นาที",
     "enrolledClasses": "คลาสที่ลงทะเบียน",
-    "scheduleLabel": "ตารางเรียน",
     "creditsExpire": "เครดิตหมดอายุ",
-    "creditsRemaining": "เครดิตคงเหลือ",
-    "classesLeft": "คลาสที่เหลือ",
     "attendedOf": "เข้าเรียนแล้ว {attended} จาก {total}",
     "remainingOf": "เหลือ {count}",
     "myProfile": "โปรไฟล์ของฉัน",
@@ -203,7 +200,6 @@
     "serverDownTitle": "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้",
     "serverDownBody": "ขณะนี้ JTrax ไม่สามารถติดต่อเซิร์ฟเวอร์ของสถาบันได้ จึงยังแสดงข้อมูลไม่ได้ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่อีกครั้ง",
     "retry": "ลองอีกครั้ง",
-    "noUpcomingSession": "ยังไม่มีคาบเรียนถัดไป",
     "enrolledSince": "เรียนตั้งแต่",
     "levelLabel": "ระดับ",
     "noPracticeToday": "วันนี้ยังไม่มีบันทึกการฝึกฝน",
@@ -214,7 +210,9 @@
     "notifPickupBody": "{name} ออกจากคลาส {cls} เมื่อเวลา {time}",
     "notifCreditsTitle": "{name} — เครดิตใกล้หมดอายุ",
     "notifCreditsBody": "เครดิตจะหมดอายุวันที่ {date} — เหลืออีก {days} วัน",
-    "expired": "หมดอายุแล้ว"
+    "expired": "หมดอายุแล้ว",
+    "classesAttended": "จำนวนคลาสที่เรียนแล้ว",
+    "certNote": "เรียนครบ {count} คลาสจะได้รับประกาศนียบัตร"
   },
   "sv2": {
     "home": "หน้าแรก",
