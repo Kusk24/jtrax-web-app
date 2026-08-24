@@ -8,7 +8,6 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
-import { CERT_SESSIONS } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
 
@@ -22,7 +21,7 @@ export default function ChildProfileV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
-  const { children: kids, hist } = useParentData();
+  const { children: kids, hist, certSessions } = useParentData();
   const [hover, setHover] = useState<number | null>(null);
   const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
@@ -32,8 +31,9 @@ export default function ChildProfileV2({
      saying "expires soon · 0 days" about it understates what happened. */
   const expired = hasExpiry && !ch.expiresAhead;
   const expSoon = hasExpiry && ch.expiresAhead && ch.daysLeft <= 14;
-  /* Progress toward the certificate the academy awards at 50 classes. */
-  const toCert = Math.max(0, CERT_SESSIONS - ch.attended);
+  /* Progress toward the certificate — the milestone is the academy's own,
+     from Settings, not a number this app knows. */
+  const toCert = Math.max(0, certSessions - ch.attended);
 
   /* This-week practice line chart */
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -249,17 +249,17 @@ export default function ChildProfileV2({
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <div className="flex justify-between text-[11px] text-pp-muted">
-                <span>{t("attendedOf", { attended: ch.attended, total: CERT_SESSIONS })}</span>
+                <span>{t("attendedOf", { attended: ch.attended, total: certSessions })}</span>
                 <span>{t("remainingOf", { count: toCert })}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-pp-soft">
                 <div
                   className="h-full rounded-full bg-pp-blue"
-                  style={{ width: `${Math.min(100, Math.round((ch.attended / CERT_SESSIONS) * 100))}%` }}
+                  style={{ width: `${Math.min(100, Math.round((ch.attended / certSessions) * 100))}%` }}
                 />
               </div>
               <span className="text-[10.5px] text-pp-faint">
-                {t("certNote", { count: CERT_SESSIONS })}
+                {t("certNote", { count: certSessions })}
               </span>
             </div>
           </div>

@@ -11,7 +11,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
-  CURRENT, recentMonths, todayISO,
+  CERT_SESSIONS, CURRENT, recentMonths, todayISO,
   type AnnouncementV2, type ChildKey, type ChildV2, type HistRow, type MonthDef,
   type NotifV2, type SenderKind, type TournamentV2,
 } from "@/lib/parent-v2-data";
@@ -73,6 +73,9 @@ type ParentDataValue = {
   att: Record<ChildKey, Record<number, { present: number[]; absent: number[] }>>;
   hist: HistRow[];
   todayActivity: { child: string; mins: number; done: boolean }[];
+  /** Classes attended before a certificate is awarded — the academy's own
+      figure from system_configuration, or the 50 default until it saves one. */
+  certSessions: number;
   prefs: Prefs;
   parentId: string;
   savePrefs: (p: Prefs) => Promise<void>;
@@ -116,6 +119,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [att, setAtt] = useState<ParentDataValue["att"]>({});
   const [hist, setHist] = useState<HistRow[]>([]);
   const [todayActivity, setTodayActivity] = useState<ParentDataValue["todayActivity"]>([]);
+  const [certSessions, setCertSessions] = useState(CERT_SESSIONS);
   const [prefs, setPrefs] = useState<Prefs>({ checkin: true, credits: true, news: false });
   const [parentId, setParentId] = useState("");
   const [notifRead, setNotifRead] = useState<Set<string>>(new Set());
@@ -123,15 +127,26 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
 
   const load = useCallback(async () => {
     const [students, enrollments, classes, txs, teachers, attendance, sessions,
-      announcements, tournaments, activities, parents, contacts, me] = await Promise.all([
+      announcements, tournaments, activities, parents, contacts, config, me] = await Promise.all([
       get("students"), get("enrollments"), get("classes"), get("credit-transactions"),
       get("teachers"), get("attendance"), get("class-sessions"),
       get("announcements"), get("tournaments"), get("practice-activities"),
       get("parents"), get("parent-contacts"),
+      /* Tolerant: a backend deployed before system-configuration was readable
+         by parents answers 403, and the milestone has a default — that must
+         not read as the whole server being down. */
+      get("system-configuration").catch(() => [] as Row[]),
       fetch("/api/auth/me", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)),
     ]);
     if (!me?.parentId) throw new Error("not a parent session");
     setParentId(me.parentId);
+
+    /* The academy's certificate milestone, or the default until it saves one. */
+    const certRaw = Number(s(
+      config.find((r) => s(r, "config_key") === "certificate_sessions") ?? {},
+      "config_value",
+    ));
+    setCertSessions(Number.isFinite(certRaw) && certRaw > 0 ? certRaw : CERT_SESSIONS);
     setNotifRead(loadRead("notifs", me.parentId));
     setAnnRead(loadRead("anns", me.parentId));
 
@@ -418,11 +433,11 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       },
       isAnnRead: (id) => annRead.has(id),
       markAnnRead,
-      tournament: tour, months, att, hist, todayActivity,
+      tournament: tour, months, att, hist, todayActivity, certSessions,
       prefs, parentId, savePrefs, register,
     };
   }, [childList, parent, anns, allNotifs, notifRead, annRead, markNotifRead, markAnnRead,
-    tour, months, att, hist, todayActivity, prefs, parentId, savePrefs, register]);
+    tour, months, att, hist, todayActivity, certSessions, prefs, parentId, savePrefs, register]);
 
   /* No screen renders until the data is real. The old behaviour — sample
      children whenever the server was down — looked exactly like working
