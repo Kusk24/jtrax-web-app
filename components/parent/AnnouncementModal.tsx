@@ -30,7 +30,7 @@ export function AnnouncementModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[80vh] w-full max-w-[420px] flex-col gap-3 overflow-y-auto rounded-xl bg-white p-6 shadow-[0_30px_70px_rgba(28,25,40,.3)]"
+        className="flex max-h-[80vh] w-full max-w-[420px] flex-col gap-3 overflow-y-auto rounded-xl bg-pp-card p-6 shadow-[0_30px_70px_rgba(28,25,40,.3)]"
       >
         <div className="flex items-center justify-between gap-2.5">
           <span className="min-w-0 flex-1 font-pp-display text-xl font-semibold leading-snug text-pp-ink">
@@ -39,7 +39,7 @@ export function AnnouncementModal({
           <button
             onClick={onClose}
             aria-label={t("cancel")}
-            className="flex size-[30px] flex-none cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-pp-line bg-white text-pp-ink"
+            className="flex size-[30px] flex-none cursor-pointer items-center justify-center rounded-[10px] border-[1.5px] border-pp-line bg-pp-card text-pp-ink"
           >
             <X className="size-3.5" />
           </button>

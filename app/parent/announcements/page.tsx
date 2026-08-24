@@ -20,7 +20,7 @@ export default function ParentAnnouncementsV2() {
         <button
           onClick={() => router.back()}
           aria-label={t("back")}
-          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-white text-base text-pp-ink hover:bg-pp-soft"
+          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-pp-card text-base text-pp-ink hover:bg-pp-soft"
         >
           ←
         </button>
@@ -42,7 +42,7 @@ export default function ParentAnnouncementsV2() {
               }}
               className="flex w-full cursor-pointer flex-col gap-2 rounded-xl border-[1.5px] p-4 text-left shadow-[0_6px_18px_rgba(35,53,94,.07)]"
               style={{
-                background: isUnread ? "var(--color-pp-mist)" : "#ffffff",
+                background: isUnread ? "var(--color-pp-mist)" : "var(--color-pp-card)",
                 borderColor: isUnread ? "var(--color-pp-soft)" : "var(--color-pp-line)",
               }}
             >

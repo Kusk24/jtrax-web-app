@@ -48,18 +48,18 @@ export default function ParentAttendanceV2() {
       </div>
 
       {/* Calendar keeps a phone-card width everywhere — full-bleed cells turn into giant circles. */}
-      <div className="relative z-[1] -mt-[54px] flex w-full max-w-[440px] flex-col gap-3 place-self-center rounded-xl border-[1.5px] border-pp-line bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)] lg:place-self-auto">
+      <div className="relative z-[1] -mt-[54px] flex w-full max-w-[440px] flex-col gap-3 place-self-center rounded-xl border-[1.5px] border-pp-line bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)] lg:place-self-auto">
         <div className="flex items-center justify-between px-0.5">
           <button
             onClick={() => setMonth((m) => Math.max(0, m - 1))}
-            className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-white text-sm text-pp-blue hover:bg-pp-soft"
+            className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-pp-card text-sm text-pp-blue hover:bg-pp-soft"
           >
             ‹
           </button>
           <span className="font-pp-display text-[17px] font-semibold">{M.name}</span>
           <button
             onClick={() => setMonth((m) => Math.min(months.length - 1, m + 1))}
-            className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-white text-sm text-pp-blue hover:bg-pp-soft"
+            className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-pp-card text-sm text-pp-blue hover:bg-pp-soft"
           >
             ›
           </button>
@@ -105,7 +105,7 @@ export default function ParentAttendanceV2() {
             onClick={() => setFilter(f.k)}
             className="cursor-pointer rounded-full border-[1.5px] px-4 py-2 text-xs font-bold"
             style={{
-              background: filter === f.k ? "var(--color-pp-deep)" : "#ffffff",
+              background: filter === f.k ? "var(--color-pp-deep)" : "var(--color-pp-card)",
               color: filter === f.k ? "#fbfff1" : "var(--color-pp-muted)",
               borderColor: filter === f.k ? "var(--color-pp-deep)" : "var(--color-pp-line)",
             }}
@@ -126,7 +126,7 @@ export default function ParentAttendanceV2() {
               <Link
                 key={i}
                 href={`/parent/child/${c.key}`}
-                className="flex w-full items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-white p-4 text-left hover:bg-pp-mist"
+                className="flex w-full items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-pp-card p-4 text-left hover:bg-pp-mist"
               >
                 <span
                   aria-label={c.name}
