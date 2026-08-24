@@ -41,7 +41,9 @@ export interface ChildV2 {
 }
 
 /** The academy awards a certificate after this many classes attended — the
-    milestone the child screen counts toward. */
+    milestone the child screen counts toward. This is the fallback: the real
+    figure is the academy's own, `certificate_sessions` in
+    `system_configuration`, edited on the console's Settings screen. */
 export const CERT_SESSIONS = 50;
 
 export type SenderKind = "teacher" | "branch" | "admin";
