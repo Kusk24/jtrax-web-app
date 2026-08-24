@@ -150,7 +150,7 @@ export default function ChildHistoryV2({
             {rows.map((h, i) => (
               <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-[13px] font-semibold">{ch.clsTitle}</span>
+                  <span className="text-[13px] font-semibold">{h.cls}</span>
                   <span className="text-[11.5px] text-pp-muted">{h.date} · {h.time}</span>
                 </div>
                 <span

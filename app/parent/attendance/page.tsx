@@ -135,7 +135,7 @@ export default function ParentAttendanceV2() {
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-[13.5px] font-semibold">
-                    {c.name} · ♟ {c.clsTitle}
+                    {c.name} · ♟ {h.cls}
                   </span>
                   <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-pp-muted">
                     <span>◷ {h.time}</span>
