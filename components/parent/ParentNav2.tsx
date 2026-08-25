@@ -67,11 +67,11 @@ export function ParentSideNav() {
             }`}
           >
             <Icon
-              className={`size-5 ${active ? "text-pp-deep" : "text-pp-faint"}`}
+              className={`size-5 ${active ? "text-pp-blue" : "text-pp-faint"}`}
               strokeWidth={1.8}
             />
             <span
-              className={`text-[13px] font-semibold ${active ? "text-pp-deep" : "text-pp-faint"}`}
+              className={`text-[13px] font-semibold ${active ? "text-pp-blue" : "text-pp-faint"}`}
             >
               {t(tab.labelKey)}
             </span>
@@ -97,7 +97,7 @@ export function ParentBottomNav2() {
   const pathname = usePathname();
   const t = useTranslations("pv2");
   return (
-    <nav className="sticky bottom-0 z-20 grid grid-cols-3 gap-1 border-t border-pp-line bg-[rgba(247,249,252,.92)] px-2 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
+    <nav className="sticky bottom-0 z-20 grid grid-cols-3 gap-1 border-t border-pp-line bg-[color-mix(in_srgb,var(--color-pp-bg)_92%,transparent)] px-2 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
       {tabs.map((tab) => {
         const active = isActive(pathname, tab);
         const Icon = tab.icon;
@@ -110,11 +110,11 @@ export function ParentBottomNav2() {
             }`}
           >
             <Icon
-              className={`size-[22px] ${active ? "text-pp-deep" : "text-pp-faint"}`}
+              className={`size-[22px] ${active ? "text-pp-blue" : "text-pp-faint"}`}
               strokeWidth={1.8}
             />
             <span
-              className={`text-[10px] font-bold ${active ? "text-pp-deep" : "text-pp-faint"}`}
+              className={`text-[10px] font-bold ${active ? "text-pp-blue" : "text-pp-faint"}`}
             >
               {t(tab.labelKey)}
             </span>

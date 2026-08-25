@@ -37,9 +37,9 @@ export default async function ParentLayout({
     const t = await getTranslations("pv2");
     return (
       <div
-        className={`${dmSans.variable} ${poppins.variable} flex min-h-dvh items-center justify-center px-5 font-pp-sans text-pp-ink [background:radial-gradient(1200px_800px_at_50%_-10%,#f3efe6_0%,#f7f9fc_60%)]`}
+        className={`${dmSans.variable} ${poppins.variable} flex min-h-dvh items-center justify-center px-5 font-pp-sans text-pp-ink [background:radial-gradient(1200px_800px_at_50%_-10%,var(--color-pp-bd-a)_0%,var(--color-pp-bd-b)_60%)]`}
       >
-        <div className="flex w-full max-w-[380px] flex-col items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-white p-6 text-center shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex w-full max-w-[380px] flex-col items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-pp-card p-6 text-center shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <span className="font-pp-display text-lg font-semibold">{t("serverDownTitle")}</span>
           <span className="text-[12.5px] leading-relaxed text-pp-muted">{t("serverDownBody")}</span>
           <a
@@ -54,14 +54,19 @@ export default async function ParentLayout({
   }
   if (!me || me.role !== "Parent") redirect("/");
 
+  /* The account's saved theme scopes color-scheme to this shell (see
+     globals.css) — server-rendered, so dark arrives dark with no flash. */
+  const theme = me.themePreference === "Dark" ? "dark" : me.themePreference === "Light" ? "light" : "system";
+
   return (
     <div
-      className={`${dmSans.variable} ${poppins.variable} min-h-dvh font-pp-sans text-pp-ink [background:radial-gradient(1200px_800px_at_50%_-10%,#f3efe6_0%,#f7f9fc_60%)]`}
+      data-theme={theme}
+      className={`${dmSans.variable} ${poppins.variable} min-h-dvh font-pp-sans text-pp-ink [background:radial-gradient(1200px_800px_at_50%_-10%,var(--color-pp-bd-a)_0%,var(--color-pp-bd-b)_60%)]`}
     >
       {/* The provider wraps the shell, not just the page: the sidebar greets
           the signed-in parent by name, so it needs the data too. */}
       <ParentDataProvider>
-        <div className="mx-auto flex min-h-dvh w-full max-w-[410px] md:max-w-[760px] flex-col bg-white shadow-[0_0_0_1px_rgba(35,53,94,.06),0_30px_80px_rgba(35,53,94,.18)] lg:max-w-none lg:flex-row">
+        <div className="mx-auto flex min-h-dvh w-full max-w-[410px] md:max-w-[760px] flex-col bg-pp-card shadow-[0_0_0_1px_rgba(35,53,94,.06),0_30px_80px_rgba(35,53,94,.18)] lg:max-w-none lg:flex-row">
           <ParentSideNav />
           <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
             <main className="flex-1 bg-pp-bg">{children}</main>

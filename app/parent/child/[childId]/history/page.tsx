@@ -50,7 +50,7 @@ export default function ChildHistoryV2({
         <button
           onClick={() => router.back()}
           aria-label={t("back")}
-          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-white text-base text-pp-ink hover:bg-pp-soft"
+          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-pp-card text-base text-pp-ink hover:bg-pp-soft"
         >
           ←
         </button>
@@ -65,18 +65,18 @@ export default function ChildHistoryV2({
       </div>
 
       <div className="flex w-full max-w-[440px] flex-col gap-3.5 place-self-center md:place-self-auto">
-        <div className="flex flex-col gap-2.5 rounded-[14px] bg-white p-4 shadow-[0_10px_28px_rgba(35,53,94,.10)]">
+        <div className="flex flex-col gap-2.5 rounded-[14px] bg-pp-card p-4 shadow-[0_10px_28px_rgba(35,53,94,.10)]">
           <div className="flex items-center justify-between px-0.5">
             <button
               onClick={() => { setMonth((m) => Math.max(0, m - 1)); setSel(null); }}
-              className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-white text-sm text-pp-blue hover:bg-pp-soft"
+              className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-pp-card text-sm text-pp-blue hover:bg-pp-soft"
             >
               ‹
             </button>
             <span className="font-pp-display text-[17px] font-semibold">{M.name}</span>
             <button
               onClick={() => { setMonth((m) => Math.min(months.length - 1, m + 1)); setSel(null); }}
-              className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-white text-sm text-pp-blue hover:bg-pp-soft"
+              className="size-[30px] cursor-pointer rounded-[10px] border-[1.5px] border-pp-line bg-pp-card text-sm text-pp-blue hover:bg-pp-soft"
             >
               ›
             </button>
@@ -118,7 +118,7 @@ export default function ChildHistoryV2({
 
         <div className="flex items-center gap-4 rounded-xl border-[1.5px] border-pp-soft bg-pp-mist px-4 py-4">
           <div className="flex min-w-[64px] flex-none flex-col">
-            <span className="font-pp-display text-[30px] font-bold leading-none text-pp-deep">
+            <span className="font-pp-display text-[30px] font-bold leading-none text-pp-blue">
               {rec.present.length}
             </span>
             <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
@@ -146,9 +146,9 @@ export default function ChildHistoryV2({
           </div>
         )}
         {rows.length > 0 && (
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+          <div className="overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
             {rows.map((h, i) => (
-              <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
+              <div key={i} className="flex items-center justify-between gap-2.5 border-b border-pp-panel px-4 py-3.5 last:border-0">
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[13px] font-semibold">{h.cls}</span>
                   <span className="text-[11.5px] text-pp-muted">{h.date} · {h.time}</span>

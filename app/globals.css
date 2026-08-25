@@ -221,3 +221,64 @@ button:active {
   30% { transform: translateY(-14px) scale(1.06); }
   60% { transform: translateY(0) scale(0.98); }
 }
+
+/* ---- parent portal dark theme ----
+   The account's theme_preference lands as data-theme on the parent shell, and
+   these override the pp tokens inside that subtree only — the sign-in page
+   and student portal never see them. Scoped overrides rather than
+   light-dark(): Tailwind registers @theme variables at :root, so light-dark()
+   would resolve against the page's scheme, not the shell's. pp-deep, pp-navy
+   and the cream/pale inks keep one value — those surfaces are dark in both
+   themes. */
+@theme {
+  --color-pp-card: #ffffff;
+  --color-pp-panel: #e8edf8;
+  --color-pp-bd-a: #f3efe6;
+  --color-pp-bd-b: #f7f9fc;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-pp-ink: #E7EDFA;
+  --color-pp-blue: #85AAEE;
+  --color-pp-line: #2A3A5C;
+  --color-pp-soft: #20304F;
+  --color-pp-mist: #1C2843;
+  --color-pp-bg: #0F1729;
+  --color-pp-muted: #A8B4CF;
+  --color-pp-faint: #8C9BBD;
+  --color-pp-sub: #B0BBD6;
+  --color-pp-green: #7CC9A0;
+  --color-pp-green-soft: #173325;
+  --color-pp-red: #E58B8B;
+  --color-pp-red-soft: #391B1B;
+  --color-pp-amber: #E0A967;
+  --color-pp-danger: #F09A9A;
+  --color-pp-card: #182238;
+  --color-pp-panel: #24304E;
+  --color-pp-bd-a: #0B1220;
+  --color-pp-bd-b: #0F1729;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    color-scheme: dark;
+  --color-pp-ink: #E7EDFA;
+  --color-pp-blue: #85AAEE;
+  --color-pp-line: #2A3A5C;
+  --color-pp-soft: #20304F;
+  --color-pp-mist: #1C2843;
+  --color-pp-bg: #0F1729;
+  --color-pp-muted: #A8B4CF;
+  --color-pp-faint: #8C9BBD;
+  --color-pp-sub: #B0BBD6;
+  --color-pp-green: #7CC9A0;
+  --color-pp-green-soft: #173325;
+  --color-pp-red: #E58B8B;
+  --color-pp-red-soft: #391B1B;
+  --color-pp-amber: #E0A967;
+  --color-pp-danger: #F09A9A;
+  --color-pp-card: #182238;
+  --color-pp-panel: #24304E;
+  --color-pp-bd-a: #0B1220;
+  --color-pp-bd-b: #0F1729;
+  }
+}

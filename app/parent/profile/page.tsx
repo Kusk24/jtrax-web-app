@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { SignOutButton } from "@/components/SignOutButton";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
-const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-white";
+const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card";
 
 const MINUTE_OPTS = [0, 15, 30, 45];
 
@@ -21,7 +21,25 @@ export default function ParentProfileV2() {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const { children: childrenV2, parent, prefs, savePrefs } = useParentData();
+  /* Initialised from the shell's data-theme (server-rendered from the
+     account), so the picker shows the saved choice without a fetch. */
   const [theme, setTheme] = useState("system");
+  useEffect(() => {
+    const el = document.querySelector<HTMLElement>("[data-theme]");
+    if (el?.dataset.theme) setTheme(el.dataset.theme);
+  }, []);
+
+  function chooseTheme(k: string) {
+    setTheme(k);
+    const el = document.querySelector<HTMLElement>("[data-theme]");
+    if (el) el.dataset.theme = k;
+    const pref = k === "dark" ? "Dark" : k === "light" ? "Light" : "System";
+    fetch("/api/auth/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ themePreference: pref }),
+    }).catch(() => { /* applied on screen; the account catches up next visit */ });
+  }
   const [screenTime, setScreenTime] = useState({ h: 1, m: 30 });
   const [pickerOpen, setPickerOpen] = useState(false);
   const [draft, setDraft] = useState({ h: 1, m: 30 });
@@ -87,7 +105,7 @@ export default function ParentProfileV2() {
               <Link
                 key={c.key}
                 href={`/parent/child/${c.key}`}
-                className="flex w-full items-center gap-3 border-b border-[#e8edf8] px-4 py-4 last:border-0 hover:bg-pp-mist"
+                className="flex w-full items-center gap-3 border-b border-pp-panel px-4 py-4 last:border-0 hover:bg-pp-mist"
               >
                 <span
                   aria-label={c.name}
@@ -107,7 +125,7 @@ export default function ParentProfileV2() {
         <div className="flex flex-col gap-3">
           <span className={label}>{t("contactInfo")}</span>
           <div className={panel}>
-            <div className="flex items-center justify-between border-b border-[#e8edf8] px-4 py-4">
+            <div className="flex items-center justify-between border-b border-pp-panel px-4 py-4">
               <span className="text-[13px] text-pp-muted">{t("phone")}</span>
               <span className="text-[13.5px] font-semibold">{parent.phone || "—"}</span>
             </div>
@@ -122,7 +140,7 @@ export default function ParentProfileV2() {
           <span className={label}>{t("notifPrefs")}</span>
           <div className={panel}>
             {prefDefs.map((p) => (
-              <div key={p.k} className="flex items-center justify-between gap-3 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
+              <div key={p.k} className="flex items-center justify-between gap-3 border-b border-pp-panel px-4 py-3.5 last:border-0">
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-sm font-semibold">{p.label}</span>
                   <span className="text-[11px] text-pp-muted">{p.sub}</span>
@@ -143,7 +161,7 @@ export default function ParentProfileV2() {
                   }}
                 >
                   <span
-                    className="absolute top-[3px] size-[22px] rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,.2)] transition-all"
+                    className="absolute top-[3px] size-[22px] rounded-full bg-pp-card shadow-[0_2px_6px_rgba(0,0,0,.2)] transition-all"
                     style={{ left: prefs[p.k] ? 21 : 3 }}
                   />
                 </button>
@@ -159,7 +177,7 @@ export default function ParentProfileV2() {
 
         <div className="flex flex-col gap-3">
           <span className={label}>{t("gameSettings")}</span>
-          <div className="rounded-xl border-[1.5px] border-pp-line bg-white p-1">
+          <div className="rounded-xl border-[1.5px] border-pp-line bg-pp-card p-1">
             <button
               onClick={openPicker}
               className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-[9px] p-3.5 text-left hover:bg-pp-bg"
@@ -180,13 +198,13 @@ export default function ParentProfileV2() {
       <div className="contents min-w-0 flex-col gap-5 md:flex">
         <div className="flex flex-col gap-3">
           <span className={label}>{t("appearance")}</span>
-          <div className="flex items-center justify-between gap-3 rounded-xl border-[1.5px] border-pp-line bg-white px-4 py-3">
+          <div className="flex items-center justify-between gap-3 rounded-xl border-[1.5px] border-pp-line bg-pp-card px-4 py-3">
             <span className="text-sm font-semibold">{t("theme")}</span>
-            <div className="flex gap-1 rounded-full bg-[#e8edf8] p-[3px]">
+            <div className="flex gap-1 rounded-full bg-pp-panel p-[3px]">
               {themeDefs.map((th) => (
                 <button
                   key={th.k}
-                  onClick={() => setTheme(th.k)}
+                  onClick={() => chooseTheme(th.k)}
                   className="cursor-pointer rounded-full px-3 py-1 text-[11.5px] font-bold"
                   style={{
                     background: theme === th.k ? "var(--color-pp-deep)" : "transparent",
@@ -203,9 +221,9 @@ export default function ParentProfileV2() {
         <div className="flex flex-col gap-3">
           <span className={label}>{t("more")}</span>
           <div className={panel}>
-            <div className="flex items-center justify-between border-b border-[#e8edf8] px-4 py-3.5">
+            <div className="flex items-center justify-between border-b border-pp-panel px-4 py-3.5">
               <span className="text-sm font-semibold">{t("language")}</span>
-              <div className="flex gap-1 rounded-full bg-[#e8edf8] p-[3px]">
+              <div className="flex gap-1 rounded-full bg-pp-panel p-[3px]">
                 {(
                   [
                     ["en", "EN"],
@@ -236,7 +254,7 @@ export default function ParentProfileV2() {
 
         {/* Was a Link to "/", which left the cookie in place — the landing page
             saw a live session and sent you straight back here. */}
-        <SignOutButton className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-[1.5px] border-[#e7c9c9] bg-white p-3.5 text-center text-[13.5px] font-bold text-pp-danger transition-colors hover:bg-[#fdf3f3] disabled:opacity-60">
+        <SignOutButton className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-[1.5px] border-[#e7c9c9] bg-pp-card p-3.5 text-center text-[13.5px] font-bold text-pp-danger transition-colors hover:bg-[#fdf3f3] disabled:opacity-60">
           <LogOut className="size-4" />
           {t("logOut")}
         </SignOutButton>
@@ -258,7 +276,7 @@ export default function ParentProfileV2() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="flex w-full max-w-[380px] flex-col gap-4 rounded-[20px] bg-white px-5 pb-7 pt-4 shadow-[0_30px_70px_rgba(28,25,40,.3)]"
+            className="flex w-full max-w-[380px] flex-col gap-4 rounded-[20px] bg-pp-card px-5 pb-7 pt-4 shadow-[0_30px_70px_rgba(28,25,40,.3)]"
           >
             <div className="flex items-center justify-between">
               <button onClick={() => setPickerOpen(false)} className="cursor-pointer p-1 text-sm font-semibold text-pp-muted">

@@ -8,7 +8,6 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
-import { CERT_SESSIONS } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
 
@@ -22,7 +21,7 @@ export default function ChildProfileV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
-  const { children: kids, hist } = useParentData();
+  const { children: kids, hist, certSessions } = useParentData();
   const [hover, setHover] = useState<number | null>(null);
   const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
@@ -32,8 +31,9 @@ export default function ChildProfileV2({
      saying "expires soon · 0 days" about it understates what happened. */
   const expired = hasExpiry && !ch.expiresAhead;
   const expSoon = hasExpiry && ch.expiresAhead && ch.daysLeft <= 14;
-  /* Progress toward the certificate the academy awards at 50 classes. */
-  const toCert = Math.max(0, CERT_SESSIONS - ch.attended);
+  /* Progress toward the certificate — the milestone is the academy's own,
+     from Settings, not a number this app knows. */
+  const toCert = Math.max(0, certSessions - ch.attended);
 
   /* This-week practice line chart */
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -59,7 +59,7 @@ export default function ChildProfileV2({
         <button
           onClick={() => router.back()}
           aria-label={t("back")}
-          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-white text-base text-pp-ink hover:bg-pp-soft"
+          className="size-[38px] flex-none cursor-pointer rounded-xl border-[1.5px] border-pp-line bg-pp-card text-base text-pp-ink hover:bg-pp-soft"
         >
           ←
         </button>
@@ -138,7 +138,7 @@ export default function ChildProfileV2({
             {t("dayStreak", { count: ch.streak })}
           </span>
         </div>
-        <div className="flex flex-col gap-2.5 rounded-xl bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex flex-col gap-2.5 rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <span className="text-[11px] font-bold uppercase tracking-[.08em] text-pp-faint">
             {t("thisWeek")}
           </span>
@@ -206,7 +206,7 @@ export default function ChildProfileV2({
       {/* Enrolled classes */}
       <div className="flex flex-col gap-3">
         <span className={label}>{t("enrolledClasses")}</span>
-        <div className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex flex-col gap-4 rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           <div className="flex items-center gap-3">
             <span className="flex size-10 flex-none items-center justify-center rounded-xl bg-pp-mist text-pp-ink">
               <PawnIcon className="size-[17px]" />
@@ -240,7 +240,7 @@ export default function ChildProfileV2({
               used to be here and grew or shrank with every purchase. */}
           <div className="flex items-center gap-3.5 rounded-[13px] border-[1.5px] border-pp-soft bg-pp-mist px-3.5 py-3">
             <div className="flex min-w-[78px] flex-none flex-col">
-              <span className="font-pp-display text-[32px] font-bold leading-none text-pp-deep">
+              <span className="font-pp-display text-[32px] font-bold leading-none text-pp-blue">
                 {ch.attended}
               </span>
               <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
@@ -249,17 +249,17 @@ export default function ChildProfileV2({
             </div>
             <div className="flex flex-1 flex-col gap-1.5">
               <div className="flex justify-between text-[11px] text-pp-muted">
-                <span>{t("attendedOf", { attended: ch.attended, total: CERT_SESSIONS })}</span>
+                <span>{t("attendedOf", { attended: ch.attended, total: certSessions })}</span>
                 <span>{t("remainingOf", { count: toCert })}</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-pp-soft">
                 <div
                   className="h-full rounded-full bg-pp-blue"
-                  style={{ width: `${Math.min(100, Math.round((ch.attended / CERT_SESSIONS) * 100))}%` }}
+                  style={{ width: `${Math.min(100, Math.round((ch.attended / certSessions) * 100))}%` }}
                 />
               </div>
               <span className="text-[10.5px] text-pp-faint">
-                {t("certNote", { count: CERT_SESSIONS })}
+                {t("certNote", { count: certSessions })}
               </span>
             </div>
           </div>
@@ -274,12 +274,12 @@ export default function ChildProfileV2({
             {t("viewAll")} →
           </Link>
         </div>
-        <div className="overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
           {histRows.length === 0 && (
             <div className="px-4 py-5 text-center text-[12.5px] text-pp-muted">{t("noSessions")}</div>
           )}
           {histRows.map((h, i) => (
-            <div key={i} className="flex items-center justify-between gap-2.5 border-b border-[#e8edf8] px-4 py-3.5 last:border-0">
+            <div key={i} className="flex items-center justify-between gap-2.5 border-b border-pp-panel px-4 py-3.5 last:border-0">
               <div className="flex min-w-0 flex-col gap-0.5">
                 <span className="text-[12.5px] font-semibold">{h.cls}</span>
                 <span className="text-[11px] text-pp-muted">{h.date} · {h.time}</span>
