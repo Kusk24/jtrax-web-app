@@ -4,11 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { Bell } from "lucide-react";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
 import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
-import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import type { AnnouncementV2, SenderKind } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
 
@@ -23,7 +21,7 @@ export default function ParentHomeV2() {
   const locale = useLocale();
   const {
     announcements: announcementsV2, tournament,
-    parent, unreadNotifs, isAnnRead, markAnnRead,
+    parent, isAnnRead, markAnnRead,
   } = useParentData();
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
@@ -41,39 +39,21 @@ export default function ParentHomeV2() {
   }).format(new Date());
 
   return (
-    <div className="grid content-start gap-9 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-8">
-      {/* Header band */}
-      <div className="-mx-4 -mt-5 flex items-center justify-between gap-3 bg-pp-soft px-4 pb-4 pt-5 sm:-mx-5 sm:px-5 md:col-span-2">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span className="font-pp-display text-2xl font-semibold leading-tight">
-              {t("hi", { name: parent.name.split(/\s+/)[0] || parent.name })}
-            </span>
-            <span className="rounded-full border-[1.5px] border-pp-blue px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue">
-              {t("roleParent")}
-            </span>
-          </div>
-          <span className="text-[13px] text-pp-muted">{todayLabel}</span>
-        </div>
+    <div className="grid content-start gap-8 md:grid-cols-2 md:gap-x-8">
+      {/* The greeting reads like the console's dashboard header — left
+          aligned, no colour band. The bell and the avatar that used to sit
+          here are in the shell's top bar now; keeping them meant two profile
+          buttons in the same corner. */}
+      <div className="flex flex-col gap-1 md:col-span-2">
         <div className="flex items-center gap-2">
-          <Link
-            href="/parent/notifications"
-            aria-label={t("notificationsTitle")}
-            className="relative flex size-[42px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-pp-card hover:bg-pp-soft"
-          >
-            <Bell className="size-[19px] text-pp-ink" strokeWidth={1.8} />
-            {unreadNotifs > 0 && (
-              <span className="absolute right-2 top-2 size-[9px] rounded-full border-2 border-white bg-pp-red" />
-            )}
-          </Link>
-          <Link
-            href="/parent/profile"
-            aria-label={t("myProfile")}
-            className="size-[42px] flex-none overflow-hidden rounded-full shadow-[0_6px_16px_rgba(46,92,184,.35)]"
-          >
-            <ParentAvatar className="size-full text-lg" />
-          </Link>
+          <h1 className="m-0 font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">
+            {t("hi", { name: parent.name.split(/\s+/)[0] || parent.name })}
+          </h1>
+          <span className="rounded-full border-[1.5px] border-pp-blue px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue">
+            {t("roleParent")}
+          </span>
         </div>
+        <span className="text-sm text-pp-muted">{todayLabel}</span>
       </div>
 
       {/* Announcements + tournament */}

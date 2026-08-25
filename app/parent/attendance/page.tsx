@@ -7,6 +7,7 @@ import { CheckSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
+import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
@@ -44,9 +45,9 @@ export default function ParentAttendanceV2() {
   ];
 
   return (
-    <div className="grid content-start gap-4 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:items-start lg:gap-x-6">
-      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-6 pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 lg:col-span-2">
-        {t("navChildren")}
+    <div className="grid content-start gap-5 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:items-start lg:gap-x-6">
+      <div className="lg:col-span-2">
+        <ParentPageHeader title={t("navChildren")} sub={t("childrenSub")} />
       </div>
 
       {/* The three views of a child that belong together: who they are, what

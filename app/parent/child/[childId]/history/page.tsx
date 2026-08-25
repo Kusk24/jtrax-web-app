@@ -45,7 +45,7 @@ export default function ChildHistoryV2({
     && (!sel || Number(h.iso.slice(8, 10)) === sel.d));
 
   return (
-    <div className="grid content-start gap-4 px-4 pb-10 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-5">
+    <div className="grid content-start gap-5 md:grid-cols-2 md:gap-x-5">
       <div className="flex items-center gap-3 md:col-span-2">
         <button
           onClick={() => router.back()}

@@ -81,7 +81,7 @@ export default function TournamentFlow() {
      while a tournament exists, but the URL can always be typed. */
   if (!tournamentV2) {
     return (
-      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
         <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
         <div className="rounded-xl border-[1.5px] border-dashed border-pp-dash p-6 text-center text-[12.5px] text-pp-muted">
           ♞ {t("noTournament")}
@@ -115,7 +115,7 @@ export default function TournamentFlow() {
 
   if (step === "register") {
     return (
-      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
         <BackHeader title={t("registration")} onBack={() => setStep("detail")} />
         <div className="flex flex-col gap-2">
           <span className={label}>{t("selectChild")}</span>
@@ -180,7 +180,7 @@ export default function TournamentFlow() {
 
   if (step === "payment") {
     return (
-      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+      <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
         <BackHeader title={t("payment")} onBack={() => setStep("register")} />
         <div className={`${card} flex flex-col gap-3.5`}>
           <div className="flex flex-col gap-0.5">
@@ -264,7 +264,7 @@ export default function TournamentFlow() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
+    <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
       <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
       <TournamentBanner className="h-[200px] w-full rounded-xl shadow-[0_8px_24px_rgba(35,53,94,.10)]" />
       <span className="font-pp-display text-xl font-semibold leading-snug text-pp-ink">

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { useParentData } from "@/components/parent/ParentData";
 import { useTranslations } from "next-intl";
-import { ClipboardCheck, Home, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
+import { Bell, ClipboardCheck, Home, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
 import { SignOutButton } from "@/components/SignOutButton";
 
 type Tab = {
@@ -125,17 +125,29 @@ export function ParentBottomNav2() {
     keeps Logout, so the two apps disagreed about what lives in that corner. */
 export function ParentAccountChip() {
   const t = useTranslations("pv2");
-  const { parent, parentId } = useParentData();
+  const { parent, parentId, unreadNotifs } = useParentData();
   return (
-    <Link
-      href="/parent/profile"
-      className="hidden items-center gap-2.5 rounded-full border-[1.5px] border-pp-line bg-pp-card py-1.5 pl-1.5 pr-3.5 hover:bg-pp-mist lg:flex"
-    >
-      <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
-      <span className="flex min-w-0 flex-col">
-        <span className="truncate text-[12.5px] font-semibold text-pp-ink">{parent.name}</span>
-        <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
-      </span>
-    </Link>
+    <>
+      <Link
+        href="/parent/notifications"
+        aria-label={t("notificationsTitle")}
+        className="relative flex size-[38px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-pp-card hover:bg-pp-soft"
+      >
+        <Bell className="size-[18px] text-pp-ink" strokeWidth={1.8} />
+        {unreadNotifs > 0 && (
+          <span className="absolute right-2 top-2 size-[9px] rounded-full border-2 border-pp-card bg-pp-red" />
+        )}
+      </Link>
+      <Link
+        href="/parent/profile"
+        className="flex items-center gap-2.5 rounded-full border-[1.5px] border-pp-line bg-pp-card py-1.5 pl-1.5 pr-3.5 hover:bg-pp-mist"
+      >
+        <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate text-[12.5px] font-semibold text-pp-ink">{parent.name}</span>
+          <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
+        </span>
+      </Link>
+    </>
   );
 }
