@@ -141,7 +141,7 @@ export default function ChildHistoryV2({
           {t("history")}
         </span>
         {rows.length === 0 && (
-          <div className="rounded-xl border-[1.5px] border-dashed border-[#d5cdbd] p-5 text-center text-[12.5px] text-pp-muted">
+          <div className="rounded-xl border-[1.5px] border-dashed border-pp-dash p-5 text-center text-[12.5px] text-pp-muted">
             ♞ {t("noSessions")}
           </div>
         )}
@@ -156,7 +156,7 @@ export default function ChildHistoryV2({
                 <span
                   className="flex-none rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em]"
                   style={{
-                    background: h.status === "Present" ? "var(--color-pp-green-soft)" : "#fdece0",
+                    background: h.status === "Present" ? "var(--color-pp-green-soft)" : "var(--color-pp-danger-soft)",
                     color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
                   }}
                 >

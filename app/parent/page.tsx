@@ -15,7 +15,7 @@ import { useParentData } from "@/components/parent/ParentData";
 const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string }> = {
   teacher: { labelKey: "senderTeacher", c: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
   branch: { labelKey: "senderBranch", c: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
-  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "#efeefa" },
+  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "var(--color-pp-plum-soft)" },
 };
 
 export default function ParentHomeV2() {
@@ -49,7 +49,7 @@ export default function ParentHomeV2() {
             <span className="font-pp-display text-2xl font-semibold leading-tight">
               {t("hi", { name: parent.name.split(/\s+/)[0] || parent.name })}
             </span>
-            <span className="rounded-full border-[1.5px] border-pp-navy px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-pp-navy">
+            <span className="rounded-full border-[1.5px] border-pp-blue px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue">
               {t("roleParent")}
             </span>
           </div>
@@ -190,8 +190,8 @@ export default function ParentHomeV2() {
                 className="flex flex-col overflow-hidden rounded-2xl border-[1.5px] border-pp-line text-left"
                 style={{
                   background: isBeg
-                    ? "linear-gradient(160deg,#EAF7EF 0%,#ffffff 65%)"
-                    : "#ffffff",
+                    ? "linear-gradient(160deg,var(--color-pp-green-soft) 0%,var(--color-pp-card) 65%)"
+                    : "var(--color-pp-card)",
                 }}
               >
                 <div
@@ -206,7 +206,7 @@ export default function ParentHomeV2() {
                       className="rounded-full px-2 py-0.5 text-[9.5px] font-bold"
                       style={{
                         color: isBeg ? "var(--color-pp-green)" : "var(--color-pp-amber)",
-                        background: isBeg ? "var(--color-pp-green-soft)" : "#F0E6DC",
+                        background: isBeg ? "var(--color-pp-green-soft)" : "var(--color-pp-amber-soft)",
                       }}
                     >
                       {c.level}
@@ -221,7 +221,7 @@ export default function ParentHomeV2() {
                     </span>
                   </div>
                   <div className="flex flex-col gap-1 pt-0.5">
-                    <div className="h-1.5 overflow-hidden rounded-full bg-[#dbe6f7]">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-pp-bar-track">
                       <div
                         className="h-full rounded-full"
                         style={{
@@ -269,7 +269,7 @@ export default function ParentHomeV2() {
               <div
                 key={r.child}
                 className={`flex items-center gap-5 px-0.5 py-3.5 ${
-                  i < todayActivity.length - 1 ? "border-b border-[#EEF1F7]" : ""
+                  i < todayActivity.length - 1 ? "border-b border-pp-neutral" : ""
                 }`}
               >
                 <span className="relative flex size-5 flex-none items-center justify-center rounded-full">
@@ -280,7 +280,7 @@ export default function ParentHomeV2() {
                   ) : (
                     <>
                       <svg width="20" height="20" viewBox="0 0 20 20" className="absolute inset-0 -rotate-90">
-                        <circle cx="10" cy="10" r="8.5" fill="none" stroke="#F3E6D8" strokeWidth="3" />
+                        <circle cx="10" cy="10" r="8.5" fill="none" stroke="var(--color-pp-track)" strokeWidth="3" />
                         <circle
                           cx="10"
                           cy="10"

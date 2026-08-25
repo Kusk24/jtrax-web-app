@@ -11,7 +11,7 @@ export const SENDER_STYLE: Record<
 > = {
   teacher: { labelKey: "senderTeacher", c: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
   branch: { labelKey: "senderBranch", c: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
-  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "#efeefa" },
+  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "var(--color-pp-plum-soft)" },
 };
 
 export function AnnouncementModal({

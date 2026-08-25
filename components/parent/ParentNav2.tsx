@@ -4,9 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ClipboardCheck, Home, UserRound, type LucideIcon } from "lucide-react";
+import { ClipboardCheck, Home, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { useParentData } from "@/components/parent/ParentData";
+import { SignOutButton } from "@/components/SignOutButton";
 
 type Tab = {
   href: string;
@@ -31,6 +32,7 @@ const tabs: Tab[] = [
     aliases: ["/parent/child"],
   },
   { href: "/parent/profile", labelKey: "navProfile", icon: UserRound },
+  { href: "/parent/settings", labelKey: "navSettings", icon: Settings },
 ];
 
 function isActive(pathname: string, tab: Tab) {
@@ -81,7 +83,7 @@ export function ParentSideNav() {
       <div className="flex-1" />
       <Link
         href="/parent/profile"
-        className="flex w-full items-center gap-2.5 rounded-xl bg-[#efeefa] px-3 py-2.5"
+        className="flex w-full items-center gap-2.5 rounded-xl bg-pp-plum-soft px-3 py-2.5"
       >
         <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
         <span className="flex min-w-0 flex-col">
@@ -89,6 +91,12 @@ export function ParentSideNav() {
           <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
         </span>
       </Link>
+      {/* Bottom corner, where the console keeps it. On a phone there is no
+          sidebar, so Settings carries it instead. */}
+      <SignOutButton className="mt-1 flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold text-pp-muted hover:bg-pp-mist disabled:opacity-60">
+        <LogOut className="size-5" strokeWidth={1.8} />
+        {t("logOut")}
+      </SignOutButton>
     </aside>
   );
 }
@@ -97,7 +105,7 @@ export function ParentBottomNav2() {
   const pathname = usePathname();
   const t = useTranslations("pv2");
   return (
-    <nav className="sticky bottom-0 z-20 grid grid-cols-3 gap-1 border-t border-pp-line bg-[color-mix(in_srgb,var(--color-pp-bg)_92%,transparent)] px-2 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
+    <nav className="sticky bottom-0 z-20 grid grid-cols-4 gap-1 border-t border-pp-line bg-[color-mix(in_srgb,var(--color-pp-bg)_92%,transparent)] px-2 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden">
       {tabs.map((tab) => {
         const active = isActive(pathname, tab);
         const Icon = tab.icon;

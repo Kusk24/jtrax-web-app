@@ -212,7 +212,9 @@
     "notifCreditsBody": "Credits expire on {date} — {days} days left.",
     "expired": "Expired",
     "classesAttended": "Classes attended",
-    "certNote": "A certificate is awarded after {count} classes."
+    "certNote": "A certificate is awarded after {count} classes.",
+    "navSettings": "Settings",
+    "settingsTitle": "Settings"
   },
   "sv2": {
     "home": "Home",

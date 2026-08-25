@@ -212,7 +212,9 @@
     "notifCreditsBody": "เครดิตจะหมดอายุวันที่ {date} — เหลืออีก {days} วัน",
     "expired": "หมดอายุแล้ว",
     "classesAttended": "จำนวนคลาสที่เรียนแล้ว",
-    "certNote": "เรียนครบ {count} คลาสจะได้รับประกาศนียบัตร"
+    "certNote": "เรียนครบ {count} คลาสจะได้รับประกาศนียบัตร",
+    "navSettings": "ตั้งค่า",
+    "settingsTitle": "ตั้งค่า"
   },
   "sv2": {
     "home": "หน้าแรก",
