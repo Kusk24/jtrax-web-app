@@ -174,7 +174,7 @@
     "theme": "ธีม",
     "themeLight": "สว่าง",
     "themeDark": "มืด",
-    "themeSystem": "ตามระบบ",
+    "themeSystem": "อัตโนมัติ",
     "more": "เพิ่มเติม",
     "language": "ภาษา",
     "contactSchool": "ติดต่อโรงเรียน",
@@ -214,7 +214,9 @@
     "classesAttended": "จำนวนคลาสที่เรียนแล้ว",
     "certNote": "เรียนครบ {count} คลาสจะได้รับประกาศนียบัตร",
     "navSettings": "ตั้งค่า",
-    "settingsTitle": "ตั้งค่า"
+    "settingsTitle": "ตั้งค่า",
+    "navChildren": "บุตรหลาน",
+    "brandSub": "โรงเรียนสอนหมากรุก"
   },
   "sv2": {
     "home": "หน้าแรก",

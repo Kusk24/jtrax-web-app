@@ -3,10 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { ClipboardCheck, Home, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { useParentData } from "@/components/parent/ParentData";
+import { useTranslations } from "next-intl";
+import { ClipboardCheck, Home, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
 import { SignOutButton } from "@/components/SignOutButton";
 
 type Tab = {
@@ -27,7 +27,7 @@ const tabs: Tab[] = [
   },
   {
     href: "/parent/attendance",
-    labelKey: "navAttendances",
+    labelKey: "navChildren",
     icon: ClipboardCheck,
     aliases: ["/parent/child"],
   },
@@ -43,18 +43,15 @@ function isActive(pathname: string, tab: Tab) {
 export function ParentSideNav() {
   const pathname = usePathname();
   const t = useTranslations("pv2");
-  const { parent, parentId } = useParentData();
   return (
     <aside className="sticky top-0 hidden h-dvh w-[232px] flex-none flex-col gap-1 border-r border-pp-line px-4 pb-5 pt-6 lg:flex">
-      <div className="flex items-center gap-2.5 px-2.5 pb-4">
-        <Image src="/parent/jca-logo.png" alt="JCA Chess Academy" width={30} height={30} />
+      {/* Same proportions as the console's brand block: 38px mark, an 18px
+          name and a 13px subtitle, so the two apps read as one product. */}
+      <div className="flex items-center gap-2.5 px-1 pb-4">
+        <Image src="/parent/jca-logo.png" alt="" width={38} height={38} className="rounded-[9px] object-contain" />
         <div className="flex flex-col">
-          <span className="text-[11px] font-bold uppercase tracking-[.14em] text-pp-ink">
-            JCA Chess
-          </span>
-          <span className="text-[9.5px] tracking-[.1em] text-pp-faint">
-            JTRAX · {t("roleParent")}
-          </span>
+          <span className="text-[18px] font-bold leading-[1.15] text-pp-ink">JCA</span>
+          <span className="text-[13px] font-medium text-pp-muted">{t("brandSub")}</span>
         </div>
       </div>
       {tabs.map((tab) => {
@@ -81,16 +78,6 @@ export function ParentSideNav() {
         );
       })}
       <div className="flex-1" />
-      <Link
-        href="/parent/profile"
-        className="flex w-full items-center gap-2.5 rounded-xl bg-pp-plum-soft px-3 py-2.5"
-      >
-        <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
-        <span className="flex min-w-0 flex-col">
-          <span className="truncate text-[12.5px] font-semibold text-pp-ink">{parent.name}</span>
-          <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
-        </span>
-      </Link>
       {/* Bottom corner, where the console keeps it. On a phone there is no
           sidebar, so Settings carries it instead. */}
       <SignOutButton className="mt-1 flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold text-pp-muted hover:bg-pp-mist disabled:opacity-60">
@@ -130,5 +117,25 @@ export function ParentBottomNav2() {
         );
       })}
     </nav>
+  );
+}
+
+/** The signed-in parent, in the top-right corner — where the console puts its
+    account chip. It was at the foot of the sidebar, which is where the console
+    keeps Logout, so the two apps disagreed about what lives in that corner. */
+export function ParentAccountChip() {
+  const t = useTranslations("pv2");
+  const { parent, parentId } = useParentData();
+  return (
+    <Link
+      href="/parent/profile"
+      className="hidden items-center gap-2.5 rounded-full border-[1.5px] border-pp-line bg-pp-card py-1.5 pl-1.5 pr-3.5 hover:bg-pp-mist lg:flex"
+    >
+      <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate text-[12.5px] font-semibold text-pp-ink">{parent.name}</span>
+        <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
+      </span>
+    </Link>
   );
 }
