@@ -231,6 +231,15 @@ button:active {
    and the cream/pale inks keep one value — those surfaces are dark in both
    themes. */
 @theme {
+  --color-pp-plum-soft: #efeefa;
+  --color-pp-danger-soft: #fdece0;
+  --color-pp-amber-soft: #F0E6DC;
+  --color-pp-track: #F3E6D8;
+  --color-pp-bar-track: #dbe6f7;
+  --color-pp-neutral: #EEF1F7;
+  --color-pp-dash: #d5cdbd;
+  --color-pp-danger-hover: #fdf3f3;
+  --color-pp-danger-line: #e7c9c9;
   --color-pp-card: #ffffff;
   --color-pp-panel: #e8edf8;
   --color-pp-bd-a: #f3efe6;
@@ -238,6 +247,15 @@ button:active {
 }
 [data-theme="dark"] {
   color-scheme: dark;
+  --color-pp-plum-soft: #383060;
+  --color-pp-danger-soft: #523232;
+  --color-pp-amber-soft: #4E3A1B;
+  --color-pp-track: #4E3A1B;
+  --color-pp-bar-track: #2A3A5C;
+  --color-pp-neutral: #2A3550;
+  --color-pp-dash: #3F5075;
+  --color-pp-danger-hover: #3A2626;
+  --color-pp-danger-line: #6B4444;
   --color-pp-ink: #E7EDFA;
   --color-pp-blue: #85AAEE;
   --color-pp-line: #2A3A5C;
@@ -248,9 +266,9 @@ button:active {
   --color-pp-faint: #8C9BBD;
   --color-pp-sub: #B0BBD6;
   --color-pp-green: #7CC9A0;
-  --color-pp-green-soft: #173325;
+  --color-pp-green-soft: #23473A;
   --color-pp-red: #E58B8B;
-  --color-pp-red-soft: #391B1B;
+  --color-pp-red-soft: #523232;
   --color-pp-amber: #E0A967;
   --color-pp-danger: #F09A9A;
   --color-pp-card: #182238;
@@ -261,6 +279,15 @@ button:active {
 @media (prefers-color-scheme: dark) {
   [data-theme="system"] {
     color-scheme: dark;
+    --color-pp-plum-soft: #383060;
+    --color-pp-danger-soft: #523232;
+    --color-pp-amber-soft: #4E3A1B;
+    --color-pp-track: #4E3A1B;
+    --color-pp-bar-track: #2A3A5C;
+    --color-pp-neutral: #2A3550;
+    --color-pp-dash: #3F5075;
+    --color-pp-danger-hover: #3A2626;
+    --color-pp-danger-line: #6B4444;
   --color-pp-ink: #E7EDFA;
   --color-pp-blue: #85AAEE;
   --color-pp-line: #2A3A5C;
@@ -271,9 +298,9 @@ button:active {
   --color-pp-faint: #8C9BBD;
   --color-pp-sub: #B0BBD6;
   --color-pp-green: #7CC9A0;
-  --color-pp-green-soft: #173325;
+  --color-pp-green-soft: #23473A;
   --color-pp-red: #E58B8B;
-  --color-pp-red-soft: #391B1B;
+  --color-pp-red-soft: #523232;
   --color-pp-amber: #E0A967;
   --color-pp-danger: #F09A9A;
   --color-pp-card: #182238;

@@ -145,7 +145,7 @@ export default function ParentAttendanceV2() {
                     <span
                       className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.06em]"
                       style={{
-                        background: h.status === "Present" ? "var(--color-pp-green-soft)" : "#fdece0",
+                        background: h.status === "Present" ? "var(--color-pp-green-soft)" : "var(--color-pp-danger-soft)",
                         color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
                       }}
                     >

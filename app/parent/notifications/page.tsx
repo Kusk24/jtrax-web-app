@@ -10,9 +10,9 @@ import { useParentData } from "@/components/parent/ParentData";
 /* Each kind of real event gets a face; the mock list drew emoji glyphs for
    events that had never happened. */
 const KIND_STYLE: Record<NotifKind, { icon: LucideIcon; color: string; bg: string }> = {
-  checkin: { icon: Check, color: "var(--color-pp-green)", bg: "#E6F4EC" },
+  checkin: { icon: Check, color: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
   pickup: { icon: DoorOpen, color: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
-  credits: { icon: Clock3, color: "var(--color-pp-amber)", bg: "#FBEEDF" },
+  credits: { icon: Clock3, color: "var(--color-pp-amber)", bg: "var(--color-pp-amber-soft)" },
 };
 
 export default function ParentNotificationsV2() {
@@ -83,7 +83,7 @@ export default function ParentNotificationsV2() {
       </div>
 
       {shown.length === 0 && (
-        <div className="rounded-xl border-[1.5px] border-dashed border-[#d5cdbd] p-6 text-center text-[12.5px] text-pp-muted">
+        <div className="rounded-xl border-[1.5px] border-dashed border-pp-dash p-6 text-center text-[12.5px] text-pp-muted">
           ♞ {t("caughtUpBody")}
         </div>
       )}

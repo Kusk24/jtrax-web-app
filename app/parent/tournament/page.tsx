@@ -83,7 +83,7 @@ export default function TournamentFlow() {
     return (
       <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4 px-4 pb-10 pt-5 sm:px-5">
         <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
-        <div className="rounded-xl border-[1.5px] border-dashed border-[#d5cdbd] p-6 text-center text-[12.5px] text-pp-muted">
+        <div className="rounded-xl border-[1.5px] border-dashed border-pp-dash p-6 text-center text-[12.5px] text-pp-muted">
           ♞ {t("noTournament")}
         </div>
       </div>

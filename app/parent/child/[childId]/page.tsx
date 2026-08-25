@@ -100,7 +100,7 @@ export default function ChildProfileV2({
         </div>
         <div
           className="flex items-center justify-between gap-2.5 rounded-[13px] px-3.5 py-2.5"
-          style={{ background: expSoon || expired ? "#fdece0" : "rgba(251,255,241,.12)" }}
+          style={{ background: expSoon || expired ? "var(--color-pp-danger-soft)" : "rgba(251,255,241,.12)" }}
         >
           <div className="flex flex-col gap-0.5">
             <span
@@ -180,7 +180,7 @@ export default function ChildProfileV2({
                       ) : (
                         <span className="relative flex size-[22px] items-center justify-center">
                           <svg width="22" height="22" viewBox="0 0 22 22" className="absolute inset-0 -rotate-90">
-                            <circle cx="11" cy="11" r="9" fill="none" stroke="#F3E6D8" strokeWidth="3" />
+                            <circle cx="11" cy="11" r="9" fill="none" stroke="var(--color-pp-track)" strokeWidth="3" />
                             <circle cx="11" cy="11" r="9" fill="none" stroke="var(--color-pp-amber)" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`} />
                           </svg>
                           <Image src="/shared/fish.png" alt="" width={10} height={10} className="relative" />
@@ -287,7 +287,7 @@ export default function ChildProfileV2({
               <span
                 className="flex-none rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em]"
                 style={{
-                  background: h.status === "Present" ? "var(--color-pp-green-soft)" : "#fdece0",
+                  background: h.status === "Present" ? "var(--color-pp-green-soft)" : "var(--color-pp-danger-soft)",
                   color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
                 }}
               >
