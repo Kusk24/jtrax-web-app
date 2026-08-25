@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
+import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
@@ -21,15 +22,17 @@ export default function ParentProfileV2() {
   const { children: childrenV2, parent } = useParentData();
 
   return (
-    <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-6">
-      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-[70px] pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 md:col-span-2">
-        {t("myProfile")}
+    <div className="grid content-start gap-5 md:grid-cols-2 md:gap-x-6">
+      <div className="md:col-span-2">
+        <ParentPageHeader title={t("myProfile")} sub={t("profileSub")} />
       </div>
-      <div className="relative z-[1] -mt-[54px] flex flex-col items-center gap-3 md:col-span-2">
-        <div className="size-[102px] flex-none overflow-hidden rounded-full border-[3px] border-pp-card shadow-[0_10px_24px_rgba(46,92,184,.32)]">
-          <ParentAvatar className="size-full text-4xl" />
+      {/* The avatar used to be tucked into a deep colour band; it sits on the
+          page now, beside the name, the way the console's detail views do. */}
+      <div className="flex items-center gap-4 md:col-span-2">
+        <div className="size-[72px] flex-none overflow-hidden rounded-full border-[3px] border-pp-card shadow-[0_10px_24px_rgba(46,92,184,.32)]">
+          <ParentAvatar className="size-full text-3xl" />
         </div>
-        <span className="font-pp-display text-[22px] font-semibold">{parent.name}</span>
+        <span className="font-pp-display text-[20px] font-semibold">{parent.name}</span>
       </div>
 
       <div className="flex flex-col gap-3">

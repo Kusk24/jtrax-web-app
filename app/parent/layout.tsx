@@ -69,12 +69,14 @@ export default async function ParentLayout({
         <div className="mx-auto flex min-h-dvh w-full max-w-[410px] md:max-w-[760px] flex-col bg-pp-card shadow-[0_0_0_1px_rgba(35,53,94,.06),0_30px_80px_rgba(35,53,94,.18)] lg:max-w-none lg:flex-row">
           <ParentSideNav />
           <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
-            {/* Desktop only: the phone screens carry their own headers, and a
-                second name bar above them would be a wasted row. */}
-            <div className="hidden justify-end bg-pp-bg px-6 pt-4 lg:flex">
+            {/* One top bar on every screen, as the console has: alerts and the
+                account, right-aligned. The home screen used to carry its own
+                bell and avatar, which put a second profile button on the page
+                once this bar existed. */}
+            <div className="flex justify-end gap-2 bg-pp-bg px-4 pt-4 lg:px-6">
               <ParentAccountChip />
             </div>
-            <main className="flex-1 bg-pp-bg">{children}</main>
+            <main className="flex-1 bg-pp-bg px-4 pb-10 pt-4 lg:px-6 lg:pt-5">{children}</main>
             <ParentBottomNav2 />
           </div>
         </div>

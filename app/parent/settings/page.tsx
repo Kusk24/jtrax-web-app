@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronRight, LogOut } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
+import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { SignOutButton } from "@/components/SignOutButton";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
@@ -92,9 +93,9 @@ export default function ParentSettings() {
   ];
 
   return (
-    <div className="grid content-start gap-5 px-4 pb-8 pt-5 sm:px-5 md:grid-cols-2 md:gap-x-6">
-      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-6 pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 md:col-span-2">
-        {t("settingsTitle")}
+    <div className="grid content-start gap-5 md:grid-cols-2 md:gap-x-6">
+      <div className="md:col-span-2">
+        <ParentPageHeader title={t("settingsTitle")} sub={t("settingsSub")} />
       </div>
 
       <div className="contents min-w-0 flex-col gap-5 md:flex">
