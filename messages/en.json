@@ -174,7 +174,7 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System",
+    "themeSystem": "Auto",
     "more": "More",
     "language": "Language",
     "contactSchool": "Contact School",
@@ -214,7 +214,9 @@
     "classesAttended": "Classes attended",
     "certNote": "A certificate is awarded after {count} classes.",
     "navSettings": "Settings",
-    "settingsTitle": "Settings"
+    "settingsTitle": "Settings",
+    "navChildren": "Children",
+    "brandSub": "Chess School"
   },
   "sv2": {
     "home": "Home",

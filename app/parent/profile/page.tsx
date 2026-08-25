@@ -8,7 +8,6 @@
  * below the fold on a phone.
  */
 import Link from "next/link";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
@@ -71,13 +70,6 @@ export default function ParentProfileV2() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-1 pb-1 pt-1.5 md:col-span-2">
-        <Image src="/parent/jca-logo.png" alt="JCA Chess Academy" width={34} height={34} className="mb-0.5" />
-        <span className="text-[11px] font-bold uppercase tracking-[.14em] text-pp-faint">
-          JCA Chess Academy
-        </span>
-        <span className="text-center text-[10.5px] text-pp-faint">{t("academyFooter")}</span>
-      </div>
     </div>
   );
 }
