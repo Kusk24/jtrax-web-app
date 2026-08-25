@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { CheckSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
@@ -10,7 +12,7 @@ const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
 export default function ParentAttendanceV2() {
   const t = useTranslations("pv2");
-  const { children: childrenV2, att: ATT, hist: histV2, months } = useParentData();
+  const { children: childrenV2, att: ATT, hist: histV2, months, todayActivity } = useParentData();
   const [filter, setFilter] = useState<"all" | ChildKey>("all");
   const [month, setMonth] = useState(CURRENT);
 
@@ -43,12 +45,159 @@ export default function ParentAttendanceV2() {
 
   return (
     <div className="grid content-start gap-4 px-4 pb-8 pt-5 sm:px-5 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:items-start lg:gap-x-6">
-      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-[70px] pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 lg:col-span-2">
-        {t("attHistory")}
+      <div className="-mx-4 -mt-5 bg-pp-soft px-4 pb-6 pt-6 text-center font-pp-display text-2xl font-semibold sm:-mx-5 sm:px-5 lg:col-span-2">
+        {t("navChildren")}
       </div>
 
+      {/* The three views of a child that belong together: who they are, what
+          they did today, and the record of every session. Two of these used to
+          be on Home, above the announcements a parent reads once. */}
+      <div className="flex flex-col gap-6 lg:col-span-2 lg:flex-row lg:gap-8">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className="flex flex-col gap-4">
+    <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
+      {t("myChildren", { count: childrenV2.length })}
+    </span>
+    <div className="grid grid-cols-2 gap-4">
+      {childrenV2.map((c) => {
+        const low = c.credits <= 2;
+        const isBeg = c.level === "Beginner";
+        return (
+          <Link
+            key={c.key}
+            href={`/parent/child/${c.key}`}
+            className="flex flex-col overflow-hidden rounded-2xl border-[1.5px] border-pp-line text-left"
+            style={{
+              background: isBeg
+                ? "linear-gradient(160deg,var(--color-pp-green-soft) 0%,var(--color-pp-card) 65%)"
+                : "var(--color-pp-card)",
+            }}
+          >
+            <div
+              aria-label={c.name}
+              className="aspect-[1.3] w-full bg-cover bg-center"
+              style={{ backgroundColor: c.avBg, backgroundImage: `url('${c.photo}')` }}
+            />
+            <div className="flex flex-col gap-2 px-3.5 pb-3.5 pt-3">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[15px] font-semibold text-pp-ink">{c.name}</span>
+                <span
+                  className="rounded-full px-2 py-0.5 text-[9.5px] font-bold"
+                  style={{
+                    color: isBeg ? "var(--color-pp-green)" : "var(--color-pp-amber)",
+                    background: isBeg ? "var(--color-pp-green-soft)" : "var(--color-pp-amber-soft)",
+                  }}
+                >
+                  {c.level}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 pt-0.5">
+                <CheckSquare className="size-4 flex-none text-pp-muted" strokeWidth={1.8} />
+                <span className="text-xs font-semibold text-pp-ink">
+                  {t("completedClasses", {
+                    label: `${c.attended} / ${c.heldSessions}`,
+                  })}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 pt-0.5">
+                <div className="h-1.5 overflow-hidden rounded-full bg-pp-bar-track">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${c.creditsBought > 0 ? Math.min(100, Math.round((c.credits / c.creditsBought) * 100)) : 0}%`,
+                      background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
+                    }}
+                  />
+                </div>
+                <span className="text-[10.5px] text-pp-muted">
+                  {t("creditsLeftLabel", { count: c.credits })}
+                </span>
+              </div>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  </div>
+
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-3.5">
+      <div className="flex flex-col gap-3.5">
+    <div className="flex items-center gap-2">
+      <Image src="/shared/fish.png" alt="" width={16} height={16} />
+      <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
+        {t("todaysActivity")}
+      </span>
+    </div>
+    <div className="flex flex-col">
+      <div className="mr-5 flex items-center gap-2.5 px-0.5 pb-2">
+        <span className="flex-1" />
+        <span className="w-14 text-right text-[10px] font-bold uppercase tracking-[.06em] text-pp-faint">
+          {t("practice")}
+        </span>
+        <span className="w-14 text-right text-[10px] font-bold uppercase tracking-[.06em] text-pp-faint">
+          {t("challenge")}
+        </span>
+      </div>
+      {todayActivity.length === 0 && (
+        <span className="px-0.5 py-3 text-[12.5px] text-pp-muted">{t("noPracticeToday")}</span>
+      )}
+      {todayActivity.map((r, i) => {
+        const pct = Math.max(4, Math.min(100, Math.round((r.mins / 30) * 100)));
+        const circ = 2 * Math.PI * 8.5;
+        return (
+          <div
+            key={r.child}
+            className={`flex items-center gap-5 px-0.5 py-3.5 ${
+              i < todayActivity.length - 1 ? "border-b border-pp-neutral" : ""
+            }`}
+          >
+            <span className="relative flex size-5 flex-none items-center justify-center rounded-full">
+              {r.done ? (
+                <span className="flex size-5 items-center justify-center rounded-full bg-pp-green text-[11px] font-bold text-white">
+                  ✓
+                </span>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 20 20" className="absolute inset-0 -rotate-90">
+                    <circle cx="10" cy="10" r="8.5" fill="none" stroke="var(--color-pp-track)" strokeWidth="3" />
+                    <circle
+                      cx="10"
+                      cy="10"
+                      r="8.5"
+                      fill="none"
+                      stroke="var(--color-pp-amber)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`}
+                    />
+                  </svg>
+                  <Image src="/shared/fish.png" alt="" width={9} height={9} className="relative" />
+                </>
+              )}
+            </span>
+            <span className="flex-1 text-[13.5px] text-pp-ink">{r.child}</span>
+            <span className="w-14 text-right text-[13px] font-semibold text-pp-muted">
+              {t("minShort", { count: r.mins })}
+            </span>
+            <span className="flex w-14 items-center justify-end gap-1 text-[13px] font-bold text-pp-blue">
+              +{Math.max(1, Math.round(r.mins / 10))}
+              <Image src="/shared/fish.png" alt="" width={15} height={15} />
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+        </div>
+      </div>
+
+      <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub lg:col-span-2">
+        {t("attHistory")}
+      </span>
+
       {/* Calendar keeps a phone-card width everywhere — full-bleed cells turn into giant circles. */}
-      <div className="relative z-[1] -mt-[54px] flex w-full max-w-[440px] flex-col gap-3 place-self-center rounded-xl border-[1.5px] border-pp-line bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)] lg:place-self-auto">
+      <div className="flex w-full max-w-[440px] flex-col gap-3 place-self-center rounded-xl border-[1.5px] border-pp-line bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)] lg:place-self-auto">
         <div className="flex items-center justify-between px-0.5">
           <button
             onClick={() => setMonth((m) => Math.max(0, m - 1))}
@@ -97,7 +246,7 @@ export default function ParentAttendanceV2() {
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-4 lg:relative lg:z-[1] lg:-mt-[54px]">
+      <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-wrap gap-2">
         {chips.map((f) => (
           <button

@@ -3,7 +3,7 @@ import { DM_Sans, Poppins } from "next/font/google";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ParentBottomNav2, ParentSideNav } from "@/components/parent/ParentNav2";
+import { ParentAccountChip, ParentBottomNav2, ParentSideNav } from "@/components/parent/ParentNav2";
 import { ParentDataProvider } from "@/components/parent/ParentData";
 import { SESSION_COOKIE, fetchMeOrDown } from "@/lib/session";
 
@@ -69,6 +69,11 @@ export default async function ParentLayout({
         <div className="mx-auto flex min-h-dvh w-full max-w-[410px] md:max-w-[760px] flex-col bg-pp-card shadow-[0_0_0_1px_rgba(35,53,94,.06),0_30px_80px_rgba(35,53,94,.18)] lg:max-w-none lg:flex-row">
           <ParentSideNav />
           <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
+            {/* Desktop only: the phone screens carry their own headers, and a
+                second name bar above them would be a wasted row. */}
+            <div className="hidden justify-end bg-pp-bg px-6 pt-4 lg:flex">
+              <ParentAccountChip />
+            </div>
             <main className="flex-1 bg-pp-bg">{children}</main>
             <ParentBottomNav2 />
           </div>

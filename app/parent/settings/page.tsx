@@ -83,10 +83,12 @@ export default function ParentSettings() {
     { k: "credits" as const, label: t("prefCredits"), sub: t("prefCreditsSub") },
     { k: "news" as const, label: t("prefNews"), sub: t("prefNewsSub") },
   ];
+  /* Same order and wording as the console's pill: Auto first, because
+     following the device is the default nobody has to think about. */
   const themeDefs = [
+    { k: "system", label: t("themeSystem") },
     { k: "light", label: t("themeLight") },
     { k: "dark", label: t("themeDark") },
-    { k: "system", label: t("themeSystem") },
   ];
 
   return (
