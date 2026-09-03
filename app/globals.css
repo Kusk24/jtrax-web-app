@@ -125,11 +125,26 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  letter-spacing: 0.01em;
+/* In `base`, so a heading that names its own face wins.
+ *
+ * Unlayered, this rule beat every `font-*` utility — cascade layers lose to
+ * unlayered declarations no matter how specific they are — so an
+ * `<h1 class="font-sv-display">` silently did not get the display font. It was
+ * invisible because `--font-display` is empty at `:root` (see the note by the
+ * `@theme inline` blocks: runtime next/font vars get pruned out of a plain
+ * `@theme`). An empty var makes the declaration invalid at computed-value
+ * time, so the heading *inherited* its parent's font instead — which looked
+ * deliberate, and was the body font every time.
+ *
+ * A heading with no font class still lands here and still inherits, so nothing
+ * that reads correctly today moves. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+  }
 }
 
 /* Thai script: no tracking, roomier lines for above/below vowel marks. */
@@ -171,8 +186,8 @@ button:active {
 
 /* Runtime next/font vars must be inline or Tailwind prunes them from :root. */
 @theme inline {
-  --font-sv-body: var(--font-comic), var(--font-mitr), ui-sans-serif, sans-serif;
-  --font-sv-display: var(--font-chewy), var(--font-mitr), ui-sans-serif, sans-serif;
+  --font-sv-body: var(--font-dmsans), var(--font-mitr), ui-sans-serif, sans-serif;
+  --font-sv-display: var(--font-poppins), var(--font-mitr), ui-sans-serif, sans-serif;
 }
 
 /* The student screens are drawn on a fixed 390×844 canvas — a designed phone
