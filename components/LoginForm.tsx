@@ -17,11 +17,19 @@ export function LoginForm() {
       className="mt-8 flex w-full max-w-sm flex-col gap-3 rounded-card border-2 border-line bg-card p-6 shadow-clay"
     >
       <label className="flex flex-col gap-1 text-sm font-bold text-ink">
-        {t("email")}
+        {t("signInId")}
+        {/* Not `type="email"`. A student signs in with `stu_penny_ward`, and
+            the browser refuses to submit that field at all — no request, no
+            error from the server, just a tooltip about a missing @ that reads
+            like the child typed their own ID wrong. `username` is also the
+            right autocomplete hint for an identifier that is sometimes not an
+            address, so a password manager still offers to fill it. */}
         <input
           name="email"
-          type="email"
-          autoComplete="email"
+          type="text"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
           className="rounded-xl border-2 border-line bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-navy/50"
         />
       </label>
