@@ -2,11 +2,12 @@
   "landing": {
     "tagline": "Sign in to your JTrax account",
     "email": "Email",
+    "signInId": "Email or ID",
     "password": "Password",
     "signIn": "Sign in",
     "signingIn": "Signing in…",
     "errorMissing": "Enter your email and password.",
-    "errorInvalid": "That email and password don't match an account.",
+    "errorInvalid": "That doesn't match an account. Students sign in with the ID on their card, not an email address.",
     "errorUnreachable": "Cannot reach the JTrax server — is the backend running?",
     "accountHint": "Parents and students each have their own account from the academy.",
     "noPortal": "This account doesn't have a portal here — staff sign in to the admin console.",
