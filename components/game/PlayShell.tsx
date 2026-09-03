@@ -45,7 +45,7 @@ export function PlayShell({
         {/* White, because the wash behind it is navy and the container's ink is
             too — the heading was navy-on-navy and simply invisible. axe did not
             catch it: it skips contrast checks against a CSS gradient. */}
-        <h1 className="font-sv-display text-[28px] font-normal text-white">{title}</h1>
+        <h1 className="font-sv-display text-[28px] font-bold text-white">{title}</h1>
       </header>
 
       <div className={`relative z-10 flex flex-1 flex-col overflow-y-auto px-5 pt-4 ${nav ? "pb-[104px]" : "pb-6"}`}>

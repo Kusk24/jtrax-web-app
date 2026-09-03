@@ -307,7 +307,7 @@ export default function StudentGame() {
            everything above it; with those gone the same coordinates left a
            320px hole between the heading and the card. */
         <div className="absolute inset-x-0 bottom-[104px] top-0 flex flex-col gap-3.5 overflow-y-auto px-[25px] pb-4 pt-[44px]">
-          <h1 className="font-sv-display text-[32px] font-normal leading-tight text-white">
+          <h1 className="font-sv-display text-[32px] font-bold leading-tight text-white">
             {t("home")}
           </h1>
           <p className="-mt-2 text-sm font-bold text-white/85">
@@ -364,7 +364,7 @@ export default function StudentGame() {
 
       {screen === "puzzles" && (
         <>
-          <h1 className="absolute left-[25px] top-[43px] font-sv-display text-[32px] font-normal text-white">{t("puzzles")}</h1>
+          <h1 className="absolute left-[25px] top-[43px] font-sv-display text-[32px] font-bold text-white">{t("puzzles")}</h1>
           <div className="absolute left-[18px] top-[126px] h-[604px] w-[354px] overflow-hidden rounded-3xl bg-sv-gold p-[18px] shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
             {/* Tabs */}
             <div className="flex h-12 w-full gap-1 rounded-3xl bg-sv-cream p-1 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
@@ -450,7 +450,7 @@ export default function StudentGame() {
           <button onClick={() => go("puzzles")} aria-label={t("back")} className="absolute left-5 top-[46px] z-[2] cursor-pointer border-none bg-transparent text-[22px] font-bold text-sv-ink">
             ←
           </button>
-          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-normal text-white">
+          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-bold text-white">
             {t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
           {/* Sits on the navy wash with the heading, so it is white like the
@@ -537,7 +537,7 @@ export default function StudentGame() {
       {/* ---------------- PROFILE ---------------- */}
       {screen === "profile" && (
         <>
-          <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-normal text-white">{t("profile")}</h1>
+          <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-bold text-white">{t("profile")}</h1>
           {/* A scrolling column rather than a stack of absolute positions.
               Every card here used to be pinned to a measured offset, which
               meant nothing could be added without moving all of them — and
