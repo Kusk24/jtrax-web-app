@@ -1,8 +1,11 @@
 "use client";
 
-/* A game against Stockfish. Entirely local: no room, no API call, no record
+/* A game against the computer. Entirely local: no room, no API call, no record
    kept. Losing to the computer in private is the point — it is practice, not a
-   result the academy reports on. */
+   result the academy reports on.
+
+   Three opponents, and they are three different models rather than one engine
+   turned down — see useAiOpponent.ts for why that distinction matters. */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
@@ -10,16 +13,14 @@ import { Chess } from "chess.js";
 import { ChessBoard } from "./ChessBoard";
 import { CapturedTray } from "./CapturedTray";
 import { Panel, actionBtn } from "./PlayShell";
-import { useStockfish, type Level } from "./useStockfish";
+import { OPPONENTS, useAiOpponent, type Opponent } from "./useAiOpponent";
 import { capturedIn, endingOf, gameFrom, pairedMoves, type Ending } from "@/lib/chess-core";
-
-const LEVELS: Level[] = [1, 2, 3, 4, 5];
 
 export function AiGame() {
   const t = useTranslations("play");
-  const { ready, failed, bestMove } = useStockfish();
 
-  const [level, setLevel] = useState<Level>(2);
+  const [opponent, setOpponent] = useState<Opponent>("novice");
+  const { ready, failed, loading, bestMove } = useAiOpponent(opponent);
   const [moves, setMoves] = useState<string[]>([]);
   const [thinking, setThinking] = useState(false);
   const [game, setGame] = useState<Chess>(() => new Chess());
@@ -51,40 +52,44 @@ export function AiGame() {
     if (!ready || ending || game.turn() !== "b" || thinking) return;
     const mine = generation.current;
     setThinking(true);
-    void bestMove(moves, level).then((uci) => {
+    // Each opponent wants the position in its own terms: Stockfish takes UCI,
+    // the novice model reads the game as PGN text, Maia-2 takes a FEN.
+    void bestMove(moves, game.history(), game.fen()).then((uci) => {
       if (mine !== generation.current) return; // a restart happened mid-think
       setThinking(false);
       if (uci) sync([...moves, uci]);
     });
-  }, [ready, ending, game, moves, level, thinking, bestMove, sync]);
-
-  if (failed) {
-    return <Panel><p className="text-sm font-bold">{t("error.engine")}</p></Panel>;
-  }
+  }, [ready, ending, game, moves, thinking, bestMove, sync]);
 
   const captured = capturedIn(game);
 
   return (
     <div className="flex flex-col gap-3">
       <Panel className="!p-3">
-        <p className="mb-2 text-[13px] font-bold">{t("level")}</p>
+        <p className="mb-2 text-[13px] font-bold">{t("opponent")}</p>
         <div className="flex gap-1.5">
-          {LEVELS.map((l) => (
+          {OPPONENTS.map((o) => (
             <button
-              key={l}
-              onClick={() => setLevel(l)}
-              aria-pressed={level === l}
-              className={`flex-1 cursor-pointer rounded-xl border-none py-2 text-sm font-bold text-sv-ink ${
-                level === l
-                  ? "bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
-                  : "bg-sv-paper shadow-[inset_0_0_0_1.5px_rgb(216,226,240)]"
+              key={o}
+              onClick={() => setOpponent(o)}
+              aria-pressed={opponent === o}
+              /* min-h-11 is the 44px touch minimum. The selected state is the
+                 navy fill rather than --color-sv-gold, which despite its name
+                 is rgb(232,239,249) and sits at 1.06:1 against sv-paper — you
+                 could not tell which opponent you had chosen. */
+              className={`min-h-11 flex-1 cursor-pointer rounded-xl border-none px-2 py-2 text-[13px] font-bold transition-colors ${
+                opponent === o
+                  ? "bg-sv-ink text-sv-paper"
+                  : "bg-sv-paper text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(216,226,240)]"
               }`}
             >
-              {l}
+              {t(`opponentName.${o}`)}
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] leading-snug text-sv-body">{t(`levelHint.${level}`)}</p>
+        <p className="mt-2 text-[11px] leading-snug text-sv-body">
+          {t(`opponentHint.${opponent}`)}
+        </p>
       </Panel>
 
       {/* You always play White here, so the engine sits at the top of the board. */}
@@ -107,10 +112,16 @@ export function AiGame() {
       </div>
 
       <Panel className="!py-2.5 text-center">
-        {!ready ? (
+        {failed ? (
+          <p className="text-[13px] font-bold">
+            {opponent === "expert" ? t("error.engine") : t("modelFailed")}
+          </p>
+        ) : !ready ? (
           <p className="flex items-center justify-center gap-2 text-[13px] font-bold">
             <Loader2 className="size-3.5 animate-spin" />
-            {t("engineLoading")}
+            {/* The two trained models are a 26 MB and a 47 MB download, so the
+                first wait is longer than waking a worker and says so. */}
+            {loading ? t("modelLoading") : t("engineLoading")}
           </p>
         ) : ending ? (
           <p className="text-[13px] font-bold">

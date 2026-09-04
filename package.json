@@ -8,13 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "models:setup": "node scripts/setup-models.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
     "lucide-react": "^1.23.0",
     "next": "^16.2.10",
     "next-intl": "^4.13.1",
+    "onnxruntime-web": "^1.29.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
