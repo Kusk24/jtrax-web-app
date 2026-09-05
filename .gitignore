@@ -19,3 +19,7 @@ build/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# chess models — 73 MB, reproducible with `pnpm models:setup`
+public/models/*.onnx
+public/models/ort/

@@ -255,7 +255,7 @@
   "play": {
     "title": "Play",
     "vsComputer": "Play the computer",
-    "vsComputerBody": "Practise on your own. Five levels, from gentle to tough.",
+    "vsComputerBody": "Practise on your own. Three opponents, from gentle to tough.",
     "vsFriend": "Play a friend",
     "vsFriendBody": "Enter the code your teacher gave you and play head to head.",
     "codeLabel": "Room code",
@@ -275,14 +275,6 @@
     "keepPlaying": "Keep playing",
     "cancelled": "This game was stopped by a teacher.",
     "promote": "Choose a piece",
-    "level": "Level",
-    "levelHint": {
-      "1": "Barely looks ahead. A good first opponent.",
-      "2": "Looks one move ahead. Will take a free piece.",
-      "3": "Spots simple traps. A fair match for a beginner.",
-      "4": "Plays like a club player. Punishes mistakes.",
-      "5": "Strong. Expect to lose while you learn."
-    },
     "seat": {
       "White": "You are White",
       "Black": "You are Black",
@@ -343,7 +335,20 @@
         "notConfigured": "This game is not rated: Lichess play is not set up here.",
         "failed": "This game is no longer rated."
       }
-    }
+    },
+    "opponent": "Opponent",
+    "opponentName": {
+      "novice": "Beginner",
+      "strong": "Club player",
+      "expert": "Master"
+    },
+    "opponentHint": {
+      "novice": "Still learning the game, like you. Trained by the academy.",
+      "strong": "Plays like a solid club member. Trained by the academy.",
+      "expert": "Stockfish. It will not go easy on you."
+    },
+    "modelLoading": "Getting your opponent ready…",
+    "modelFailed": "That opponent could not be loaded. Try another one."
   },
   "challenge": {
     "title": "Challenge",
