@@ -61,22 +61,42 @@ export interface AnnouncementV2 {
   time: string;
 }
 
-/** One thing that happened to a child, derived from real rows: an attendance
-    check-in or pick-up, or a credit balance about to expire. */
-export type NotifKind = "checkin" | "pickup" | "credits";
+/** The notification catalogue the backend sends, in the order Settings lists
+    it. Low credit is the one opt-in: everything else defaults on. */
+export const NOTIF_TYPES = [
+  "check_in",
+  "credit_deducted",
+  "low_credit",
+  "credit_expiry",
+  "announcement",
+  "payment_received",
+] as const;
+export type NotifType = (typeof NOTIF_TYPES)[number];
 
-export interface NotifV2 {
+/** Which types a parent receives without touching Settings — mirrors the
+    backend's notify.DefaultEnabled, which is what actually decides. */
+export const NOTIF_DEFAULTS: Record<NotifType, boolean> = {
+  check_in: true,
+  credit_deducted: true,
+  low_credit: false,
+  credit_expiry: true,
+  announcement: true,
+  payment_received: true,
+};
+
+/** One inbox row from the backend's notification backbone. Title and body
+    arrive already in the account's language — the sender picked. */
+export interface InboxNotif {
   id: string;
-  kind: NotifKind;
+  /** Usually one of NOTIF_TYPES, but the server catalogue can grow first. */
+  type: string;
+  title: string;
+  body: string;
   /** ISO timestamp — ordering and the time label. */
   at: string;
-  /** Where tapping it lands. */
+  read: boolean;
+  /** Where tapping it lands, derived from the payload. */
   href: string;
-  name: string;
-  cls: string;
-  /** credits only: days until the balance expires, and the date it does. */
-  days?: number;
-  date?: string;
 }
 
 export interface TournamentV2 {

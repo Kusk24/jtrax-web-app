@@ -29,7 +29,7 @@ export default function ParentSettings() {
   const locale = useLocale();
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const { prefs, savePrefs } = useParentData();
+  const { prefs, savePref } = useParentData();
   /* Initialised from the shell's data-theme (server-rendered from the
      account), so the picker shows the saved choice without a fetch. */
   const [theme, setTheme] = useState("system");
@@ -61,10 +61,15 @@ export default function ParentSettings() {
     startTransition(() => router.refresh());
   };
 
+  /* The backend's whole catalogue, one switch each. Low credit ships off —
+     it is the one alert a parent asks for rather than gets. */
   const prefDefs = [
-    { k: "checkin" as const, label: t("prefCheckin"), sub: t("prefCheckinSub") },
-    { k: "credits" as const, label: t("prefCredits"), sub: t("prefCreditsSub") },
-    { k: "news" as const, label: t("prefNews"), sub: t("prefNewsSub") },
+    { k: "check_in" as const, label: t("prefCheckin"), sub: t("prefCheckinSub") },
+    { k: "credit_deducted" as const, label: t("prefDeducted"), sub: t("prefDeductedSub") },
+    { k: "low_credit" as const, label: t("prefLowCredit"), sub: t("prefLowCreditSub") },
+    { k: "credit_expiry" as const, label: t("prefExpiry"), sub: t("prefExpirySub") },
+    { k: "announcement" as const, label: t("prefNews"), sub: t("prefNewsSub") },
+    { k: "payment_received" as const, label: t("prefPayment"), sub: t("prefPaymentSub") },
   ];
   /* Same order and wording as the console's pill: Auto first, because
      following the device is the default nobody has to think about. */
@@ -93,7 +98,7 @@ export default function ParentSettings() {
                 <button
                   onClick={() => {
                     setPrefError(false);
-                    savePrefs({ ...prefs, [p.k]: !prefs[p.k] }).catch(() => setPrefError(true));
+                    savePref(p.k, !prefs[p.k]).catch(() => setPrefError(true));
                   }}
                   role="switch"
                   aria-checked={prefs[p.k]}

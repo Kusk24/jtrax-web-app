@@ -13,7 +13,7 @@ import { useTranslations } from "next-intl";
 import {
   CERT_SESSIONS, CURRENT, recentMonths, todayISO,
   type AnnouncementV2, type ChildKey, type ChildV2, type HistRow, type MonthDef,
-  type NotifV2, type SenderKind, type TournamentV2,
+  type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind, type TournamentV2,
 } from "@/lib/parent-v2-data";
 
 type Row = Record<string, unknown>;
@@ -53,15 +53,16 @@ function ageOf(dobISO: string, now: Date): number {
   return Math.max(0, a);
 }
 
-type Prefs = { checkin: boolean; credits: boolean; news: boolean };
+type Prefs = Record<NotifType, boolean>;
 type Status = "loading" | "live" | "error";
 
 type ParentDataValue = {
   children: ChildV2[];
   parent: { name: string; phone: string; email: string };
   announcements: AnnouncementV2[];
-  /** Filtered by the parent's notification preferences, newest first. */
-  notifs: NotifV2[];
+  /** The backend inbox, newest first — the server already respected the
+      parent's preferences when it sent (or did not send) each one. */
+  notifs: InboxNotif[];
   unreadNotifs: number;
   isNotifRead: (id: string) => boolean;
   markNotifRead: (id: string) => void;
@@ -78,7 +79,7 @@ type ParentDataValue = {
   certSessions: number;
   prefs: Prefs;
   parentId: string;
-  savePrefs: (p: Prefs) => Promise<void>;
+  savePref: (type: NotifType, enabled: boolean) => Promise<void>;
   register: (input: {
     tournamentId: string; studentId: string; participantName: string; contact: string; fee: number;
   }) => Promise<void>;
@@ -86,9 +87,10 @@ type ParentDataValue = {
 
 const ParentDataContext = createContext<ParentDataValue | null>(null);
 
-/* Read marks survive a reload because they live in localStorage, keyed by the
-   parent — there is no per-notification table in the backend to keep them in,
-   and a mark that resets on every visit is not a mark. */
+/* Announcement read marks live in localStorage, keyed by the parent —
+   announcements have no per-reader row in the backend. Notification read
+   marks used to live here too; they moved to the server (`read_at` on the
+   inbox row) when the notification backbone arrived. */
 const readKey = (kind: "notifs" | "anns", parentId: string) => `jtrax:parent:${parentId}:${kind}-read`;
 
 function loadRead(kind: "notifs" | "anns", parentId: string): Set<string> {
@@ -113,16 +115,15 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [childList, setChildList] = useState<ChildV2[]>([]);
   const [parent, setParent] = useState({ name: "", phone: "", email: "" });
   const [anns, setAnns] = useState<AnnouncementV2[]>([]);
-  const [allNotifs, setAllNotifs] = useState<NotifV2[]>([]);
+  const [allNotifs, setAllNotifs] = useState<InboxNotif[]>([]);
   const [tour, setTour] = useState<TournamentV2 | null>(null);
   const [months] = useState<MonthDef[]>(() => recentMonths());
   const [att, setAtt] = useState<ParentDataValue["att"]>({});
   const [hist, setHist] = useState<HistRow[]>([]);
   const [todayActivity, setTodayActivity] = useState<ParentDataValue["todayActivity"]>([]);
   const [certSessions, setCertSessions] = useState(CERT_SESSIONS);
-  const [prefs, setPrefs] = useState<Prefs>({ checkin: true, credits: true, news: false });
+  const [prefs, setPrefs] = useState<Prefs>(NOTIF_DEFAULTS);
   const [parentId, setParentId] = useState("");
-  const [notifRead, setNotifRead] = useState<Set<string>>(new Set());
   const [annRead, setAnnRead] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
@@ -147,7 +148,6 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       "config_value",
     ));
     setCertSessions(Number.isFinite(certRaw) && certRaw > 0 ? certRaw : CERT_SESSIONS);
-    setNotifRead(loadRead("notifs", me.parentId));
     setAnnRead(loadRead("anns", me.parentId));
 
     /* Who is signed in — the greeting, the sidebar, the profile screen and
@@ -263,42 +263,34 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       .sort((a, b) => b.iso.localeCompare(a.iso));
     setHist(rows);
 
-    /* Notifications, from the rows that already record what happened: a
-       check-in stamp, a pick-up stamp, an expiry date drawing near. The mock
-       list this replaced invented events for children who do not exist. */
-    const cutoff = todayISO(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 14));
-    const notifs: NotifV2[] = [];
-    for (const a of attendance) {
-      const child = mapped.find((c) => c.id === s(a, "student_id"));
-      const inAt = s(a, "check_in_time");
-      const outAt = s(a, "check_out_time");
-      if (!child || !inAt || inAt.slice(0, 10) < cutoff) continue;
-      const aid = s(a, "attendance_id");
-      notifs.push({
-        id: `att:${aid}:in`, kind: "checkin", at: inAt,
-        href: `/parent/child/${child.key}`, name: child.name, cls: child.clsTitle,
-      });
-      if (outAt) {
-        notifs.push({
-          id: `att:${aid}:out`, kind: "pickup", at: outAt,
-          href: `/parent/child/${child.key}`, name: child.name, cls: child.clsTitle,
-        });
-      }
-    }
-    for (const child of mapped) {
-      /* Only while the expiry is actually ahead. A balance that lapsed months
-         ago is expired, not "expiring soon — 0 days left"; the child's card
-         already shows that state. */
-      if (child.valid === "—" || child.credits <= 0) continue;
-      if (!child.expiresAhead || child.daysLeft > 14) continue;
-      notifs.push({
-        id: `exp:${child.key}:${child.valid}`, kind: "credits", at: todayStr,
-        href: `/parent/child/${child.key}`, name: child.name, cls: child.clsTitle,
-        days: child.daysLeft, date: child.valid,
-      });
-    }
-    notifs.sort((a, b) => b.at.localeCompare(a.at));
-    setAllNotifs(notifs);
+/* The real inbox: what the backend actually sent this account. It used
+       to be re-derived from attendance stamps, which could only ever imitate
+       the sender — now the rows the notification backbone wrote are the list,
+       read marks included. */
+    const inboxRes = await fetch("/api/notifications", { cache: "no-store" });
+    const inboxRows: Row[] = inboxRes.ok
+      ? (((await inboxRes.json()) as { notifications?: Row[] }).notifications ?? [])
+      : [];
+    setAllNotifs(inboxRows.map((row) => {
+      /* Deep link from the payload: a child event lands on that child, an
+         announcement on the announcements screen, anything else stays here. */
+      let href = "/parent/notifications";
+      try {
+        const data = JSON.parse(s(row, "data") || "{}") as { studentId?: string };
+        const child = data.studentId ? mapped.find((c) => c.id === data.studentId) : undefined;
+        if (child) href = `/parent/child/${child.key}`;
+      } catch { /* unparseable payload: the row still shows, it just goes nowhere */ }
+      if (s(row, "type") === "announcement") href = "/parent/announcements";
+      return {
+        id: s(row, "notification_id"),
+        type: s(row, "type"),
+        title: s(row, "title"),
+        body: s(row, "body"),
+        at: s(row, "created_at"),
+        read: s(row, "read_at") !== "",
+        href,
+      };
+    }));
 
     setAnns(announcements
       .sort((a, b) => s(b, "posted_at").localeCompare(s(a, "posted_at")))
@@ -348,13 +340,19 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       return { child: c.name, mins, done: mins >= 30 };
     }));
 
-    const pref = (await get(`notification-preferences?parent_id=${me.parentId}`))[0];
-    if (pref) {
-      setPrefs({
-        checkin: n(pref, "check_in_alerts_enabled") === 1,
-        credits: n(pref, "credit_expiry_alerts_enabled") === 1,
-        news: n(pref, "announcement_alerts_enabled") === 1,
-      });
+    /* The per-type toggles: the backend stores only overrides, so start from
+       the defaults and lay the saved choices over them. The in-app channel is
+       the master switch for a type. */
+    const setRes = await fetch("/api/notification-settings", { cache: "no-store" });
+    if (setRes.ok) {
+      const saved = (((await setRes.json()) as { settings?: Row[] }).settings ?? [])
+        .filter((row) => s(row, "channel") === "inapp");
+      const next = { ...NOTIF_DEFAULTS };
+      for (const row of saved) {
+        const typ = s(row, "type") as NotifType;
+        if (typ in next) next[typ] = Boolean(row.enabled);
+      }
+      setPrefs(next);
     }
     setStatus("live");
   }, [months]);
@@ -368,18 +366,20 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     load().catch(() => setStatus("error"));
   }, [load]);
 
-  const savePrefs = useCallback(async (p: Prefs) => {
-    setPrefs(p);
-    await fetch(`/api/notification-preferences/${parentId}`, {
-      method: "PATCH",
+  const savePref = useCallback(async (type: NotifType, enabled: boolean) => {
+    /* Optimistic: the switch answers the finger; a failed save is put back by
+       the caller's catch. In-app is the type's master switch server-side. */
+    setPrefs((prev) => ({ ...prev, [type]: enabled }));
+    const res = await fetch("/api/notification-settings", {
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        check_in_alerts_enabled: p.checkin,
-        credit_expiry_alerts_enabled: p.credits,
-        announcement_alerts_enabled: p.news,
-      }),
+      body: JSON.stringify({ type, channel: "inapp", enabled }),
     });
-  }, [parentId]);
+    if (!res.ok) {
+      setPrefs((prev) => ({ ...prev, [type]: !enabled }));
+      throw new Error("saving preference failed");
+    }
+  }, []);
 
   const register = useCallback(async (input: {
     tournamentId: string; studentId: string; participantName: string; contact: string; fee: number;
@@ -402,12 +402,11 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   }, []);
 
   const markNotifRead = useCallback((id: string) => {
-    setNotifRead((prev) => {
-      const next = new Set(prev).add(id);
-      storeRead("notifs", parentId, next);
-      return next;
-    });
-  }, [parentId]);
+    /* Optimistic, and fire-and-forget: a read mark that fails to save costs a
+       bold dot on the next visit, nothing more. */
+    setAllNotifs((prev) => prev.map((x) => (x.id === id ? { ...x, read: true } : x)));
+    fetch(`/api/notifications/${id}/read`, { method: "POST" }).catch(() => {});
+  }, []);
 
   const markAnnRead = useCallback((id: string) => {
     setAnnRead((prev) => {
@@ -417,27 +416,24 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     });
   }, [parentId]);
 
-  const value = useMemo<ParentDataValue>(() => {
-    const notifs = allNotifs.filter((x) =>
-      x.kind === "credits" ? prefs.credits : prefs.checkin);
-    return {
-      children: childList, parent, announcements: anns,
-      notifs,
-      unreadNotifs: notifs.filter((x) => !notifRead.has(x.id)).length,
-      isNotifRead: (id) => notifRead.has(id),
-      markNotifRead,
-      markAllNotifsRead: () => {
-        const next = new Set([...notifRead, ...notifs.map((x) => x.id)]);
-        storeRead("notifs", parentId, next);
-        setNotifRead(next);
-      },
-      isAnnRead: (id) => annRead.has(id),
-      markAnnRead,
-      tournament: tour, months, att, hist, todayActivity, certSessions,
-      prefs, parentId, savePrefs, register,
-    };
-  }, [childList, parent, anns, allNotifs, notifRead, annRead, markNotifRead, markAnnRead,
-    tour, months, att, hist, todayActivity, certSessions, prefs, parentId, savePrefs, register]);
+  const value = useMemo<ParentDataValue>(() => ({
+    children: childList, parent, announcements: anns,
+    /* Unfiltered on purpose: the server applied the preferences when it sent.
+       Filtering again here would hide history the moment a toggle changed. */
+    notifs: allNotifs,
+    unreadNotifs: allNotifs.filter((x) => !x.read).length,
+    isNotifRead: (id) => allNotifs.find((x) => x.id === id)?.read ?? true,
+    markNotifRead,
+    markAllNotifsRead: () => {
+      setAllNotifs((prev) => prev.map((x) => ({ ...x, read: true })));
+      fetch("/api/notifications/read-all", { method: "POST" }).catch(() => {});
+    },
+    isAnnRead: (id) => annRead.has(id),
+    markAnnRead,
+    tournament: tour, months, att, hist, todayActivity, certSessions,
+    prefs, parentId, savePref, register,
+  }), [childList, parent, anns, allNotifs, annRead, markNotifRead, markAnnRead,
+    tour, months, att, hist, todayActivity, certSessions, prefs, parentId, savePref, register]);
 
   /* No screen renders until the data is real. The old behaviour — sample
      children whenever the server was down — looked exactly like working
