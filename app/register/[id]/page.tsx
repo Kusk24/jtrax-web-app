@@ -11,6 +11,7 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FileText } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
@@ -83,7 +84,17 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
       <div className="flex flex-col gap-4">
         <PublicCard>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-            <Fact label={t("fee")} value={money(tournament.fee, locale)} />
+            <Fact
+              label={t("fee")}
+              value={money(tournament.fee, locale)}
+              /* Says why the price is what it is: an early-bird price that
+                 expires is worth knowing the expiry of. */
+              note={
+                tournament.earlyBirdActive && tournament.earlyBirdUntil
+                  ? t("earlyBirdUntil", { date: formatDate(tournament.earlyBirdUntil, locale) })
+                  : undefined
+              }
+            />
             {tournament.studentDiscountPct > 0 && (
               <Fact
                 label={t("studentFee")}
@@ -99,6 +110,21 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
               <Fact label={t("placesLeft")} value={String(tournament.spotsLeft)} />
             )}
           </dl>
+
+          {/* The organiser's own rules — schedule, categories, prizes. A
+              parent deciding whether to enter should be able to read them
+              without asking the desk for a copy. */}
+          {tournament.hasRegulation && (
+            <a
+              href={`/api/tournaments/${tournament.id}/regulation`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-pp-line px-3.5 text-[14px] font-semibold text-pp-blue transition-colors duration-150 hover:border-pp-blue hover:bg-pp-mist"
+            >
+              <FileText className="size-4" aria-hidden />
+              {t("regulation")}
+            </a>
+          )}
         </PublicCard>
 
         {tournament.open ? (
@@ -108,6 +134,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
             fee={tournament.fee}
             studentFee={tournament.studentFee}
             discountPct={tournament.studentDiscountPct}
+            startDate={tournament.startDate}
           />
         ) : (
           <PublicCard>

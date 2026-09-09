@@ -18,8 +18,17 @@ export type PublicTournament = {
   venueName: string;
   venueAddress: string;
   registrationDeadline: string;
+  /** What an outside participant pays right now: the early-bird price while
+      its window is open, the regular price after. */
   fee: number;
-  /** What one of the academy's own students pays. */
+  regularFee: number;
+  earlyBirdFee?: number;
+  earlyBirdUntil?: string;
+  earlyBirdActive: boolean;
+  /** Whether the organiser's regulation document can be read. */
+  hasRegulation: boolean;
+  /** What one of the academy's own students pays — the discount comes off the
+      regular fee, so it never stacks with early bird. */
   studentFee: number;
   studentDiscountPct: number;
   capacity: number | null;
@@ -39,7 +48,48 @@ export type RegisterInput = {
   dateOfBirth?: string;
   categoryId?: string;
   isStudent?: boolean;
+  /** Required when isStudent: the discount is only given against an ID the
+      academy can find. */
+  studentId?: string;
 };
+
+/** The age a category name implies — "U8 Boys" is under 8. Mirrors the
+    backend's rule, which is the one that actually decides; this exists so the
+    form can grey out what it would refuse rather than take an entry and then
+    reject it. */
+export function categoryAgeLimit(name: string): number {
+  const m = /\bU\s?(\d{1,2})\b/i.exec(name);
+  return m ? Number(m[1]) : 0;
+}
+
+/** Completed years on a date. The tournament's start day is the day the age
+    matters, so that is what a category is checked against. */
+export function ageOn(dateOfBirth: string, on: string): number | null {
+  const dob = new Date(dateOfBirth);
+  const day = new Date(on);
+  if (isNaN(dob.getTime()) || isNaN(day.getTime())) return null;
+  let years = day.getFullYear() - dob.getFullYear();
+  const beforeBirthday =
+    day.getMonth() < dob.getMonth() ||
+    (day.getMonth() === dob.getMonth() && day.getDate() < dob.getDate());
+  if (beforeBirthday) years--;
+  return years;
+}
+
+/** Whether a player of this date of birth may enter this category on this
+    day. A category with no age in its name is open to everyone; a category
+    that has one needs a date of birth before it can be judged. */
+export function categoryAllows(
+  categoryName: string,
+  dateOfBirth: string,
+  startDate: string,
+): { allowed: boolean; limit: number; needsDob: boolean } {
+  const limit = categoryAgeLimit(categoryName);
+  if (limit === 0) return { allowed: true, limit: 0, needsDob: false };
+  if (!dateOfBirth) return { allowed: false, limit, needsDob: true };
+  const age = ageOn(dateOfBirth, startDate || new Date().toISOString().slice(0, 10));
+  return { allowed: age !== null && age < limit, limit, needsDob: false };
+}
 
 export type RegisterResult = {
   registered: boolean;

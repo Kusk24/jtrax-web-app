@@ -449,7 +449,16 @@
     "doneFee": "ค่าสมัคร: {fee}",
     "closedFull": "การแข่งขันนี้เต็มแล้ว",
     "closedDeadline": "ปิดรับสมัครการแข่งขันนี้แล้ว",
-    "closedHint": "หากคิดว่ามีข้อผิดพลาด กรุณาติดต่อสถาบัน"
+    "closedHint": "หากคิดว่ามีข้อผิดพลาด กรุณาติดต่อสถาบัน",
+    "regulation": "อ่านระเบียบการแข่งขัน",
+    "earlyBirdUntil": "ราคาจองล่วงหน้าถึง {date}",
+    "studentId": "รหัสนักเรียน JCA",
+    "studentIdPlaceholder": "เช่น stu_1a2b3c",
+    "studentIdHint": "หากไม่ทราบรหัส สอบถามได้ที่เคาน์เตอร์",
+    "categoryNeedsDob": "ต้องระบุวันเกิด",
+    "categoryTooOld": "เฉพาะอายุต่ำกว่า {limit} ปี",
+    "categoryNeedsDobHelp": "กรุณาระบุวันเกิดของผู้เล่นเพื่อเลือกรุ่นอายุ",
+    "categoryTooOldHelp": "รุ่นนี้สำหรับผู้เล่นอายุต่ำกว่า {limit} ปี ณ วันแข่งขัน กรุณาเลือกรุ่นอื่น"
   },
   "results": {
     "standings": "ตารางคะแนน",

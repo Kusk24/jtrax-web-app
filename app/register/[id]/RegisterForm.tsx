@@ -15,7 +15,7 @@
  */
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { registerForTournament, type PublicCategory } from "@/lib/registration";
+import { categoryAllows, registerForTournament, type PublicCategory } from "@/lib/registration";
 import { PublicCard } from "@/components/public/PublicShell";
 
 const field =
@@ -29,12 +29,15 @@ export function RegisterForm({
   fee,
   studentFee,
   discountPct,
+  startDate,
 }: {
   tournamentId: string;
   categories: PublicCategory[];
   fee: number;
   studentFee: number;
   discountPct: number;
+  /** The day a category's age limit is measured against. */
+  startDate: string;
 }) {
   const t = useTranslations("register");
 
@@ -44,12 +47,25 @@ export function RegisterForm({
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [isStudent, setIsStudent] = useState(false);
+  const [studentId, setStudentId] = useState("");
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ feeQuoted: number } | null>(null);
 
   const payable = isStudent && discountPct > 0 ? studentFee : fee;
+
+  /* Which categories this player may enter, worked out from their date of
+     birth. The backend decides for real; this greys out what it would refuse
+     so nobody fills a form in only to be told no. */
+  const eligibility = categories.map((c) => ({
+    ...c,
+    ...categoryAllows(c.name, dateOfBirth, startDate),
+  }));
+  const chosen = eligibility.find((c) => c.id === categoryId);
+  /* A category picked before a date of birth was typed — or before it was
+     changed — can become one this player cannot enter. */
+  const categoryBlocked = Boolean(chosen && !chosen.allowed);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +74,7 @@ export function RegisterForm({
     try {
       const out = await registerForTournament(tournamentId, {
         name, email, phone, dateOfBirth, categoryId, isStudent,
+        studentId: isStudent ? studentId : undefined,
       });
       setDone({ feeQuoted: out.feeQuoted });
     } catch (err) {
@@ -137,10 +154,24 @@ export function RegisterForm({
               onChange={(e) => setCategoryId(e.target.value)}
             >
               <option value="">{t("categoryAny")}</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+              {eligibility.map((c) => (
+                <option key={c.id} value={c.id} disabled={!c.allowed}>
+                  {c.name}
+                  {c.needsDob
+                    ? ` — ${t("categoryNeedsDob")}`
+                    : c.allowed
+                      ? ""
+                      : ` — ${t("categoryTooOld", { limit: c.limit })}`}
+                </option>
               ))}
             </select>
+            {categoryBlocked && (
+              <p role="alert" className="mt-1.5 text-[12.5px] font-semibold text-pp-danger">
+                {chosen?.needsDob
+                  ? t("categoryNeedsDobHelp")
+                  : t("categoryTooOldHelp", { limit: chosen?.limit ?? 0 })}
+              </p>
+            )}
           </Labelled>
         )}
 
@@ -157,6 +188,25 @@ export function RegisterForm({
               </span>
               {/* On the mist panel, so pp-sub — see PublicShell. */}
               <span className="block text-[12.5px] text-pp-sub">{t("isStudentHint")}</span>
+              {isStudent && (
+                <span className="mt-2.5 block">
+                  <label htmlFor="reg-student-id" className="mb-1 block text-[12.5px] font-semibold text-pp-ink">
+                    {t("studentId")}
+                  </label>
+                  <input
+                    id="reg-student-id"
+                    className={field}
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
+                    /* The label is a click target for the checkbox above it,
+                       so typing in here must not toggle it. */
+                    onClick={(e) => e.stopPropagation()}
+                    required
+                    placeholder={t("studentIdPlaceholder")}
+                  />
+                  <span className="mt-1 block text-[12px] text-pp-sub">{t("studentIdHint")}</span>
+                </span>
+              )}
             </span>
           </label>
         )}
@@ -173,7 +223,10 @@ export function RegisterForm({
           </span>
           <button
             type="submit"
-            disabled={busy}
+            /* The PDF's rule: an ineligible category means they cannot
+               proceed to registration or payment. The backend refuses it
+               regardless; this stops the journey earlier. */
+            disabled={busy || categoryBlocked}
             className="min-h-[44px] cursor-pointer rounded-xl bg-pp-blue px-6 text-[15px] font-semibold text-white transition-colors duration-150 hover:bg-pp-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? t("sending") : t("submit")}
