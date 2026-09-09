@@ -6,6 +6,7 @@ import Image from "next/image";
 import { CheckSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
+import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 
@@ -74,10 +75,12 @@ export default function ParentAttendanceV2() {
                 : "var(--color-pp-card)",
             }}
           >
-            <div
-              aria-label={c.name}
-              className="aspect-[1.3] w-full bg-cover bg-center"
-              style={{ backgroundColor: c.avBg, backgroundImage: `url('${c.photo}')` }}
+            <ChildFace
+              name={c.name}
+              photo={c.photo}
+              tint={c.avBg}
+              className="aspect-[1.3] w-full"
+              initialClassName="text-[44px]"
             />
             <div className="flex flex-col gap-2 px-3.5 pb-3.5 pt-3">
               <div className="flex items-center gap-1.5">
@@ -278,10 +281,11 @@ export default function ParentAttendanceV2() {
                 href={`/parent/child/${c.key}`}
                 className="flex w-full items-center gap-3 rounded-xl border-[1.5px] border-pp-line bg-pp-card p-4 text-left hover:bg-pp-mist"
               >
-                <span
-                  aria-label={c.name}
-                  className="size-[42px] flex-none rounded-full bg-cover bg-center"
-                  style={{ backgroundColor: c.avBg, backgroundImage: `url('${c.photo}')` }}
+                <ChildFace
+                  name={c.name}
+                  photo={c.photo}
+                  tint={c.avBg}
+                  className="size-[42px] flex-none rounded-full"
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-[13.5px] font-semibold">

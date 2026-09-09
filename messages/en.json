@@ -214,7 +214,8 @@
     "brandSub": "Chess School",
     "childrenSub": "Your children, what they did today, and every session on record.",
     "settingsSub": "Alerts, screen time and how the portal looks.",
-    "profileSub": "Your details, and the children linked to your account."
+    "profileSub": "Your details, and the children linked to your account.",
+    "creditsShort": "{count} credits"
   },
   "sv2": {
     "home": "Home",

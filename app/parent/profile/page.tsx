@@ -10,6 +10,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ChevronRight } from "lucide-react";
+import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
@@ -44,10 +45,11 @@ export default function ParentProfileV2() {
               href={`/parent/child/${c.key}`}
               className="flex w-full items-center gap-3 border-b border-pp-panel px-4 py-4 last:border-0 hover:bg-pp-mist"
             >
-              <span
-                aria-label={c.name}
-                className="size-[42px] flex-none rounded-full bg-cover bg-center"
-                style={{ backgroundColor: c.avBg, backgroundImage: `url('${c.photo}')` }}
+              <ChildFace
+                name={c.name}
+                photo={c.photo}
+                tint={c.avBg}
+                className="size-[42px] flex-none rounded-full"
               />
               <span className="flex flex-1 flex-col gap-0.5">
                 <span className="text-sm font-semibold">{c.name}</span>

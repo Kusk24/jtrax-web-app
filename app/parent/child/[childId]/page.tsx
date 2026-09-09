@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Flame } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
+import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
 
@@ -69,10 +70,12 @@ export default function ChildProfileV2({
       </div>
 
       <div className="flex items-center gap-3.5 md:col-span-2">
-        <span
-          aria-label={ch.name}
-          className="size-[62px] flex-none rounded-full bg-cover bg-center"
-          style={{ backgroundColor: ch.avBg, backgroundImage: `url('${ch.photo}')` }}
+        <ChildFace
+          name={ch.name}
+          photo={ch.photo}
+          tint={ch.avBg}
+          className="size-[62px] flex-none rounded-full"
+          initialClassName="text-[24px]"
         />
         <div className="flex flex-col gap-0.5">
           <span className="font-pp-display text-[22px] font-semibold">{ch.name}</span>
