@@ -426,6 +426,12 @@
     }
   },
   "register": {
+    "playerSection": "Player & Contact Information",
+    "affiliationSection": "Affiliation & Category",
+    "summarySection": "Review & Submit",
+    "regulationHint": "Please review the official tournament rules before registering.",
+    "viewRegulation": "View rules",
+    "requestHint": "Submitting sends a registration request to the academy. Payment and place confirmation follow separately.",
     "indexTitle": "Open tournaments",
     "indexSub": "Anyone may enter. Pick an event to register.",
     "indexEmpty": "No tournaments are open for registration right now.",
@@ -457,7 +463,16 @@
     "doneFee": "Entry fee: {fee}",
     "closedFull": "This tournament is full.",
     "closedDeadline": "Registration for this tournament has closed.",
-    "closedHint": "Contact the academy if you think this is a mistake."
+    "closedHint": "Contact the academy if you think this is a mistake.",
+    "regulation": "Read the regulation",
+    "earlyBirdUntil": "Early bird until {date}",
+    "studentId": "JCA student ID",
+    "studentIdPlaceholder": "e.g. stu_1a2b3c",
+    "studentIdHint": "Ask the front desk if you do not know it.",
+    "categoryNeedsDob": "date of birth needed",
+    "categoryTooOld": "under {limit} only",
+    "categoryNeedsDobHelp": "Give the player's date of birth to enter an age category.",
+    "categoryTooOldHelp": "This category is for players under {limit} on the day of the tournament. Please pick another."
   },
   "results": {
     "standings": "Standings",

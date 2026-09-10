@@ -11,6 +11,7 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { CalendarDays, Clock3, FileText, MapPin, Users } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
@@ -79,26 +80,54 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
         : "";
 
   return (
-    <PublicShell title={tournament.name} subtitle={when || undefined}>
+    <PublicShell title={tournament.name} subtitle={when || undefined} wide>
       <div className="flex flex-col gap-4">
-        <PublicCard>
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
-            <Fact label={t("fee")} value={money(tournament.fee, locale)} />
+        <PublicCard className="!p-4 sm:!p-5">
+          <dl className="grid grid-cols-2 gap-2.5 md:grid-cols-5">
+            <Fact
+              label={t("fee")}
+              value={money(tournament.fee, locale)}
+              icon={<CalendarDays className="size-4" />}
+              /* Says why the price is what it is: an early-bird price that
+                 expires is worth knowing the expiry of. */
+              note={
+                tournament.earlyBirdActive && tournament.earlyBirdUntil
+                  ? t("earlyBirdUntil", { date: formatDate(tournament.earlyBirdUntil, locale) })
+                  : undefined
+              }
+            />
             {tournament.studentDiscountPct > 0 && (
               <Fact
                 label={t("studentFee")}
                 value={money(tournament.studentFee, locale)}
+                icon={<Users className="size-4" />}
                 note={t("discountOf", { pct: tournament.studentDiscountPct })}
               />
             )}
-            {tournament.venueName && <Fact label={t("venue")} value={tournament.venueName} />}
+            {tournament.venueName && <Fact label={t("venue")} value={tournament.venueName} icon={<MapPin className="size-4" />} />}
             {tournament.registrationDeadline && (
-              <Fact label={t("closes")} value={formatDate(tournament.registrationDeadline, locale)} />
+              <Fact label={t("closes")} value={formatDate(tournament.registrationDeadline, locale)} icon={<Clock3 className="size-4" />} />
             )}
             {tournament.spotsLeft !== null && (
-              <Fact label={t("placesLeft")} value={String(tournament.spotsLeft)} />
+              <Fact label={t("placesLeft")} value={String(tournament.spotsLeft)} icon={<Users className="size-4" />} />
             )}
           </dl>
+
+          {/* The organiser's own rules — schedule, categories, prizes. A
+              parent deciding whether to enter should be able to read them
+              without asking the desk for a copy. */}
+          {tournament.hasRegulation && (
+            <a
+              href={`/api/tournaments/${tournament.id}/regulation`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex min-h-[54px] w-full items-center gap-3 rounded-xl border border-[#cbdcf6] bg-[#f4f8ff] px-4 text-[13px] font-semibold text-pp-blue transition-colors duration-150 hover:border-pp-blue"
+            >
+              <span className="flex size-8 items-center justify-center rounded-lg bg-white shadow-sm"><FileText className="size-4" aria-hidden /></span>
+              <span className="flex flex-1 flex-col"><strong>{t("regulation")}</strong><span className="text-[11px] font-normal text-pp-muted">{t("regulationHint")}</span></span>
+              <span className="rounded-lg border border-[#cbdcf6] bg-white px-3 py-1.5 text-[11px] font-bold">{t("viewRegulation")}</span>
+            </a>
+          )}
         </PublicCard>
 
         {tournament.open ? (
@@ -108,6 +137,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
             fee={tournament.fee}
             studentFee={tournament.studentFee}
             discountPct={tournament.studentDiscountPct}
+            startDate={tournament.startDate}
           />
         ) : (
           <PublicCard>
@@ -132,17 +162,14 @@ function money(amount: number, locale = "en"): string {
   }).format(amount);
 }
 
-function Fact({ label, value, note }: { label: string; value: string; note?: string }) {
+function Fact({ label, value, note, icon }: { label: string; value: string; note?: string; icon?: React.ReactNode }) {
   return (
     /* The note lives inside the <dd>, not beside it: a <div> inside a <dl> may
        only hold <dt>/<dd> pairs, and a stray <p> there is invalid markup that
        screen readers read out of order. */
-    <div>
-      <dt className="text-[11px] font-semibold uppercase tracking-wide text-pp-muted">{label}</dt>
-      <dd className="mt-0.5 text-[15px] font-semibold text-pp-ink">
-        {value}
-        {note && <span className="block text-[11.5px] font-normal text-pp-muted">{note}</span>}
-      </dd>
+    <div className="rounded-xl border border-pp-line bg-[#fbfdff] p-3">
+      <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-pp-muted"><span className="text-pp-blue">{icon}</span>{label}</dt>
+      <dd className="mt-1 text-[14px] font-semibold text-pp-ink">{value}{note && <span className="block text-[10.5px] font-normal text-pp-muted">{note}</span>}</dd>
     </div>
   );
 }
