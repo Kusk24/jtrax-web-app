@@ -79,7 +79,7 @@ export default function ParentAttendanceV2() {
               name={c.name}
               photo={c.photo}
               tint={c.avBg}
-              className="aspect-[1.3] w-full"
+              className="aspect-[1.3] w-full md:h-32 md:aspect-auto"
               initialClassName="text-[44px]"
             />
             <div className="flex flex-col gap-2 px-3.5 pb-3.5 pt-3">
