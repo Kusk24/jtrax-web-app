@@ -24,15 +24,17 @@ export function PublicShell({
   children,
   title,
   subtitle,
+  wide = false,
 }: {
   children: ReactNode;
   title: string;
   subtitle?: string;
+  wide?: boolean;
 }) {
   return (
     <div className={`${dmSans.variable} ${poppins.variable} min-h-dvh bg-pp-mist font-pp-sans text-pp-ink`}>
-      <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-        <header className="mb-6 text-center">
+      <main className={`mx-auto w-full px-4 py-8 sm:px-6 sm:py-10 ${wide ? "max-w-5xl" : "max-w-3xl"}`}>
+        <header className={`mb-6 ${wide ? "text-left" : "text-center"}`}>
           {/* pp-sub, not pp-muted: this sits on the mist background, where
               pp-muted measures 4.49:1 and misses the 4.5:1 floor by a hair. */}
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-pp-sub">

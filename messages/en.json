@@ -418,6 +418,12 @@
     }
   },
   "register": {
+    "playerSection": "Player & Contact Information",
+    "affiliationSection": "Affiliation & Category",
+    "summarySection": "Review & Submit",
+    "regulationHint": "Please review the official tournament rules before registering.",
+    "viewRegulation": "View rules",
+    "requestHint": "Submitting sends a registration request to the academy. Payment and place confirmation follow separately.",
     "indexTitle": "Open tournaments",
     "indexSub": "Anyone may enter. Pick an event to register.",
     "indexEmpty": "No tournaments are open for registration right now.",

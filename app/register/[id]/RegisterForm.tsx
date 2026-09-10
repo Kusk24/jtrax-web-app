@@ -15,6 +15,7 @@
  */
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { BadgeCheck, Check, CreditCard, UserRound } from "lucide-react";
 import { categoryAllows, registerForTournament, type PublicCategory } from "@/lib/registration";
 import { PublicCard } from "@/components/public/PublicShell";
 
@@ -109,10 +110,9 @@ export function RegisterForm({
   }
 
   return (
-    <PublicCard>
-      <h2 className="font-pp-display text-lg font-bold text-pp-navy">{t("formTitle")}</h2>
-
-      <form onSubmit={submit} className="mt-4 flex flex-col gap-3.5" noValidate>
+    <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+      <Section number="1" title={t("playerSection")} icon={<UserRound className="size-4" />}>
+        <div className="grid gap-3.5 sm:grid-cols-2">
         <Labelled label={t("name")} htmlFor="reg-name" required>
           <input
             id="reg-name" className={field} value={name} required
@@ -122,23 +122,6 @@ export function RegisterForm({
           />
         </Labelled>
 
-        <Labelled label={t("email")} htmlFor="reg-email" required hint={t("emailHint")}>
-          <input
-            id="reg-email" className={field} value={email} required
-            type="email" inputMode="email" autoComplete="email" maxLength={254}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@example.com"
-          />
-        </Labelled>
-
-        <div className="grid gap-3.5 sm:grid-cols-2">
-          <Labelled label={t("phone")} htmlFor="reg-phone">
-            <input
-              id="reg-phone" className={field} value={phone}
-              type="tel" inputMode="tel" autoComplete="tel" maxLength={32}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </Labelled>
           <Labelled label={t("dateOfBirth")} htmlFor="reg-dob" hint={t("dateOfBirthHint")}>
             <input
               id="reg-dob" className={field} value={dateOfBirth} type="date"
@@ -146,8 +129,27 @@ export function RegisterForm({
             />
           </Labelled>
         </div>
+        <div className="mt-3.5 grid gap-3.5 sm:grid-cols-2">
+          <Labelled label={t("email")} htmlFor="reg-email" required hint={t("emailHint")}>
+            <input
+              id="reg-email" className={field} value={email} required
+              type="email" inputMode="email" autoComplete="email" maxLength={254}
+              onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com"
+            />
+          </Labelled>
+          <Labelled label={t("phone")} htmlFor="reg-phone">
+            <input
+              id="reg-phone" className={field} value={phone}
+              type="tel" inputMode="tel" autoComplete="tel" maxLength={32}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </Labelled>
+        </div>
+      </Section>
 
-        {categories.length > 0 && (
+      <Section number="2" title={t("affiliationSection")} icon={<BadgeCheck className="size-4" />}>
+        <div className="grid gap-3.5 md:grid-cols-2 md:items-start">
+          {categories.length > 0 && (
           <Labelled label={t("category")} htmlFor="reg-cat">
             <select
               id="reg-cat" className={`${field} cursor-pointer`} value={categoryId}
@@ -173,10 +175,10 @@ export function RegisterForm({
               </p>
             )}
           </Labelled>
-        )}
+          )}
 
-        {discountPct > 0 && (
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-pp-line bg-pp-mist p-3 transition-colors duration-150 hover:border-pp-blue">
+          {discountPct > 0 && (
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#cbdcf6] bg-[#f4f8ff] p-3 transition-colors duration-150 hover:border-pp-blue">
             <input
               type="checkbox" checked={isStudent}
               onChange={(e) => setIsStudent(e.target.checked)}
@@ -209,17 +211,20 @@ export function RegisterForm({
               )}
             </span>
           </label>
-        )}
+          )}
+        </div>
+      </Section>
 
+      <Section number="3" title={t("summarySection")} icon={<CreditCard className="size-4" />}>
         {error && (
           <p role="alert" className="rounded-xl bg-pp-red-soft px-3 py-2.5 text-[13.5px] font-semibold text-pp-danger">
             {error}
           </p>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-pp-line pt-4">
-          <span className="text-[15px] text-pp-muted">
-            {t("youPay")} <strong className="text-pp-ink">{money(payable)}</strong>
+        <div className="grid gap-3 md:grid-cols-[1fr_1.2fr] md:items-center">
+          <span className="rounded-xl bg-[#f4f8ff] px-4 py-3 text-[13px] text-pp-muted">
+            {t("youPay")} <strong className="ml-1 text-[22px] text-pp-navy">{money(payable)}</strong>
           </span>
           <button
             type="submit"
@@ -227,13 +232,26 @@ export function RegisterForm({
                proceed to registration or payment. The backend refuses it
                regardless; this stops the journey earlier. */
             disabled={busy || categoryBlocked}
-            className="min-h-[44px] cursor-pointer rounded-xl bg-pp-blue px-6 text-[15px] font-semibold text-white transition-colors duration-150 hover:bg-pp-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-pp-blue px-6 text-[14px] font-semibold text-white shadow-[0_8px_18px_rgba(46,92,184,.2)] transition-colors duration-150 hover:bg-pp-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {busy ? t("sending") : t("submit")}
+            {busy ? t("sending") : <><Check className="size-4" />{t("submit")}</>}
           </button>
         </div>
-      </form>
-    </PublicCard>
+        <p className="mt-2 text-[10.5px] text-pp-muted">{t("requestHint")}</p>
+      </Section>
+    </form>
+  );
+}
+
+function Section({ number, title, icon, children }: { number: string; title: string; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-pp-line bg-white p-4 shadow-[0_4px_16px_rgba(35,53,94,.05)] sm:p-5">
+      <div className="mb-4 flex items-center gap-2.5 border-b border-pp-panel pb-3">
+        <span className="flex size-7 items-center justify-center rounded-lg bg-[#edf4ff] text-[11px] font-bold text-pp-blue">{number}</span>
+        <span className="flex items-center gap-2 font-pp-display text-[15px] font-bold text-pp-navy">{icon}{title}</span>
+      </div>
+      {children}
+    </section>
   );
 }
 
