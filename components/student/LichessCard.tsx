@@ -134,12 +134,12 @@ export function LichessCard() {
   }
 
   const card =
-    "w-[352px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.58)]";
-  const inner = "rounded-[16px] bg-sv-cream px-4 py-3.5 shadow-[inset_0_0_0_1px_rgb(206,219,236)]";
+    "w-full rounded-[18px] border border-[#dce8f8] bg-white shadow-[0_7px_20px_rgba(37,99,235,.06)]";
+  const inner = "rounded-[18px] bg-white px-4 py-3.5";
   const field =
-    "w-full rounded-xl border-none bg-sv-paper px-3 py-2.5 text-[14px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] outline-none placeholder:font-normal placeholder:opacity-40 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]";
+    "w-full rounded-xl border border-[#dce8f8] bg-[#f8fbff] px-3 py-2.5 text-[13px] font-bold text-[#10264d] outline-none placeholder:font-normal placeholder:text-[#9aabc2] focus:border-[#2563eb]";
   const button =
-    "cursor-pointer rounded-[16px] border-none bg-sv-primary px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
+    "cursor-pointer rounded-xl border-none bg-[#2563eb] px-4 py-2.5 text-[12px] font-bold text-white shadow-[0_6px_14px_rgba(37,99,235,.18)] disabled:opacity-60";
 
   if (loading) {
     return (

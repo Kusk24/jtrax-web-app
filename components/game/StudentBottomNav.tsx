@@ -14,9 +14,10 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Gamepad2, Home, Puzzle, Swords, UserRound } from "lucide-react";
 
 const item =
-  "flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors duration-150";
+  "flex cursor-pointer flex-col items-center justify-center gap-1 text-[8.5px] font-semibold transition-colors duration-150";
 
 export function StudentBottomNav() {
   const pathname = usePathname();
@@ -29,42 +30,28 @@ export function StudentBottomNav() {
   const tch = useTranslations("challenge");
   const onStudent = pathname === "/student";
   const on = (href: string) => pathname.startsWith(href);
-  const ink = (active: boolean) => (active ? "rgb(36,65,124)" : "rgb(53,85,117)");
+  const ink = (active: boolean) => (active ? "text-[#2563eb]" : "text-[#91a2bc]");
 
   return (
     <nav
       /* z-20: the shell's scroll area is z-10 and reaches under this bar (its
          pb-[104px] reserves the space) — without a higher layer every nav item
          is visually present and completely unclickable. */
-      className="absolute bottom-[24px] left-[25px] z-20 flex h-[70px] w-[340px] items-center justify-around rounded-[25px] bg-sv-cream shadow-[inset_0_0_0_1.25px_rgb(216,226,240),0_0_0_1.25px_rgb(216,226,240)]">
-      <Link href="/student" aria-label={t("home")} className={item}>
-        <svg width="26" height="24" viewBox="0 0 26 24" fill="none">
-          <path d="M13 1.5L2 10.5V22.5H10V15.5H16V22.5H24V10.5L13 1.5Z" fill={ink(onStudent && !screen)} stroke={ink(onStudent && !screen)} strokeWidth="1.5" strokeLinejoin="round" />
-        </svg>
+      className="absolute inset-x-0 bottom-0 z-20 grid h-[72px] grid-cols-5 border-t border-[#e1eaf6] bg-white px-2 pb-1 shadow-[0_-8px_24px_rgba(37,99,235,.04)]">
+      <Link href="/student" aria-label={t("home")} className={`${item} ${ink(onStudent && !screen)}`}>
+        <Home className="size-[18px]" strokeWidth={onStudent && !screen ? 2.6 : 2} />{t("home")}
       </Link>
-      <Link href="/student?screen=puzzles" aria-label={t("puzzles")} className={item}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M10 3a2 2 0 1 1 4 0v1h3a1 1 0 0 1 1 1v3h1a2 2 0 1 1 0 4h-1v3a1 1 0 0 1-1 1h-3v-1a2 2 0 1 0-4 0v1H6a1 1 0 0 1-1-1v-3H4a2 2 0 1 1 0-4h1V5a1 1 0 0 1 1-1h4V3Z" fill={ink(onStudent && screen === "puzzles")} />
-        </svg>
+      <Link href="/student?screen=puzzles" aria-label={t("puzzles")} className={`${item} ${ink(onStudent && screen === "puzzles")}`}>
+        <Puzzle className="size-[18px]" strokeWidth={onStudent && screen === "puzzles" ? 2.6 : 2} />{t("puzzles")}
       </Link>
-      <Link href="/student/challenge" aria-label={tch("title")} className={item}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={ink(on("/student/challenge"))} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M14.5 14.5 21 21M21 3l-8 8M3 21l8-8M9.5 9.5 3 3" />
-          <path d="M18 3h3v3M6 3H3v3" />
-        </svg>
+      <Link href="/student/challenge" aria-label={tch("title")} className={`${item} ${ink(on("/student/challenge"))}`}>
+        <Swords className="size-[18px]" strokeWidth={on("/student/challenge") ? 2.6 : 2} />{tch("title")}
       </Link>
-      <Link href="/student/play" aria-label={tp("title")} className={item}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M8 21h9v-1.6c0-4.2-1.5-5.6-3.4-7.1l1.1-2.2-2.4 1.1-1.6-1.9 3-2.6-1-2.2L9.6 6 8.2 4.3 7 6.6 5.4 9.9c-.5 1 .1 2.1 1.2 2.2l1.6.2-1.5 2.4c-.5.9-.7 1.9-.7 2.9V21z"
-            fill={ink(on("/student/play"))} stroke={ink(on("/student/play"))} strokeWidth="1.2" strokeLinejoin="round" />
-        </svg>
+      <Link href="/student/play" aria-label={tp("title")} className={`${item} ${ink(on("/student/play"))}`}>
+        <Gamepad2 className="size-[18px]" strokeWidth={on("/student/play") ? 2.6 : 2} />{tp("title")}
       </Link>
-      <Link href="/student?screen=profile" aria-label={t("profile")} className={item}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10.5" stroke={ink(onStudent && screen === "profile")} strokeWidth="1.6" />
-          <circle cx="12" cy="9.5" r="3.2" fill={ink(onStudent && screen === "profile")} />
-          <path d="M4.5 19C5.8 15.8 8.6 14.5 12 14.5C15.4 14.5 18.2 15.8 19.5 19" stroke={ink(onStudent && screen === "profile")} strokeWidth="1.8" strokeLinecap="round" fill="none" />
-        </svg>
+      <Link href="/student?screen=profile" aria-label={t("profile")} className={`${item} ${ink(onStudent && screen === "profile")}`}>
+        <UserRound className="size-[18px]" strokeWidth={onStudent && screen === "profile" ? 2.6 : 2} />{t("profile")}
       </Link>
     </nav>
   );

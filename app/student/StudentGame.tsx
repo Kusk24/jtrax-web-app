@@ -1,10 +1,26 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Check, Flame, LogOut, Star, X } from "lucide-react";
+import {
+  BarChart3,
+  Bot,
+  Check,
+  ChevronRight,
+  Flame,
+  Gamepad2,
+  GraduationCap,
+  Home,
+  LogOut,
+  Puzzle,
+  Star,
+  Swords,
+  Trophy,
+  UserRound,
+  Users,
+  X,
+} from "lucide-react";
 import { getMyLichess } from "@/lib/lichess";
 import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournaments";
 import { LichessCard } from "@/components/student/LichessCard";
@@ -36,26 +52,48 @@ function PuzzlePieceIcon({ fill, size = 20 }: { fill: string; size?: number }) {
   );
 }
 
-/* Living-room props shared by the home and feed screens. */
+/* Compact stat cards shared by the reference home and profile screens. */
 function StatTile({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="flex flex-1 items-center gap-2.5 rounded-[18px] bg-sv-cream px-3.5 py-3 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sv-gold text-sv-ink">{icon}</span>
+    <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[15px] border border-[#dce8f8] bg-white px-3 py-2.5 shadow-[0_6px_18px_rgba(37,99,235,.07)]">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#edf4ff] text-[#2563eb]">{icon}</span>
       <span className="flex min-w-0 flex-col">
-        <span className="text-[17px] font-bold leading-none">{value}</span>
-        <span className="truncate text-[11.5px] text-sv-body">{label}</span>
+        <span className="text-[16px] font-bold leading-none text-[#10264d]">{value}</span>
+        <span className="mt-1 truncate text-[10.5px] font-semibold text-[#7083a3]">{label}</span>
       </span>
     </div>
   );
 }
 
-function HomeAction({ href, label }: { href: string; label: string }) {
+function HomeAction({
+  href,
+  label,
+  body,
+  icon,
+  tone,
+}: {
+  href: string;
+  label: string;
+  body: string;
+  icon: React.ReactNode;
+  tone: "mint" | "lilac";
+}) {
   return (
     <Link
       href={href}
-      className="flex min-h-[52px] flex-1 items-center justify-center rounded-[18px] bg-sv-cream text-[15px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] transition-colors duration-150 hover:bg-sv-gold"
+      className={`flex min-h-[116px] min-w-0 flex-1 flex-col items-start justify-between rounded-[18px] border p-3.5 text-[#10264d] shadow-[0_8px_22px_rgba(37,99,235,.06)] transition-colors duration-150 ${
+        tone === "mint"
+          ? "border-[#c7eadf] bg-[#ebfaf5] hover:bg-[#ddf7ee]"
+          : "border-[#e2d9fb] bg-[#f3efff] hover:bg-[#ebe4ff]"
+      }`}
     >
-      {label}
+      <span className="flex size-10 items-center justify-center rounded-[13px] bg-white shadow-[0_3px_10px_rgba(37,99,235,.09)]">
+        {icon}
+      </span>
+      <span>
+        <span className="block text-[14px] font-bold">{label}</span>
+        <span className="mt-0.5 block text-[10.5px] leading-snug text-[#7083a3]">{body}</span>
+      </span>
     </Link>
   );
 }
@@ -271,30 +309,27 @@ export default function StudentGame() {
 
   const legal = selected ? legalMovesFor(board, selected[0], selected[1]) : [];
 
-  const navItems = [
-    { key: "home", active: screen === "home", color: screen === "home" ? "rgb(36,65,124)" : "rgb(53,85,117)" },
-    {
-      key: "puzzles",
-      active: screen === "puzzles" || screen === "puzzle",
-      color: screen === "puzzles" || screen === "puzzle" ? "rgb(58,93,165)" : "rgb(36,65,124)",
-    },
-    { key: "profile", active: screen === "profile", color: screen === "profile" ? "rgb(53,85,117)" : "rgb(36,65,124)" },
-  ] as const;
+  const name = record?.name ?? me?.displayName ?? "";
+  const firstName = name.trim().split(/\s+/)[0] || name;
 
   return (
-    <div className="relative h-[844px] w-[390px] shrink-0 overflow-hidden bg-sv-paper text-sv-ink sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(36,65,124,0.28)]">
-      {/* The academy's own colours rather than a picture of a room. The cottage
-          art was warm raster and no palette change could reach it. */}
-      <div className="absolute inset-x-0 top-0 h-[300px] bg-[linear-gradient(180deg,#24417C_0%,#3A5DA5_58%,#F7FAFD_100%)]" />
+    <div className="relative h-[844px] w-[390px] shrink-0 overflow-hidden bg-[#eef5ff] text-[#10264d] sm:rounded-[32px] sm:shadow-[0_24px_70px_rgba(30,64,175,.22)]">
+      <div className="pointer-events-none absolute -right-20 -top-20 size-[250px] rounded-full bg-[radial-gradient(circle,#dbeafe_0%,rgba(219,234,254,0)_70%)]" />
+
+      {screen !== "puzzle" && (
+        <div className="absolute inset-x-0 top-0 z-10 flex h-[48px] items-end justify-center pb-1.5 text-[11px] font-semibold tracking-[.02em] text-[#60779c]">
+          {t("brand")}
+        </div>
+      )}
 
       {/* The Lichess rating, synced. Absent rather than zero when there is no
           linked account: a rating of 0 is a claim about how well a child plays,
           and an empty corner is not. */}
-      {rating && (
-        <div className="absolute right-5 top-12 flex items-center gap-1.5 rounded-[20px] bg-sv-cream px-3 py-1.5 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
-          <Star className="size-[15px] fill-sv-accent text-sv-accent" strokeWidth={1.5} />
+      {rating && screen === "home" && (
+        <div className="absolute right-5 top-[54px] z-10 flex items-center gap-1.5 rounded-full border border-[#dbe7f8] bg-white px-3 py-1.5 shadow-[0_5px_14px_rgba(37,99,235,.08)]">
+          <Star className="size-[14px] fill-[#f4b942] text-[#d99a16]" strokeWidth={1.5} />
           <span className="text-sm font-bold">{rating.value}</span>
-          <span className="text-[11px] font-bold uppercase tracking-wide text-sv-body">
+          <span className="text-[10px] font-bold uppercase tracking-wide text-[#7083a3]">
             {tl(`perf.${rating.perf}`)}
           </span>
         </div>
@@ -302,47 +337,93 @@ export default function StudentGame() {
 
       {/* ---------------- HOME ---------------- */}
       {screen === "home" && (
-        /* Laid out in flow, not at absolute coordinates. The old home screen
-           pinned its one card to top-449 because a cat and a sofa occupied
-           everything above it; with those gone the same coordinates left a
-           320px hole between the heading and the card. */
-        <div className="absolute inset-x-0 bottom-[104px] top-0 flex flex-col gap-3.5 overflow-y-auto px-[25px] pb-4 pt-[44px]">
-          <h1 className="font-sv-display text-[32px] font-bold leading-tight text-white">
-            {t("home")}
-          </h1>
-          <p className="-mt-2 text-sm font-bold text-white/85">
-            {record?.name ?? me?.displayName ?? ""}
-          </p>
+        <div className="absolute inset-x-0 bottom-[72px] top-[48px] flex flex-col gap-3 overflow-y-auto px-4 pb-5 pt-3 [scrollbar-width:none]">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="truncate font-sv-display text-[24px] font-bold leading-tight text-[#10264d]">
+                {t("greeting", { name: firstName })}
+              </h1>
+              <p className="mt-1 text-[11px] text-[#7083a3]">{t("greetingSub")}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => go("profile")}
+              aria-label={t("profile")}
+              className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#dbeafe] font-sv-display text-[15px] font-bold text-[#2563eb] shadow-[0_6px_16px_rgba(37,99,235,.13)]"
+            >
+              {name.trim().charAt(0).toUpperCase() || "S"}
+            </button>
+          </div>
 
-          <div className="mt-1 flex gap-3.5">
-            <StatTile label={t("streakLabel")} value={String(streak)} icon={<Flame className="size-[18px]" strokeWidth={2.4} />} />
-            <StatTile label={t("dailyChallenge")} value={`${solvedCount}/3`} icon={<PuzzlePieceIcon fill="rgb(36,65,124)" size={18} />} />
+          <div className="flex gap-2.5">
+            <StatTile label={t("streakLabel")} value={String(streak)} icon={<Flame className="size-[18px] text-[#f59e0b]" strokeWidth={2.4} />} />
+            <StatTile label={t("dailyChallenge")} value={`${solvedCount}/3`} icon={<Puzzle className="size-[18px]" strokeWidth={2.2} />} />
           </div>
 
           {/* Daily challenge */}
-          <div className="rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236)]">
-            <div className="flex flex-col items-center gap-2.5 rounded-[16px] bg-sv-cream px-4 py-5">
-              <h2 className="text-center text-[22px] font-bold">
-                {isDailyDone ? t("missionComplete") : t("dailyChallenge")}
-              </h2>
-              <span className="text-center text-sm font-bold text-sv-body">
-                {isDailyDone ? t("keepStreak") : t("puzzlesCount", { n: solvedCount })}
+          <div className="relative overflow-hidden rounded-[20px] border border-[#f3dda9] bg-[#fff8e8] p-4 shadow-[0_8px_20px_rgba(180,120,20,.08)]">
+            <div className="pointer-events-none absolute -right-5 -top-5 size-24 rounded-full bg-[#ffebae]" />
+            <div className="relative flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-[14px] font-bold text-[#10264d]">
+                  {isDailyDone ? t("missionComplete") : t("todaysChallenge")}
+                </h2>
+                <span className="mt-1 block text-[10.5px] text-[#8a6a28]">
+                  {isDailyDone ? t("keepStreak") : t("challengeHint")}
+                </span>
+              </div>
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#ffd45c] shadow-[0_5px_14px_rgba(180,120,20,.16)]">
+                <Trophy className="size-6 text-[#9a6800]" strokeWidth={2.2} />
               </span>
+            </div>
+            <div className="relative mt-3">
+              <div className="flex items-center justify-between text-[10px] font-semibold text-[#6f7788]">
+                <span>{t("puzzlesCount", { n: solvedCount })}</span>
+                <span>{Math.round((solvedCount / 3) * 100)}%</span>
+              </div>
+              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f6e4aa]">
+                <div className="h-full rounded-full bg-[#f4be2c] transition-[width] duration-300" style={{ width: `${(solvedCount / 3) * 100}%` }} />
+              </div>
               <button
                 onClick={() => go("puzzles")}
-                className={`${actionBtn} mt-1 flex min-h-[44px] w-[181px] items-center justify-center gap-2 text-base`}
+                className="mt-3 flex min-h-[40px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-none bg-[#2563eb] text-[12px] font-bold text-white shadow-[0_7px_16px_rgba(37,99,235,.2)]"
               >
-                {isDailyDone ? <PuzzlePieceIcon fill="#fff" size={18} /> : null}
-                <span>{isDailyDone ? t("freePlay") : t("start")}</span>
+                <span>{isDailyDone ? t("freePlay") : t("startChallenge")}</span>
+                <ChevronRight className="size-4" strokeWidth={2.4} />
               </button>
             </div>
           </div>
 
           {/* The two things a pupil comes here to do, rather than a blank
               stretch of wall where the cat used to sit. */}
-          <div className="flex gap-3.5">
-            <HomeAction href="/student/play" label={tp("title")} />
-            <HomeAction href="/student/challenge" label={tch("title")} />
+          <div className="flex gap-2.5">
+            <HomeAction
+              href="/student/play"
+              label={tp("title")}
+              body={t("practiceComputer")}
+              tone="mint"
+              icon={<Bot className="size-5 text-[#15906b]" strokeWidth={2.2} />}
+            />
+            <HomeAction
+              href="/student/challenge"
+              label={t("playFriend")}
+              body={t("playTogether")}
+              tone="lilac"
+              icon={<Users className="size-5 text-[#7457d7]" strokeWidth={2.2} />}
+            />
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-[12px] font-bold text-[#10264d]">{t("myProgress")}</h2>
+              <button type="button" onClick={() => go("profile")} className="cursor-pointer border-none bg-transparent text-[10px] font-bold text-[#2563eb]">
+                {t("viewAll")}
+              </button>
+            </div>
+            <div className="flex gap-2.5">
+              <StatTile label={t("ratingLabel")} value={rating ? String(rating.value) : t("unrated")} icon={<BarChart3 className="size-[18px]" strokeWidth={2.2} />} />
+              <StatTile label={t("dailyChallenge")} value={`${solvedCount}/3`} icon={<Star className="size-[18px] text-[#f59e0b]" strokeWidth={2.1} />} />
+            </div>
           </div>
 
           {liveTournament && (
@@ -363,11 +444,18 @@ export default function StudentGame() {
       )}
 
       {screen === "puzzles" && (
-        <>
-          <h1 className="absolute left-[25px] top-[43px] font-sv-display text-[32px] font-bold text-white">{t("puzzles")}</h1>
-          <div className="absolute left-[18px] top-[126px] h-[604px] w-[354px] overflow-hidden rounded-3xl bg-sv-gold p-[18px] shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
+        <div className="absolute inset-x-0 bottom-[72px] top-[48px] overflow-y-auto px-4 pb-5 pt-4 [scrollbar-width:none]">
+          <div className="flex items-end justify-between">
+            <div>
+              <h1 className="font-sv-display text-[27px] font-bold leading-none text-[#10264d]">{t("puzzles")}</h1>
+              <p className="mt-1.5 text-[11px] text-[#7083a3]">{t("puzzlesSub")}</p>
+            </div>
+            <Puzzle className="mb-1 size-10 fill-[#bfe0ff] text-[#79b7ee]" strokeWidth={1.8} />
+          </div>
+
+          <div className="mt-4">
             {/* Tabs */}
-            <div className="flex h-12 w-full gap-1 rounded-3xl bg-sv-cream p-1 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
+            <div className="flex h-11 w-full gap-1.5 rounded-[14px] bg-[#dce9f8] p-1">
               {(
                 [
                   ["daily", t("daily")],
@@ -377,42 +465,55 @@ export default function StudentGame() {
                 <button
                   key={k}
                   onClick={() => setTab(k)}
-                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[20px] border-none text-[15px] font-bold"
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[11px] border-none text-[12px] font-bold transition-colors"
                   style={{
-                    background: tab === k ? "#fff" : "transparent",
-                    boxShadow: tab === k ? "inset 0 0 0 1.5px rgb(206,219,236)" : "none",
-                    /* The inactive tab changes colour rather than fading: navy
-                       at 60% opacity measures 3.33:1 on white. */
-                    color: tab === k ? "rgb(36,65,124)" : "rgb(53,85,117)",
+                    background: tab === k ? "#2563eb" : "rgba(255,255,255,.78)",
+                    boxShadow: tab === k ? "0 5px 12px rgba(37,99,235,.18)" : "none",
+                    color: tab === k ? "white" : "#536b91",
                   }}
                 >
                   {k === "daily" ? (
-                    <Flame className="size-[18px]" strokeWidth={2.4} style={{ color: tab === "daily" ? "rgb(36,65,124)" : "rgb(53,85,117)" }} />
+                    <Flame className="size-[16px]" strokeWidth={2.4} style={{ color: tab === "daily" ? "#ffd45c" : "#536b91" }} />
                   ) : (
-                    <PuzzlePieceIcon fill={tab === "free" ? "rgb(58,93,165)" : "rgb(36,65,124)"} size={18} />
+                    <PuzzlePieceIcon fill={tab === "free" ? "white" : "#536b91"} size={16} />
                   )}
                   <span>{lbl}</span>
                 </button>
               ))}
             </div>
             {/* Cards */}
-            <div className="mt-[18px] flex flex-col gap-3.5">
+            <div className="mt-3.5 rounded-[18px] border border-[#dce8f8] bg-white p-3 shadow-[0_8px_22px_rgba(37,99,235,.07)]">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[13px] font-bold text-[#10264d]">{tab === "daily" ? t("dailyChallenge") : t("freePlay")}</p>
+                  <p className="mt-0.5 text-[10px] text-[#7083a3]">{t("puzzlesCount", { n: solvedCount })}</p>
+                </div>
+                <span className="flex size-8 items-center justify-center rounded-xl bg-[#edf4ff] text-[#2563eb]">
+                  <Puzzle className="size-4" strokeWidth={2.2} />
+                </span>
+              </div>
+              <div className="mb-4 h-2 overflow-hidden rounded-full bg-[#dce8f8]">
+                <div className="h-full rounded-full bg-[#2563eb] transition-[width]" style={{ width: `${(solvedCount / 3) * 100}%` }} />
+              </div>
+              <div className="flex flex-col gap-2.5">
               {tab === "daily"
                 ? [0, 1, 2].map((i) => (
                     <button
                       key={i}
                       onClick={() => loadPuzzle(i)}
-                      className="flex h-[78px] w-full cursor-pointer items-center gap-4 rounded-[18px] border-none bg-sv-cream px-5 text-left shadow-[inset_0_0_0_1px_rgb(206,219,236)]"
+                      className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 text-left shadow-[0_4px_12px_rgba(37,99,235,.05)] transition hover:border-[#bed5f5] hover:bg-[#f8fbff]"
                     >
-                      <span className="flex text-[rgb(36,65,124)]">
-                        <span className="-mr-1.5 text-3xl">♟</span>
-                        <span className="text-3xl">♜</span>
+                      <span className={`flex size-10 items-center justify-center rounded-xl ${i === 0 ? "bg-[#edf4ff]" : i === 1 ? "bg-[#ebfaf5]" : "bg-[#fff2ea]"}`}>
+                        <span className="text-[22px] text-[#10264d]">{i === 0 ? "♟" : i === 1 ? "♞" : "♜"}</span>
                       </span>
-                      <span className="flex-1 text-base font-bold text-sv-ink">{t("puzzleN", { n: i + 1 })}</span>
+                      <span className="flex flex-1 flex-col">
+                        <span className="text-[13px] font-bold text-[#10264d]">{t("puzzleN", { n: i + 1 })}</span>
+                        <span className="text-[10px] text-[#8292ad]">{puzzlesSolved[i] ? t("solvedLabel") : t("notSolved")}</span>
+                      </span>
                       {puzzlesSolved[i] ? (
-                        <Check className="size-5 text-[rgb(47,107,79)]" strokeWidth={3} />
+                        <span className="flex size-7 items-center justify-center rounded-full bg-[#e4f7ef]"><Check className="size-4 text-[#15906b]" strokeWidth={3} /></span>
                       ) : (
-                        <span className="text-base font-bold text-sv-ink">x1</span>
+                        <span className="flex items-center gap-1 rounded-full bg-[#edf4ff] px-2 py-1 text-[10px] font-bold text-[#2563eb]">+1 <Star className="size-3 fill-[#7eb6ff]" /></span>
                       )}
                     </button>
                   ))
@@ -425,13 +526,12 @@ export default function StudentGame() {
                   ).map(([title, n]) => (
                     <div
                       key={title}
-                      className="flex h-[78px] w-full cursor-pointer items-center gap-4 rounded-[18px] bg-sv-cream px-5 shadow-[inset_0_0_0_1px_rgb(206,219,236)]"
+                      className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 shadow-[0_4px_12px_rgba(37,99,235,.05)]"
                     >
-                      <span className="flex text-[rgb(36,65,124)]">
-                        <span className="-mr-1.5 text-3xl">♟</span>
-                        <span className="text-3xl">♜</span>
+                      <span className="flex size-10 items-center justify-center rounded-xl bg-[#edf4ff] text-[22px] text-[#10264d]">
+                        ♞
                       </span>
-                      <span className="flex-1 text-base font-bold text-sv-ink">{title}</span>
+                      <span className="flex-1 text-[13px] font-bold text-[#10264d]">{title}</span>
                       <span className="flex gap-0.5">
                         {Array.from({ length: n }, (_, i) => (
                           <Star key={i} className="size-[18px] fill-[#f2b632] text-[#c78a1d]" strokeWidth={1.5} />
@@ -439,9 +539,10 @@ export default function StudentGame() {
                       </span>
                     </div>
                   ))}
+              </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* ---------------- PUZZLE BOARD ---------------- */}
@@ -450,12 +551,12 @@ export default function StudentGame() {
           <button onClick={() => go("puzzles")} aria-label={t("back")} className="absolute left-5 top-[46px] z-[2] cursor-pointer border-none bg-transparent text-[22px] font-bold text-sv-ink">
             ←
           </button>
-          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-bold text-white">
+          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-bold text-[#10264d]">
             {t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
           {/* Sits on the navy wash with the heading, so it is white like the
               heading — `sv-body` here measured 3.9 luminance spread, i.e. gone. */}
-          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-white/90">{t("whiteToMove")}</div>
+          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-[#60779c]">{t("whiteToMove")}</div>
 
           <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
             <div className="relative mb-1 flex w-full justify-start">
@@ -536,87 +637,75 @@ export default function StudentGame() {
 
       {/* ---------------- PROFILE ---------------- */}
       {screen === "profile" && (
-        <>
-          <h1 className="absolute left-[21px] top-[51px] font-sv-display text-[32px] font-bold text-white">{t("profile")}</h1>
-          {/* A scrolling column rather than a stack of absolute positions.
-              Every card here used to be pinned to a measured offset, which
-              meant nothing could be added without moving all of them — and
-              there was no room left below the streak anyway. */}
-          <div className="absolute inset-x-0 bottom-[110px] top-[100px] flex flex-col items-center gap-4 overflow-y-auto px-[15px] pb-4">
-          <div className="h-[104px] w-[352px] shrink-0 rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_4px_rgba(125,87,50,0.5)]">
-            <div className="absolute left-2.5 top-[5px] flex h-[94px] w-[332px] items-center gap-3.5 rounded-[18px] bg-sv-cream pl-[18px] pr-3 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
-              <span className="flex size-[50px] shrink-0 items-center justify-center rounded-full bg-sv-gold font-sv-display text-[22px] text-sv-ink shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
-                {(record?.name ?? me?.displayName ?? "?").trim().charAt(0).toUpperCase()}
+        <div className="absolute inset-x-0 bottom-[72px] top-[48px] overflow-y-auto px-4 pb-5 pt-4 [scrollbar-width:none]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-sv-display text-[27px] font-bold leading-none text-[#10264d]">{t("profile")}</h1>
+              <p className="mt-1.5 text-[10.5px] text-[#7083a3]">{t("profileSub")}</p>
+            </div>
+            <span className="flex items-center gap-1.5 rounded-full border border-[#f1dda8] bg-white px-3 py-1.5 text-[11px] font-bold text-[#10264d] shadow-sm">
+              <Trophy className="size-3.5 text-[#e2a51d]" /> {rating?.value ?? "—"}
+            </span>
+          </div>
+
+          <div className="relative mt-4 overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#1f6ae5,#2751bd)] p-4 text-white shadow-[0_12px_28px_rgba(37,99,235,.24)]">
+            <div className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full border-[18px] border-white/5" />
+            <div className="relative flex items-center gap-3">
+              <span className="flex size-12 items-center justify-center rounded-[14px] border-2 border-[#ffd45c] bg-white/10 font-sv-display text-xl font-bold">
+                {name.trim().charAt(0).toUpperCase() || "S"}
               </span>
-              <span className="flex min-w-0 flex-col items-start gap-1">
-                <span className="max-w-full truncate text-base font-bold">
-                  {record?.name ?? me?.displayName ?? "—"}
-                </span>
-                {/* An email is long and a phone is narrow, so it truncates
-                    rather than pushing the badge off the card. */}
-                <span className="max-w-full truncate text-[11.5px] text-sv-body">{me?.email ?? ""}</span>
-                <span className="rounded-[20px] bg-sv-mint px-2.5 py-[3px] text-[11px] text-sv-mint-ink shadow-[inset_0_0_0_0.5px_rgb(137,187,169),0_0_0_0.5px_rgb(137,187,169)]">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[16px] font-bold">{name || "—"}</span>
+                <span className="mt-1 inline-flex rounded-full bg-[#55d6ad]/20 px-2 py-0.5 text-[9px] font-bold text-[#a8f3d8]">
                   {record?.current_level || t("beginner")}
                 </span>
+                <span className="ml-2 text-[9px] text-white/65">#{studentId || "—"}</span>
               </span>
             </div>
           </div>
 
-          {/* Details worth checking: the id a teacher asks for, the rating, and
-              when the academy last saw you. */}
-          <div className="w-[352px] shrink-0 overflow-hidden rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.58)]">
-            <div className="rounded-[16px] bg-sv-cream px-4 py-3 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
-              {(
-                [
-                  [t("studentIdLabel"), studentId || "—"],
-                  [t("ratingLabel"), record?.fide_rating ? String(record.fide_rating) : t("unrated")],
-                  [t("lastAttendedLabel"), record?.last_attended_date || t("notYet")],
-                ] as const
-              ).map(([label, value], i) => (
-                <div
-                  key={label}
-                  className="flex items-center justify-between gap-3 py-2"
-                  style={{ borderTop: i === 0 ? "none" : "1px solid rgb(216,226,240)" }}
-                >
-                  <span className="text-[13px] text-sv-body">{label}</span>
-                  <span className="max-w-[190px] truncate text-[13px] font-bold">{value}</span>
-                </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="rounded-[16px] border border-[#f2dfaa] bg-[#fffaf0] px-2 py-3 text-center shadow-sm">
+              <Flame className="mx-auto size-5 text-[#f59e0b]" />
+              <strong className="mt-1 block text-[14px] text-[#10264d]">{streak}</strong>
+              <span className="text-[9px] font-semibold text-[#7083a3]">{t("streakLabel")}</span>
+            </div>
+            <div className="rounded-[16px] border border-[#dce8f8] bg-white px-2 py-3 text-center shadow-sm">
+              <Gamepad2 className="mx-auto size-5 text-[#2563eb]" />
+              <strong className="mt-1 block text-[14px] text-[#10264d]">{solvedCount}</strong>
+              <span className="text-[9px] font-semibold text-[#7083a3]">{t("puzzlesSolvedLabel")}</span>
+            </div>
+            <div className="rounded-[16px] border border-[#eadcf8] bg-[#fbf7ff] px-2 py-3 text-center shadow-sm">
+              <GraduationCap className="mx-auto size-5 text-[#8b5bd7]" />
+              <strong className="mt-1 block truncate text-[12px] text-[#10264d]">{record?.last_attended_date ? "1+" : "0"}</strong>
+              <span className="text-[9px] font-semibold text-[#7083a3]">{t("classesLabel")}</span>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-[18px] border border-[#dce8f8] bg-white p-3.5 shadow-[0_7px_20px_rgba(37,99,235,.06)]">
+            <div className="flex items-center gap-2 text-[13px] font-bold text-[#10264d]">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-[#fff2e8]"><Flame className="size-4 text-[#f97316]" /></span>
+              {t("dayStreak", { n: streak })}
+            </div>
+            <p className="ml-10 -mt-1 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
+            <div className="mt-3 grid grid-cols-7 gap-1.5">
+              {Array.from({ length: 7 }, (_, i) => (
+                <span key={i} className="flex flex-col items-center gap-1">
+                  <span className={`flex aspect-square w-full items-center justify-center rounded-[9px] text-[10px] font-bold ${i < Math.min(streak, 7) ? "bg-[#fb812a] text-white" : "border border-[#e1e9f4] bg-[#f8fbff] text-[#a0aec0]"}`}>
+                    {i < Math.min(streak, 7) ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
+                  </span>
+                  <span className="text-[8px] font-semibold text-[#8b9ab1]">{t(`weekday.${i}`)}</span>
+                </span>
               ))}
             </div>
           </div>
 
-          <div className="relative h-[196px] w-[352px] shrink-0 overflow-hidden rounded-[20px] bg-sv-gold shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.58)]">
-            <div className="absolute left-5 top-5 flex items-center gap-1.5 text-base font-bold">
-              <Flame className="size-[18px] fill-[#f28c33] text-[#d96c1e]" strokeWidth={1.5} />
-              <span>{t("dayStreak", { n: streak })}</span>
-            </div>
-            <div className="absolute left-5 top-14 grid w-[312px] grid-cols-7 gap-2">
-              {Array.from({ length: 21 }, (_, i) => (
-                <span
-                  key={i}
-                  className="aspect-square w-full rounded-md"
-                  style={{
-                    /* Filled squares track the real streak rather than a fixed
-                       seven, so a 3-day streak no longer draws a full week. */
-                    background: i < Math.min(streak, 21) ? "rgb(220,232,248)" : "rgb(244,247,250)",
-                    boxShadow: `inset 0 0 0 1px ${
-                      i < Math.min(streak, 21) ? "rgba(207,132,40,0.6)" : "rgba(183,192,216,0.6)"
-                    }`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+          <div className="mt-3"><LichessCard /></div>
 
-          {/* What the academy cannot otherwise see: the chess played at home. */}
-          <LichessCard />
-
-          <SignOutButton className="flex h-[54px] w-[352px] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[20px] bg-sv-cream text-base font-bold text-sv-primary shadow-[inset_0_0_0_2px_rgb(206,219,236),0_2px_4px_rgba(118,83,50,0.4)] transition-transform active:translate-y-[2px] disabled:">
-            <LogOut className="size-[18px]" />
-            {tc("signOut")}
+          <SignOutButton className="mt-3 flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] border border-[#dce8f8] bg-white text-[12px] font-bold text-[#2563eb] shadow-sm transition active:translate-y-px">
+            <LogOut className="size-4" /> {tc("signOut")}
           </SignOutButton>
           </div>
-        </>
       )}
 
       {/* All-solved celebration overlay */}
@@ -644,68 +733,12 @@ export default function StudentGame() {
         </button>
       )}
 
-      {/* Bottom nav. Profile sits last, as it does in every other portal —
-          Play is a route rather than a screen, so it is rendered in place
-          rather than driven by `go`. */}
-      <nav className="absolute left-[25px] top-[750px] flex h-[70px] w-[340px] items-center justify-around rounded-[25px] bg-sv-cream shadow-[inset_0_0_0_1.25px_rgb(216,226,240),0_0_0_1.25px_rgb(216,226,240)]">
-        {navItems.map((item) => (
-          <Fragment key={item.key}>
-            {/* A game deserves a URL, so a player who reloads mid-game lands
-                back at the board rather than the home screen. */}
-            {item.key === "profile" && (
-              <Link
-                href="/student/challenge"
-                aria-label={tch("title")}
-                className="flex size-[34px] items-center justify-center rounded-full"
-              >
-                {/* Two crossed swords: the "play someone" idea, without an
-                    emoji and without repeating the knight used for Play. */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(36,65,124)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14.5 14.5 21 21M21 3l-8 8M3 21l8-8M9.5 9.5 3 3" />
-                  <path d="M18 3h3v3M6 3H3v3" />
-                </svg>
-              </Link>
-            )}
-            {item.key === "profile" && (
-              <Link
-                href="/student/play"
-                aria-label={tp("title")}
-                className="flex size-[34px] items-center justify-center rounded-full"
-              >
-                {/* Knight — the piece a child draws when asked to draw chess. */}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M8 21h9v-1.6c0-4.2-1.5-5.6-3.4-7.1l1.1-2.2-2.4 1.1-1.6-1.9 3-2.6-1-2.2L9.6 6 8.2 4.3 7 6.6 5.4 9.9c-.5 1 .1 2.1 1.2 2.2l1.6.2-1.5 2.4c-.5.9-.7 1.9-.7 2.9V21z"
-                    fill="rgb(36,65,124)"
-                    stroke="rgb(36,65,124)"
-                    strokeWidth="1.2"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            )}
-            <button
-              onClick={() => go(item.key as Screen)}
-              aria-label={t(item.key)}
-              className="flex size-[34px] cursor-pointer items-center justify-center rounded-full border-none"
-              style={{ background: item.key === "profile" && item.active ? "rgb(220,232,248)" : "transparent" }}
-            >
-              {item.key === "home" && (
-                <svg width="26" height="24" viewBox="0 0 26 24" fill="none">
-                  <path d="M13 1.5L2 10.5V22.5H10V15.5H16V22.5H24V10.5L13 1.5Z" fill={item.color} stroke={item.color} strokeWidth="1.5" strokeLinejoin="round" />
-                </svg>
-              )}
-              {item.key === "puzzles" && <PuzzlePieceIcon fill={item.color} size={26} />}
-              {item.key === "profile" && (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10.5" stroke={item.color} strokeWidth="1.6" />
-                  <circle cx="12" cy="9.5" r="3.2" fill={item.color} />
-                  <path d="M4.5 19C5.8 15.8 8.6 14.5 12 14.5C15.4 14.5 18.2 15.8 19.5 19" stroke={item.color} strokeWidth="1.8" strokeLinecap="round" fill="none" />
-                </svg>
-              )}
-            </button>
-          </Fragment>
-        ))}
+      <nav className="absolute inset-x-0 bottom-0 z-10 grid h-[72px] grid-cols-5 border-t border-[#e1eaf6] bg-white px-2 pb-1 shadow-[0_-8px_24px_rgba(37,99,235,.04)]">
+        <button type="button" onClick={() => go("home")} className={`flex cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent text-[8.5px] font-semibold ${screen === "home" ? "text-[#2563eb]" : "text-[#91a2bc]"}`}><Home className="size-[18px]" strokeWidth={screen === "home" ? 2.6 : 2} />{t("home")}</button>
+        <button type="button" onClick={() => go("puzzles")} className={`flex cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent text-[8.5px] font-semibold ${screen === "puzzles" || screen === "puzzle" ? "text-[#2563eb]" : "text-[#91a2bc]"}`}><Puzzle className="size-[18px]" strokeWidth={screen === "puzzles" || screen === "puzzle" ? 2.6 : 2} />{t("puzzles")}</button>
+        <Link href="/student/challenge" className="flex flex-col items-center justify-center gap-1 text-[8.5px] font-semibold text-[#91a2bc]"><Swords className="size-[18px]" strokeWidth={2} />{tch("title")}</Link>
+        <Link href="/student/play" className="flex flex-col items-center justify-center gap-1 text-[8.5px] font-semibold text-[#91a2bc]"><Gamepad2 className="size-[18px]" strokeWidth={2} />{tp("title")}</Link>
+        <button type="button" onClick={() => go("profile")} className={`flex cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent text-[8.5px] font-semibold ${screen === "profile" ? "text-[#2563eb]" : "text-[#91a2bc]"}`}><UserRound className="size-[18px]" strokeWidth={screen === "profile" ? 2.6 : 2} />{t("profile")}</button>
       </nav>
     </div>
   );

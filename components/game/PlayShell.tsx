@@ -29,26 +29,22 @@ export function PlayShell({
   const tCommon = useTranslations("common");
   return (
     <div className="sv-frame">
-    <div className="relative flex h-[844px] w-[390px] flex-col overflow-hidden bg-sv-paper text-sv-ink sm:rounded-[36px] sm:shadow-[0_20px_60px_rgba(36,65,124,0.28)]">
-      {/* The academy's own colours rather than a picture of a room. The cottage
-          art was warm raster and no palette change could reach it. */}
-      <div className="absolute inset-x-0 top-0 h-[190px] bg-[linear-gradient(180deg,#24417C_0%,#3A5DA5_58%,#F7FAFD_100%)]" />
+    <div className="relative flex h-[844px] w-[390px] flex-col overflow-hidden bg-[#f8fbff] text-[#10264d] sm:rounded-[32px] sm:shadow-[0_24px_70px_rgba(30,64,175,.22)]">
+      <div className="pointer-events-none absolute -right-16 -top-12 size-[220px] rounded-full bg-[radial-gradient(circle,#dbeafe_0%,rgba(219,234,254,0)_70%)]" />
+      <div className="absolute inset-x-0 top-0 flex h-[44px] items-end justify-center pb-1 text-[10px] font-semibold text-[#60779c]">JTrax — Student</div>
 
-      <header className="relative z-10 flex items-center gap-3 px-5 pt-[44px]">
+      <header className="relative z-10 flex items-center gap-3 px-4 pt-[48px]">
         <Link
           href={back}
           aria-label={tCommon("back")}
-          className="flex size-11 items-center justify-center rounded-full bg-sv-cream text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
+          className="flex size-9 items-center justify-center rounded-full border border-[#dce8f8] bg-white text-[#60779c] shadow-sm"
         >
           <ArrowLeft className="size-[18px]" strokeWidth={2.5} />
         </Link>
-        {/* White, because the wash behind it is navy and the container's ink is
-            too — the heading was navy-on-navy and simply invisible. axe did not
-            catch it: it skips contrast checks against a CSS gradient. */}
-        <h1 className="font-sv-display text-[28px] font-bold text-white">{title}</h1>
+        <h1 className="font-sv-display text-[27px] font-bold text-[#10264d]">{title}</h1>
       </header>
 
-      <div className={`relative z-10 flex flex-1 flex-col overflow-y-auto px-5 pt-4 ${nav ? "pb-[104px]" : "pb-6"}`}>
+      <div className={`relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pt-4 ${nav ? "pb-[88px]" : "pb-6"}`}>
         {children}
       </div>
       {nav && <StudentBottomNav />}
@@ -61,7 +57,7 @@ export function PlayShell({
 export function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`rounded-[20px] bg-sv-cream p-4 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] ${className}`}
+      className={`rounded-[18px] border border-[#dce8f8] bg-white p-4 shadow-[0_7px_20px_rgba(37,99,235,.06)] ${className}`}
     >
       {children}
     </div>
