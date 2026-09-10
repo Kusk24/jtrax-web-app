@@ -3,17 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, Clock3, DoorOpen, type LucideIcon } from "lucide-react";
-import type { NotifKind } from "@/lib/parent-v2-data";
+import {
+  AlertTriangle, Check, Clock3, DoorOpen, Megaphone, Receipt, type LucideIcon,
+} from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
 
-/* Each kind of real event gets a face; the mock list drew emoji glyphs for
-   events that had never happened. */
-const KIND_STYLE: Record<NotifKind, { icon: LucideIcon; color: string; bg: string }> = {
-  checkin: { icon: Check, color: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
-  pickup: { icon: DoorOpen, color: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
-  credits: { icon: Clock3, color: "var(--color-pp-amber)", bg: "var(--color-pp-amber-soft)" },
+/* One face per notification type in the backend's catalogue. A type this map
+   has never heard of gets the announcement look rather than a crash — the
+   server's catalogue is allowed to grow first. */
+const TYPE_STYLE: Record<string, { icon: LucideIcon; color: string; bg: string }> = {
+  check_in: { icon: Check, color: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
+  credit_deducted: { icon: DoorOpen, color: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
+  low_credit: { icon: AlertTriangle, color: "var(--color-pp-amber)", bg: "var(--color-pp-amber-soft)" },
+  credit_expiry: { icon: Clock3, color: "var(--color-pp-amber)", bg: "var(--color-pp-amber-soft)" },
+  payment_received: { icon: Receipt, color: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
+  announcement: { icon: Megaphone, color: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
 };
+const FALLBACK_STYLE = TYPE_STYLE.announcement;
 
 export default function ParentNotificationsV2() {
   const t = useTranslations("pv2");
@@ -24,21 +30,14 @@ export default function ParentNotificationsV2() {
 
   const shown = notifs.filter((n) => tab === "all" || !isNotifRead(n.id));
 
-  /* A credits notification carries a date, not a moment — formatting its
-     midnight stamp as a clock time invented "07:00" out of the timezone. */
-  const whenLabel = (iso: string, dateOnly: boolean) => {
-    const d = new Date(iso);
+  /* The backend stamps created_at in UTC without a zone marker; saying so
+     keeps the label honest instead of shifted by the browser's guess. */
+  const whenLabel = (iso: string) => {
+    const d = new Date(iso.includes("T") ? iso : iso.replace(" ", "T") + "Z");
     if (isNaN(d.getTime())) return iso;
     return new Intl.DateTimeFormat(locale === "th" ? "th-TH" : "en-GB", {
-      day: "numeric", month: "short",
-      ...(dateOnly ? {} : { hour: "2-digit", minute: "2-digit" } as const),
+      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
     }).format(d);
-  };
-
-  const timeOf = (iso: string) => {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return iso;
-    return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" }).format(d);
   };
 
   return (
@@ -91,16 +90,10 @@ export default function ParentNotificationsV2() {
       <div className="flex flex-col gap-3">
         {shown.map((n) => {
           const isUnread = !isNotifRead(n.id);
-          const ks = KIND_STYLE[n.kind];
+          const ks = TYPE_STYLE[n.type] ?? FALLBACK_STYLE;
           const Icon = ks.icon;
-          const title =
-            n.kind === "checkin" ? t("notifCheckinTitle", { name: n.name })
-            : n.kind === "pickup" ? t("notifPickupTitle", { name: n.name })
-            : t("notifCreditsTitle", { name: n.name });
-          const body =
-            n.kind === "checkin" ? t("notifCheckinBody", { name: n.name, cls: n.cls, time: timeOf(n.at) })
-            : n.kind === "pickup" ? t("notifPickupBody", { name: n.name, cls: n.cls, time: timeOf(n.at) })
-            : t("notifCreditsBody", { date: n.date ?? "—", days: n.days ?? 0 });
+          /* Title and body come off the row itself, already in this account's
+             language — the sender chose when it wrote the inbox. */
           return (
             <button
               key={n.id}
@@ -122,11 +115,11 @@ export default function ParentNotificationsV2() {
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[13.5px] font-bold text-pp-ink">{title}</span>
+                  <span className="text-[13.5px] font-bold text-pp-ink">{n.title}</span>
                   {isUnread && <span className="size-[7px] flex-none rounded-full bg-pp-blue" />}
                 </div>
-                <span className="text-[12.5px] leading-relaxed text-pp-muted">{body}</span>
-                <span className="text-[10.5px] text-pp-faint">{whenLabel(n.at, n.kind === "credits")}</span>
+                <span className="text-[12.5px] leading-relaxed text-pp-muted">{n.body}</span>
+                <span className="text-[10.5px] text-pp-faint">{whenLabel(n.at)}</span>
               </div>
             </button>
           );
