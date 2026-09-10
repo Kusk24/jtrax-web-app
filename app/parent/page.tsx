@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
+import { ChildFace } from "@/components/parent/ChildFace";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
 import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
 import type { AnnouncementV2, SenderKind } from "@/lib/parent-v2-data";
@@ -22,6 +23,7 @@ export default function ParentHomeV2() {
   const {
     announcements: announcementsV2, tournament,
     parent, isAnnRead, markAnnRead,
+    children: childrenV2, todayActivity,
   } = useParentData();
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
@@ -56,8 +58,11 @@ export default function ParentHomeV2() {
         <span className="text-sm text-pp-muted">{todayLabel}</span>
       </div>
 
-      {/* Announcements + tournament */}
-      <div className="flex min-w-0 flex-col gap-3.5 md:col-span-2">
+      {/* Announcements + tournament. One column now: announcements and
+          tournaments are occasional, and a half-empty full-width block made
+          the home read as "nothing is happening" — the children are what a
+          parent opens this for, so they hold the other column. */}
+      <div className="flex min-w-0 flex-col gap-3.5">
         <div className="flex items-center justify-between">
           <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
             {t("announcements")}
@@ -154,6 +159,74 @@ export default function ParentHomeV2() {
         )}
       </div>
 
+
+      {/* The children, and what they did today — back from the previous
+          design so the home answers something on the days the school has
+          nothing to announce. */}
+      <div className="flex min-w-0 flex-col gap-3.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
+            {t("myChildren", { count: childrenV2.length })}
+          </span>
+          <Link href="/parent/attendance" className="text-xs font-bold text-pp-blue">
+            {t("viewAll")} →
+          </Link>
+        </div>
+        <div className="overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card">
+          {childrenV2.map((c) => (
+            <Link
+              key={c.key}
+              href={`/parent/child/${c.key}`}
+              className="flex items-center gap-3 border-b border-pp-panel px-4 py-3.5 last:border-0 hover:bg-pp-mist"
+            >
+              <ChildFace name={c.name} photo={c.photo} tint={c.avBg} className="size-[42px] flex-none rounded-full" />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-pp-ink">
+                  {c.name}
+                  {c.level && (
+                    <span className="rounded-full bg-pp-soft px-2 py-0.5 text-[9.5px] font-bold text-pp-blue">
+                      {c.level}
+                    </span>
+                  )}
+                </span>
+                <span className="text-[11.5px] text-pp-muted">{c.clsTitle}</span>
+              </span>
+              <span className="flex-none text-[12.5px] font-bold text-pp-ink">
+                {t("creditsShort", { count: c.credits })}
+              </span>
+            </Link>
+          ))}
+        </div>
+
+        <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
+          {t("todaysActivity")}
+        </span>
+        <div className="rounded-xl border-[1.5px] border-pp-line bg-pp-card px-4">
+          {todayActivity.length === 0 && (
+            <span className="block py-3.5 text-[12.5px] text-pp-muted">{t("noPracticeToday")}</span>
+          )}
+          {todayActivity.map((r, i) => (
+            <div
+              key={r.child}
+              className={`flex items-center gap-3 py-3.5 ${
+                i < todayActivity.length - 1 ? "border-b border-pp-panel" : ""
+              }`}
+            >
+              <span
+                className={`flex size-5 flex-none items-center justify-center rounded-full text-[11px] font-bold ${
+                  r.done ? "bg-pp-green text-white" : "bg-pp-panel text-pp-muted"
+                }`}
+              >
+                {r.done ? "✓" : "·"}
+              </span>
+              <span className="flex-1 text-[13.5px] text-pp-ink">{r.child}</span>
+              <span className="text-[13px] font-semibold text-pp-muted">
+                {t("minShort", { count: r.mins })}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {modal && <AnnouncementModal a={modal} onClose={() => setModalId(null)} />}
     </div>
