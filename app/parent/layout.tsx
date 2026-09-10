@@ -73,8 +73,9 @@ export default async function ParentLayout({
                 account, right-aligned. The home screen used to carry its own
                 bell and avatar, which put a second profile button on the page
                 once this bar existed. */}
-            <div className="flex justify-end gap-2 bg-pp-bg px-4 pt-4 lg:px-6">
-              <ParentAccountChip />
+            <div className="flex items-center justify-between gap-2 bg-pp-bg px-4 pt-4 lg:px-6">
+              <span className="text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue lg:hidden">JTrax — Parent</span>
+              <div className="flex items-center gap-2"><ParentAccountChip /></div>
             </div>
             <main className="flex-1 bg-pp-bg px-4 pb-10 pt-4 lg:px-6 lg:pt-5">{children}</main>
             <ParentBottomNav2 />
