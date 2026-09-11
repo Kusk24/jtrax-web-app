@@ -36,6 +36,7 @@ import {
 import {
   attemptMove,
   gameAt,
+  openPuzzle,
   getDailyPuzzles,
   getPracticeSummary,
   puzzleGoal,
@@ -282,6 +283,9 @@ export default function StudentGame() {
 
   const loadPuzzle = (index: number) => {
     const p = puzzles[index];
+    // Starts the clock server-side. Only the first open counts, so coming back
+    // after a wrong answer continues the same sitting.
+    if (p && !p.solved) void openPuzzle(p.puzzleId);
     setPuzzleIndex(index);
     setGame(p ? gameAt(p.fen) : null);
     setPlayed([]);

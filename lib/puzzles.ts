@@ -63,6 +63,14 @@ export const attemptMove = (puzzleId: string, move: string, played: string[]) =>
     body: JSON.stringify({ move, played }),
   });
 
+/** Tells the server the pupil has started looking at this puzzle, so the time
+    they spend on it is measured rather than guessed. Fire-and-forget: a failed
+    stamp costs a practice minute, not the puzzle. */
+export const openPuzzle = (puzzleId: string) =>
+  call<{ started: boolean }>(`puzzles/${encodeURIComponent(puzzleId)}/open`, { method: "POST" }).catch(
+    () => ({ started: false }),
+  );
+
 export type PracticeDay = { date: string; solved: number; practised: boolean };
 
 export type PracticeSummary = {
