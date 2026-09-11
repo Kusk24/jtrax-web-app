@@ -25,13 +25,26 @@ import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournament
 import { LichessCard } from "@/components/student/LichessCard";
 import { SignOutButton } from "@/components/SignOutButton";
 import {
-  PUZZLES,
   PIECE_GLYPH,
-  isWhite,
-  legalMovesFor,
-  type Board,
-  type Square,
-} from "@/lib/student-game";
+  movesFrom,
+  squareName,
+  squareToRC,
+  toGrid,
+  type BoardGrid,
+} from "@/lib/chess-core";
+import {
+  attemptMove,
+  gameAt,
+  openPuzzle,
+  getDailyPuzzles,
+  getPracticeSummary,
+  puzzleGoal,
+  type DailyPuzzle,
+  type PracticeSummary,
+} from "@/lib/puzzles";
+import type { Chess } from "chess.js";
+
+type Square = [number, number];
 
 type Screen = "home" | "puzzles" | "puzzle" | "profile";
 
@@ -107,15 +120,36 @@ export default function StudentGame() {
   const [screen, setScreen] = useState<Screen>("home");
   const [tab, setTab] = useState<"daily" | "free">("daily");
   const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const [puzzlesSolved, setPuzzlesSolved] = useState([false, false, false]);
-  const [board, setBoard] = useState<Board>(() => PUZZLES[0].build());
+  /* Today's set, from the academy's bank, matched to this pupil's rating.
+     Empty until it loads; `exhausted` means every puzzle in the bank has been
+     set to them before — they are never repeated. */
+  const [puzzles, setPuzzles] = useState<DailyPuzzle[]>([]);
+  const [exhausted, setExhausted] = useState(false);
+  const [loadingPuzzles, setLoadingPuzzles] = useState(true);
+  /* The position as chess.js sees it, so the board obeys real rules rather
+     than the mate-in-1 toy the three hard-coded puzzles used. */
+  const [game, setGame] = useState<Chess | null>(null);
+  /* The pupil's own moves in this puzzle, which is what the grader wants —
+     it replays the opponent from its copy of the solution. */
+  const [played, setPlayed] = useState<string[]>([]);
   const [selected, setSelected] = useState<Square | null>(null);
   const [solved, setSolved] = useState(false);
   const [showWrong, setShowWrong] = useState(false);
   const [message, setMessage] = useState("");
   const [celebrate, setCelebrate] = useState(false);
   const [studentId, setStudentId] = useState("");
-  const [streak, setStreak] = useState(7);
+  /* Derived by the server from the days actually practised. It used to start
+     at a hard-coded 7, so a pupil with no data was shown a week they had
+     never earned. */
+  const [practice, setPractice] = useState<PracticeSummary | null>(null);
+
+  const streak = practice?.streak ?? 0;
+  const puzzle = puzzles[puzzleIndex];
+  /* Rank 8 first when the pupil is White; flipped when they are Black, so the
+     pieces they move are always the ones nearest them. */
+  const flipped = puzzle?.side === "Black";
+  const grid: BoardGrid = game ? toGrid(game) : Array.from({ length: 8 }, () => Array(8).fill(null));
+  const view = (r: number, c: number): [number, number] => (flipped ? [7 - r, 7 - c] : [r, c]);
   /* The profile card used to hard-code "Mochi" and "Beginner" — the cat's name
      and a guess. This is the signed-in account. */
   const [me, setMe] = useState<{ displayName: string; email: string } | null>(null);
@@ -189,7 +223,6 @@ export default function StudentGame() {
                 // The scope on `students` means this list is only ever the
                 // caller's own row, but find by id rather than take [0].
                 const self = rows.find((row) => row.student_id === me.studentId);
-                if (self?.streak_count != null) setStreak(self.streak_count);
                 if (self) setRecord(self);
               },
             );
@@ -198,28 +231,37 @@ export default function StudentGame() {
       .catch(() => {});
   }, []);
 
-  /* The day's win is recorded server-side; failures stay silent in the game. */
-  const reportPractice = () => {
-    if (!studentId) return;
-    fetch("/api/practice-activities", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        student_id: studentId,
-        activity_date: new Date().toISOString().slice(0, 10),
-        puzzles_completed: 3,
-        minutes_practiced: 10,
-        points_earned: 30,
-        streak_count: streak + 1,
-      }),
-    }).catch(() => {});
+  /* Today's puzzles and the practice record behind the flame. Both are server
+     truth: the set is chosen there and the streak is derived there. */
+  const refreshPractice = () => {
+    getPracticeSummary()
+      .then(setPractice)
+      .catch(() => {});
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    getDailyPuzzles()
+      .then((set) => {
+        if (cancelled) return;
+        setPuzzles(set.puzzles);
+        setExhausted(set.exhausted);
+      })
+      .catch(() => {})
+      .finally(() => !cancelled && setLoadingPuzzles(false));
+    getPracticeSummary()
+      .then((p) => !cancelled && setPractice(p))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   /* Feed-screen state */
   const autoNavTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const solvedCount = puzzlesSolved.filter(Boolean).length;
-  const isDailyDone = solvedCount >= 3;
+  const solvedCount = puzzles.filter((p) => p.solved).length;
+  const isDailyDone = puzzles.length > 0 && solvedCount >= puzzles.length;
 
   const go = (s: Screen) => {
     if (autoNavTimer.current) clearTimeout(autoNavTimer.current);
@@ -239,74 +281,116 @@ export default function StudentGame() {
   }, []);
 
   const loadPuzzle = (index: number) => {
+    const p = puzzles[index];
+    // Starts the clock server-side. Only the first open counts, so coming back
+    // after a wrong answer continues the same sitting.
+    if (p && !p.solved) void openPuzzle(p.puzzleId);
     setPuzzleIndex(index);
-    setBoard(PUZZLES[index].build());
+    setGame(p ? gameAt(p.fen) : null);
+    setPlayed([]);
     setSelected(null);
-    setSolved(false);
+    setSolved(p?.solved ?? false);
     setShowWrong(false);
     setMessage("");
     setScreen("puzzle");
   };
 
   const resetPuzzle = () => {
-    setBoard(PUZZLES[puzzleIndex].build());
+    const p = puzzles[puzzleIndex];
+    setGame(p ? gameAt(p.fen) : null);
+    setPlayed([]);
     setSelected(null);
     setSolved(false);
     setShowWrong(false);
     setMessage("");
   };
 
-  const select = (r: number, c: number) => {
-    if (solved) return;
-    const SOLUTION = { from: PUZZLES[puzzleIndex].from, to: PUZZLES[puzzleIndex].to };
-    if (selected) {
-      const [sr, sc] = selected;
-      const legal = legalMovesFor(board, sr, sc);
-      if (legal.some(([lr, lc]) => lr === r && lc === c)) {
-        const newBoard = board.map((row) => row.slice());
-        newBoard[r][c] = newBoard[sr][sc];
-        newBoard[sr][sc] = null;
-        const isSolution =
-          sr === SOLUTION.from[0] && sc === SOLUTION.from[1] && r === SOLUTION.to[0] && c === SOLUTION.to[1];
-        if (isSolution) {
-          const nextSolved = puzzlesSolved.slice();
-          nextSolved[puzzleIndex] = true;
-          setBoard(newBoard);
-          setSelected(null);
-          setSolved(true);
-          setShowWrong(false);
-          setMessage(t("checkmateMsg"));
-          setPuzzlesSolved(nextSolved);
-          setTimeout(() => {
-            if (puzzleIndex < PUZZLES.length - 1) {
-              loadPuzzle(puzzleIndex + 1);
-            } else {
-              reportPractice();
-              setCelebrate(true);
-            }
-          }, 1400);
-        } else {
-          setBoard(newBoard);
-          setSelected(null);
-          setShowWrong(true);
-          setMessage(t("wrongMsg"));
-          setTimeout(() => {
-            setBoard(PUZZLES[puzzleIndex].build());
-            setShowWrong(false);
-            setMessage("");
-          }, 1200);
-        }
-        return;
-      }
-      const piece = board[r][c];
-      setSelected(piece && isWhite(piece) ? [r, c] : null);
+  /* Submits the pupil's move and does what the server says.
+     Nothing here knows the answer: the old board carried `from`/`to` for each
+     of three fixed puzzles, so the solution was in the page. */
+  const submit = async (uci: string) => {
+    const p = puzzles[puzzleIndex];
+    if (!p || !game) return;
+    setSelected(null);
+    let verdict;
+    try {
+      verdict = await attemptMove(p.puzzleId, uci, played);
+    } catch {
+      setMessage(tp("error.unreachable"));
       return;
     }
-    const piece = board[r][c];
-    if (piece && isWhite(piece)) setSelected([r, c]);
+
+    /* The server returns the position after the move and any reply, so the
+       board follows its view rather than replaying the reply here. */
+    const next = gameAt(verdict.fen);
+    if (next) setGame(next);
+
+    if (!verdict.correct) {
+      setShowWrong(true);
+      setMessage(t("wrongMsg"));
+      setTimeout(() => {
+        setGame(gameAt(p.fen));
+        setPlayed([]);
+        setShowWrong(false);
+        setMessage("");
+      }, 1200);
+      return;
+    }
+
+    setPlayed([...played, uci]);
+    setShowWrong(false);
+
+    if (!verdict.solved) {
+      // A longer puzzle: the opponent has replied and it is their move again.
+      setMessage(t("keepGoingMsg"));
+      return;
+    }
+
+    setSolved(true);
+    setMessage(t("checkmateMsg"));
+    setPuzzles((prev) =>
+      prev.map((row, i) => (i === puzzleIndex ? { ...row, solved: true } : row)),
+    );
+    // The practice row was just written server-side by the grader, so the
+    // flame is re-read rather than guessed at.
+    refreshPractice();
+    const wasLast = puzzles.slice(0, puzzleIndex).every((x) => x.solved) && puzzleIndex === puzzles.length - 1;
+    setTimeout(() => {
+      const nextUnsolved = puzzles.findIndex((x, i) => i !== puzzleIndex && !x.solved);
+      if (!wasLast && nextUnsolved >= 0) loadPuzzle(nextUnsolved);
+      else setCelebrate(true);
+    }, 1400);
   };
 
-  const legal = selected ? legalMovesFor(board, selected[0], selected[1]) : [];
+  /* Board squares are addressed in view coordinates and translated once here,
+     so the rest of the screen does not have to know the board is turned round
+     for a pupil playing Black. */
+  const select = (vr: number, vc: number) => {
+    if (solved || !game || !puzzle) return;
+    const [r, c] = view(vr, vc);
+    const square = squareName(r, c);
+    const mine = game.get(square);
+    const myColour = puzzle.side === "White" ? "w" : "b";
+
+    if (selected) {
+      const from = squareName(selected[0], selected[1]);
+      const options = movesFrom(game, from).filter((m) => m.slice(2, 4) === square);
+      if (options.length > 0) {
+        // A promotion offers several; a child promoting to anything but a
+        // queen is rare enough that the queen is chosen for them.
+        const queen = options.find((m) => m.endsWith("q"));
+        void submit(queen ?? options[0]);
+        return;
+      }
+      setSelected(mine && mine.color === myColour ? [r, c] : null);
+      return;
+    }
+    if (mine && mine.color === myColour) setSelected([r, c]);
+  };
+
+  const legal: Square[] = selected && game
+    ? movesFrom(game, squareName(selected[0], selected[1])).map((m) => squareToRC(m.slice(2, 4)))
+    : [];
 
   const name = record?.name ?? me?.displayName ?? "";
   const firstName = name.trim().split(/\s+/)[0] || name;
@@ -496,9 +580,17 @@ export default function StudentGame() {
               </div>
               <div className="flex flex-col gap-2.5">
               {tab === "daily"
-                ? [0, 1, 2].map((i) => (
+                ? loadingPuzzles
+                  ? <p className="px-1 py-6 text-center text-[11px] text-[#8292ad]">{t("puzzlesLoading")}</p>
+                  : puzzles.length === 0
+                    ? (
+                      <p className="px-3 py-6 text-center text-[11px] leading-relaxed text-[#8292ad]">
+                        {exhausted ? t("puzzlesExhausted") : t("puzzlesUnavailable")}
+                      </p>
+                    )
+                    : puzzles.map((p, i) => (
                     <button
-                      key={i}
+                      key={p.puzzleId}
                       onClick={() => loadPuzzle(i)}
                       className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 text-left shadow-[0_4px_12px_rgba(37,99,235,.05)] transition hover:border-[#bed5f5] hover:bg-[#f8fbff]"
                     >
@@ -507,9 +599,11 @@ export default function StudentGame() {
                       </span>
                       <span className="flex flex-1 flex-col">
                         <span className="text-[13px] font-bold text-[#10264d]">{t("puzzleN", { n: i + 1 })}</span>
-                        <span className="text-[10px] text-[#8292ad]">{puzzlesSolved[i] ? t("solvedLabel") : t("notSolved")}</span>
+                        <span className="text-[10px] text-[#8292ad]">
+                          {p.solved ? t("solvedLabel") : t("ratingLabel", { rating: p.rating })}
+                        </span>
                       </span>
-                      {puzzlesSolved[i] ? (
+                      {p.solved ? (
                         <span className="flex size-7 items-center justify-center rounded-full bg-[#e4f7ef]"><Check className="size-4 text-[#15906b]" strokeWidth={3} /></span>
                       ) : (
                         <span className="flex items-center gap-1 rounded-full bg-[#edf4ff] px-2 py-1 text-[10px] font-bold text-[#2563eb]">+1 <Star className="size-3 fill-[#7eb6ff]" /></span>
@@ -555,7 +649,17 @@ export default function StudentGame() {
           </h1>
           {/* Sits on the navy wash with the heading, so it is white like the
               heading — `sv-body` here measured 3.9 luminance spread, i.e. gone. */}
-          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-[#60779c]">{t("whiteToMove")}</div>
+          {/* Whose move and what to look for, from this puzzle. The line used
+              to read "White to move — mate in 1" for everything, which was true
+              of the three hard-coded positions and of little else. */}
+          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-[#60779c]">
+            {puzzle
+              ? t(puzzleGoal(puzzle).key === "mateIn" ? "toMoveGoalMate" : "toMoveGoalBest", {
+                  side: t(puzzle.side === "White" ? "sideWhite" : "sideBlack"),
+                  count: puzzleGoal(puzzle).count,
+                })
+              : ""}
+          </div>
 
           <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
             <div className="relative mb-1 flex w-full justify-start">
@@ -585,21 +689,24 @@ export default function StudentGame() {
               <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
                 <div className="grid grid-cols-[repeat(8,34px)] grid-rows-[repeat(8,34px)] overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(70,96,140)]">
                   {Array.from({ length: 64 }, (_, idx) => {
-                    const r = Math.floor(idx / 8);
-                    const c = idx % 8;
+                    // Drawn in view coordinates; `view` maps them back to the
+                    // board, which is turned round for a pupil playing Black.
+                    const vr = Math.floor(idx / 8);
+                    const vc = idx % 8;
+                    const [r, c] = view(vr, vc);
                     const isSelected = selected?.[0] === r && selected?.[1] === c;
                     const isLegal = legal.some(([lr, lc]) => lr === r && lc === c);
-                    const piece = board[r][c];
+                    const piece = grid[r][c];
                     const isCapture = isLegal && !!piece;
                     const bg = isSelected
                       ? "rgb(220,232,248)"
-                      : (r + c) % 2 === 0
+                      : (vr + vc) % 2 === 0
                         ? "var(--color-sv-board-light)"
                         : "var(--color-sv-board-dark)";
                     return (
                       <button
                         key={idx}
-                        onClick={() => select(r, c)}
+                        onClick={() => select(vr, vc)}
                         className="relative flex size-[34px] cursor-pointer items-center justify-center border-none p-0"
                         style={{ background: bg }}
                       >
@@ -607,11 +714,11 @@ export default function StudentGame() {
                           <span
                             className="select-none text-2xl leading-none"
                             style={{
-                              color: isWhite(piece) ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
-                              textShadow: isWhite(piece) ? "1px 1px 0 rgb(36,65,124)" : "none",
+                              color: piece.color === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
+                              textShadow: piece.color === "w" ? "1px 1px 0 rgb(36,65,124)" : "none",
                             }}
                           >
-                            {PIECE_GLYPH[piece]}
+                            {PIECE_GLYPH[piece.color + piece.type]}
                           </span>
                         )}
                         {isLegal &&
@@ -687,15 +794,24 @@ export default function StudentGame() {
               {t("dayStreak", { n: streak })}
             </div>
             <p className="ml-10 -mt-1 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
+            {/* The days the pupil actually practised, oldest first, each cell
+                labelled with its own weekday. It used to light the first N of
+                seven from the streak number, which drew a week nobody lived —
+                a three-day streak always showed Mon-Tue-Wed. */}
             <div className="mt-3 grid grid-cols-7 gap-1.5">
-              {Array.from({ length: 7 }, (_, i) => (
-                <span key={i} className="flex flex-col items-center gap-1">
-                  <span className={`flex aspect-square w-full items-center justify-center rounded-[9px] text-[10px] font-bold ${i < Math.min(streak, 7) ? "bg-[#fb812a] text-white" : "border border-[#e1e9f4] bg-[#f8fbff] text-[#a0aec0]"}`}>
-                    {i < Math.min(streak, 7) ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
+              {(practice?.days ?? []).map((day) => {
+                const weekday = new Date(day.date + "T00:00:00").getDay();
+                return (
+                  <span key={day.date} className="flex flex-col items-center gap-1">
+                    <span className={`flex aspect-square w-full items-center justify-center rounded-[9px] text-[10px] font-bold ${day.practised ? "bg-[#fb812a] text-white" : "border border-[#e1e9f4] bg-[#f8fbff] text-[#a0aec0]"}`}>
+                      {day.practised ? <Check className="size-3.5" strokeWidth={3} /> : Number(day.date.slice(8))}
+                    </span>
+                    <span className="text-[8px] font-semibold text-[#8b9ab1]">
+                      {t(`weekday.${(weekday + 6) % 7}`)}
+                    </span>
                   </span>
-                  <span className="text-[8px] font-semibold text-[#8b9ab1]">{t(`weekday.${i}`)}</span>
-                </span>
-              ))}
+                );
+              })}
             </div>
           </div>
 
