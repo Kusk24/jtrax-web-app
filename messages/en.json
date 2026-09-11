@@ -253,8 +253,8 @@
     "challengeHint": "Solve 3 puzzles and earn your badge!",
     "startChallenge": "Start Challenge",
     "practiceComputer": "Practice with the computer",
-    "playFriend": "Play with a Friend",
-    "playTogether": "Enter a code and play together",
+    "playFriend": "Invite a Player",
+    "playTogether": "Find them by name and invite them",
     "myProgress": "My Progress",
     "viewAll": "View all →",
     "puzzlesSub": "Sharpen your skills, one puzzle at a time!",
@@ -295,7 +295,7 @@
     "chooseMode": "Choose how you want to play!",
     "vsComputer": "Play the computer",
     "vsComputerBody": "Practise on your own. Three opponents, from gentle to tough.",
-    "vsFriend": "Play a friend",
+    "vsFriend": "Join a class game",
     "vsFriendBody": "Enter the code your teacher gave you and play head to head.",
     "codeLabel": "Room code",
     "codeHint": "Six letters and numbers, from your teacher.",
@@ -387,7 +387,8 @@
       "expert": "Stockfish. It will not go easy on you."
     },
     "modelLoading": "Getting your opponent ready…",
-    "modelFailed": "That opponent could not be loaded. Try another one."
+    "modelFailed": "That opponent could not be loaded. Try another one.",
+    "classGame": "Class game"
   },
   "challenge": {
     "title": "Challenge",

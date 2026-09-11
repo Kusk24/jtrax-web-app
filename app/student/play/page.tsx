@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Bot, ChevronRight, Users } from "lucide-react";
+import { Bot, ChevronRight, KeyRound } from "lucide-react";
 import { PlayShell, Panel } from "@/components/game/PlayShell";
 
 export default async function PlayPage() {
@@ -8,7 +8,7 @@ export default async function PlayPage() {
 
   const modes = [
     { href: "/student/play/ai", icon: Bot, title: t("vsComputer"), body: t("vsComputerBody") },
-    { href: "/student/play/friend", icon: Users, title: t("vsFriend"), body: t("vsFriendBody") },
+    { href: "/student/play/friend", icon: KeyRound, title: t("vsFriend"), body: t("vsFriendBody") },
   ];
 
   return (
