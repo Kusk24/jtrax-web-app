@@ -20,9 +20,10 @@ export function PlayShell({
 }: {
   title: string;
   back?: string;
-  /** Show the portal's bottom bar. On a screen reached *from* that bar it has
-      to stay — losing it strands a child on a page whose only way out is a
-      small arrow in the corner. Mid-game screens leave it off on purpose. */
+  /** Show the portal's bottom bar, which also means this screen *is* one of
+      its tabs. A tab is not somewhere you arrived from, so it gets no back
+      arrow — the bar is how you leave. Mid-game screens leave the bar off and
+      take the arrow instead, because a board wants the whole phone. */
   nav?: boolean;
   children: React.ReactNode;
 }) {
@@ -34,13 +35,18 @@ export function PlayShell({
       <div className="absolute inset-x-0 top-0 flex h-[44px] items-end justify-center pb-1 text-[10px] font-semibold text-[#60779c]">JTrax — Student</div>
 
       <header className="relative z-10 flex items-center gap-3 px-4 pt-[48px]">
-        <Link
-          href={back}
-          aria-label={tCommon("back")}
-          className="flex size-9 items-center justify-center rounded-full border border-[#dce8f8] bg-white text-[#60779c] shadow-sm"
-        >
-          <ArrowLeft className="size-[18px]" strokeWidth={2.5} />
-        </Link>
+        {/* Only a pushed screen goes back. Challenge and Play are tabs on the
+            bar below, and an arrow there offered to "return" to a place the
+            child had not come from. */}
+        {!nav && (
+          <Link
+            href={back}
+            aria-label={tCommon("back")}
+            className="flex size-9 items-center justify-center rounded-full border border-[#dce8f8] bg-white text-[#60779c] shadow-sm"
+          >
+            <ArrowLeft className="size-[18px]" strokeWidth={2.5} />
+          </Link>
+        )}
         <h1 className="font-sv-display text-[27px] font-bold text-[#10264d]">{title}</h1>
       </header>
 
