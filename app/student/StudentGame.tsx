@@ -18,7 +18,6 @@ import {
   Swords,
   Trophy,
   UserRound,
-  Users,
   X,
 } from "lucide-react";
 import { getMyLichess } from "@/lib/lichess";
@@ -409,7 +408,7 @@ export default function StudentGame() {
               label={t("playFriend")}
               body={t("playTogether")}
               tone="lilac"
-              icon={<Users className="size-5 text-[#7457d7]" strokeWidth={2.2} />}
+              icon={<Swords className="size-5 text-[#7457d7]" strokeWidth={2.2} />}
             />
           </div>
 

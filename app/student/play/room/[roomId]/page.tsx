@@ -6,7 +6,7 @@ export default async function RoomPage({ params }: { params: Promise<{ roomId: s
   const { roomId } = await params;
   const t = await getTranslations("play");
   return (
-    <PlayShell title={t("vsFriend")} back="/student/play">
+    <PlayShell title={t("classGame")} back="/student/play">
       <LiveGame roomId={roomId} />
     </PlayShell>
   );
