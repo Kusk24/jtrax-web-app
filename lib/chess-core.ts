@@ -2,11 +2,11 @@
  * Board helpers shared by every way of playing: against the computer, against
  * another student, and the admin console's replay.
  *
- * Rules come from chess.js, not from `student-game.ts` — that file is a
- * mate-in-1 puzzle toy with no castling, en passant, promotion or draws, which
- * is fine for a fixed puzzle and wrong for a real game. The backend grades
- * moves with its own engine regardless; this copy exists so the board can
- * highlight squares and reject obvious mistakes without a round trip.
+ * Rules come from chess.js. The puzzle board used to run its own mate-in-1
+ * toy with no castling, en passant, promotion or draws — fine for three fixed
+ * positions, wrong for a bank of real ones, so it is gone and puzzles use this
+ * too. The backend grades moves with its own engine regardless; this copy
+ * exists so the board can highlight squares without a round trip.
  */
 import { Chess, type Square as ChessSquare } from "chess.js";
 
