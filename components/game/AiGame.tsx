@@ -128,7 +128,13 @@ export function AiGame() {
         <ChessBoard
           game={game}
           orientation="w"
-          canMove={ready && !thinking && !ending && game.turn() === "w"}
+          /* Not gated on `ready`. Switching opponent mid-game keeps the
+             position — it always did — but the new model is a 26–47 MB
+             download, and while it arrived the board stopped accepting moves
+             even on your own turn. It looked frozen, so switching looked
+             broken. Your move is yours whether or not the opponent has
+             finished loading; the reply simply waits. */
+          canMove={!thinking && !ending && game.turn() === "w"}
           onMove={onMove}
           lastMove={moves.length ? moves[moves.length - 1] : undefined}
         />
