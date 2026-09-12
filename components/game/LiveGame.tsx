@@ -3,10 +3,12 @@
 /* A game against another student. The board is drawn from the move list the
    server confirmed, never from local optimism: the server is the referee, so
    showing a move before it is accepted would mean sometimes taking it back. */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ExternalLink, Loader2, Swords, Wifi, WifiOff } from "lucide-react";
 import { ChessBoard } from "./ChessBoard";
+import { ResultDialog } from "./ResultDialog";
 import { CapturedTray } from "./CapturedTray";
 import { Panel, actionBtn } from "./PlayShell";
 import { useRoom } from "./useRoom";
@@ -14,9 +16,25 @@ import { capturedIn, gameFrom, pairedMoves } from "@/lib/chess-core";
 
 export function LiveGame({ roomId }: { roomId: string }) {
   const t = useTranslations("play");
+  const router = useRouter();
   const { room, moves, seat, connection, error, play, resign } = useRoom(roomId);
   const [moveError, setMoveError] = useState("");
   const [confirmResign, setConfirmResign] = useState(false);
+
+  /* Raised once when the room ends, and dismissible — a class game is often
+     looked back over with a teacher standing there. `over` covers both ways a
+     room ends: played out, or stopped from the console.
+     Declared here rather than beside the render that uses it, because there
+     are two early returns below and a hook cannot sit after one. */
+  const over = room?.status === "Finished" || room?.status === "Cancelled";
+  const [showResult, setShowResult] = useState(false);
+  const announced = useRef(false);
+  useEffect(() => {
+    if (over && !announced.current) {
+      announced.current = true;
+      setShowResult(true);
+    }
+  }, [over]);
 
   const game = useMemo(() => gameFrom(moves.map((m) => m.uci)), [moves]);
 
@@ -130,6 +148,27 @@ export function LiveGame({ roomId }: { roomId: string }) {
         />
         {playerLine(orientation)}
       </div>
+
+      {over && showResult && (
+        <ResultDialog
+          title={
+            room.status === "Cancelled"
+              ? t("cancelled")
+              : t(`result.${room.result === "1/2-1/2" ? "draw" : room.result === "1-0" ? "whiteWon" : "blackWon"}`)
+          }
+          detail={
+            room.status === "Finished" && room.resultReason
+              ? t("byReason", { reason: t(`reason.${room.resultReason}`) })
+              : undefined
+          }
+          /* Nothing to restart here — a teacher opens class games — so the way
+             on is back to the Play screen. Named for where it goes: with both
+             buttons reading "Back" the dialog had two doors and one name. */
+          primaryLabel={t("backToPlay")}
+          onPrimary={() => router.push("/student/play")}
+          onClose={() => setShowResult(false)}
+        />
+      )}
 
       <Panel className="!py-2.5 text-center">
         {room.status === "Finished" ? (
