@@ -103,7 +103,7 @@ export function AiGame() {
           orientation="w"
           canMove={ready && !thinking && !ending && game.turn() === "w"}
           onMove={onMove}
-          lastMove={moves.length ? moves[moves.length - 1].slice(2, 4) : undefined}
+          lastMove={moves.length ? moves[moves.length - 1] : undefined}
         />
         <div className="flex w-[328px] items-center justify-between gap-2 px-1">
           <span className="text-[12px] font-bold">{t("you")}</span>

@@ -17,10 +17,20 @@ export type BoardGrid = (Piece | null)[][];
 export const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
 /** Unicode glyphs, matching the puzzle board's existing look. */
-export const PIECE_GLYPH: Record<string, string> = {
-  wk: "♔", wq: "♕", wr: "♖", wb: "♗", wn: "♘", wp: "♙",
-  bk: "♚", bq: "♛", br: "♜", bb: "♝", bn: "♞", bp: "♟",
-};
+/**
+ * Where a piece's artwork lives.
+ *
+ * Replaces `PIECE_GLYPH`, which was the Unicode chess characters — not emoji,
+ * but font-dependent in the same way: on iOS the white pieces resolved to
+ * hollow outlines, so half the board was drawn in a style nobody chose. These
+ * are the Cburnett SVGs, the set Lichess and Wikipedia use, and they look the
+ * same everywhere. See `public/pieces/NOTICE.md` for the licence.
+ *
+ * The key is `colour + type` — `pieceSrc("w", "k")` — the same shape the glyph
+ * table was indexed by, so nothing else had to learn a new name.
+ */
+export const pieceSrc = (colour: string, type: string) =>
+  `/pieces/${colour === "w" ? "l" : "d"}${type}.svg`;
 
 export function squareName(row: number, col: number): ChessSquare {
   return `${FILES[col]}${8 - row}` as ChessSquare;

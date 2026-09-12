@@ -35,7 +35,9 @@ export function LiveGame({ roomId }: { roomId: string }) {
   const orientation = seat === "Black" ? "b" : "w";
   const myTurn = room.status === "Active" && seat !== "" && room.turn === seat;
   const opponent = seat === "White" ? room.black : room.white;
-  const lastMove = moves.length ? moves[moves.length - 1].uci.slice(2, 4) : undefined;
+  // The whole move: the board highlights both its squares and slides the
+  // arriving piece in from the first.
+  const lastMove = moves.length ? moves[moves.length - 1].uci : undefined;
 
   const captured = capturedIn(game);
   /* The board is drawn from the viewer's side, so whoever is at the top of it

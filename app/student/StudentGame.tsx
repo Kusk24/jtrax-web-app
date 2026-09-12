@@ -25,7 +25,7 @@ import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournament
 import { LichessCard } from "@/components/student/LichessCard";
 import { SignOutButton } from "@/components/SignOutButton";
 import {
-  PIECE_GLYPH,
+  pieceSrc,
   movesFrom,
   squareName,
   squareToRC,
@@ -711,15 +711,13 @@ export default function StudentGame() {
                         style={{ background: bg }}
                       >
                         {piece && (
-                          <span
-                            className="select-none text-2xl leading-none"
-                            style={{
-                              color: piece.color === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
-                              textShadow: piece.color === "w" ? "1px 1px 0 rgb(36,65,124)" : "none",
-                            }}
-                          >
-                            {PIECE_GLYPH[piece.color + piece.type]}
-                          </span>
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={pieceSrc(piece.color, piece.type)}
+                            alt=""
+                            draggable={false}
+                            className="pointer-events-none size-[30px] select-none"
+                          />
                         )}
                         {isLegal &&
                           (isCapture ? (
