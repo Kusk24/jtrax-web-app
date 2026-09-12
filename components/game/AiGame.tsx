@@ -12,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { Chess } from "chess.js";
 import { ChessBoard } from "./ChessBoard";
 import { CapturedTray } from "./CapturedTray";
+import { ResultDialog } from "./ResultDialog";
 import { Panel, actionBtn } from "./PlayShell";
 import { OPPONENTS, useAiOpponent, type Opponent } from "./useAiOpponent";
 import { capturedIn, endingOf, gameFrom, pairedMoves, type Ending } from "@/lib/chess-core";
@@ -25,6 +26,9 @@ export function AiGame() {
   const [thinking, setThinking] = useState(false);
   const [game, setGame] = useState<Chess>(() => new Chess());
   const [ending, setEnding] = useState<Ending>(null);
+  /* Separate from `ending` so dismissing the dialog does not un-finish the
+     game, and so a new game can raise it again. */
+  const [showResult, setShowResult] = useState(false);
   // Guards against a reply arriving for a game the player already restarted.
   const generation = useRef(0);
 
@@ -33,7 +37,9 @@ export function AiGame() {
     if (!replayed) return;
     setMoves(next);
     setGame(replayed);
-    setEnding(endingOf(replayed));
+    const over = endingOf(replayed);
+    setEnding(over);
+    setShowResult(!!over);
   }, []);
 
   const reset = () => {
@@ -63,8 +69,29 @@ export function AiGame() {
 
   const captured = capturedIn(game);
 
+  const resultKey = ending
+    ? ending.result === "1/2-1/2"
+      ? "draw"
+      : ending.result === "1-0"
+        ? "youWon"
+        : "youLost"
+    : null;
+
   return (
     <div className="flex flex-col gap-3">
+      {ending && showResult && resultKey && (
+        <ResultDialog
+          title={t(`result.${resultKey}`)}
+          detail={t("byReason", { reason: t(`reason.${ending.reason}`) })}
+          primaryLabel={t("newGame")}
+          onPrimary={() => {
+            setShowResult(false);
+            reset();
+          }}
+          onClose={() => setShowResult(false)}
+        />
+      )}
+
       <Panel className="!p-3">
         <p className="mb-2 text-[13px] font-bold">{t("opponent")}</p>
         <div className="flex gap-1.5">
@@ -101,9 +128,15 @@ export function AiGame() {
         <ChessBoard
           game={game}
           orientation="w"
-          canMove={ready && !thinking && !ending && game.turn() === "w"}
+          /* Not gated on `ready`. Switching opponent mid-game keeps the
+             position — it always did — but the new model is a 26–47 MB
+             download, and while it arrived the board stopped accepting moves
+             even on your own turn. It looked frozen, so switching looked
+             broken. Your move is yours whether or not the opponent has
+             finished loading; the reply simply waits. */
+          canMove={!thinking && !ending && game.turn() === "w"}
           onMove={onMove}
-          lastMove={moves.length ? moves[moves.length - 1].slice(2, 4) : undefined}
+          lastMove={moves.length ? moves[moves.length - 1] : undefined}
         />
         <div className="flex w-[328px] items-center justify-between gap-2 px-1">
           <span className="text-[12px] font-bold">{t("you")}</span>
@@ -124,6 +157,8 @@ export function AiGame() {
             {loading ? t("modelLoading") : t("engineLoading")}
           </p>
         ) : ending ? (
+          /* The dialog says it properly; this is what remains once it is
+             dismissed, for anyone looking back at the finished position. */
           <p className="text-[13px] font-bold">
             {t(`result.${ending.result === "1/2-1/2" ? "draw" : ending.result === "1-0" ? "youWon" : "youLost"}`)}
             {` — ${t(`reason.${ending.reason}`)}`}
