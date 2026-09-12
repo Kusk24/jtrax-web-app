@@ -23,6 +23,7 @@ import {
 
 export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
   const t = useTranslations("challenge");
+  const tCommon = useTranslations("common");
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -33,12 +34,19 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
   const [clock, setClock] = useState(2); // 15+10, the academy's usual
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const reload = useCallback(async () => {
     try {
       setChallenges(await listChallenges());
+      /* Cleared on success, so a single blip while polling does not leave a
+         warning sitting on screen for the rest of the session. */
+      setLoadFailed(false);
     } catch {
-      /* The empty state covers it. */
+      /* Not "no invitations" — we do not know. A child told nobody wants to
+         play them, when in fact a classmate is waiting, is the one thing this
+         screen must not say. */
+      setLoadFailed(true);
     }
   }, []);
 
@@ -93,6 +101,12 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
   return (
     <PlayShell title={t("title")} nav>
       <div className="flex flex-col gap-3.5">
+        {loadFailed && !error && (
+          <p role="alert" className="rounded-2xl bg-[rgb(255,240,240)] px-3.5 py-2.5 text-[12.5px] font-bold text-[rgb(160,60,60)]">
+            {tCommon("loadFailed")}
+          </p>
+        )}
+
         {error && (
           <p role="alert" className="rounded-2xl bg-[rgb(255,240,240)] px-3.5 py-2.5 text-[12.5px] font-bold text-[rgb(160,60,60)]">
             {error}

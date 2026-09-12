@@ -21,6 +21,7 @@ import {
 
 export function LichessCard() {
   const t = useTranslations("lichess");
+  const tCommon = useTranslations("common");
 
   const [link, setLink] = useState<LichessLink | null>(null);
   const [play, setPlay] = useState<LichessPlayStatus | null>(null);
@@ -30,6 +31,7 @@ export function LichessCard() {
   const [error, setError] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   /** Set by the OAuth callback on its way back here. */
   const [outcome, setOutcome] = useState("");
 
@@ -49,7 +51,10 @@ export function LichessCard() {
           setPlay(status);
         }
       } catch {
-        /* The empty state covers it; a cold API is not worth an error here. */
+        /* Not "no account linked" — we do not know. Said plainly, because the
+           empty state invites a pupil to connect an account they may already
+           have connected. */
+        if (!cancelled) setLoadFailed(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -172,8 +177,14 @@ export function LichessCard() {
           </p>
         )}
 
+        {loadFailed && (
+          <p role="alert" className="mb-2.5 rounded-xl bg-[rgb(255,240,240)] px-3 py-2 text-[12px] font-bold text-[rgb(160,60,60)]">
+            {tCommon("loadFailed")}
+          </p>
+        )}
+
         {/* ---- not linked yet ---- */}
-        {!link && (
+        {!link && !loadFailed && (
           <>
             <p className="mb-2.5 text-[12.5px] leading-snug text-sv-body">{t("intro")}</p>
 
