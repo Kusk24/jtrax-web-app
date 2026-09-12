@@ -260,6 +260,8 @@
     "viewAll": "ดูทั้งหมด →",
     "puzzlesSub": "ฝึกทักษะให้คมขึ้นทีละโจทย์!",
     "solvedLabel": "แก้แล้ว",
+    "completedTitle": "ทำสำเร็จแล้ว!",
+    "completedBody": "หนูแก้ปริศนาข้อนี้ได้แล้ว",
     "notSolved": "ยังไม่ได้แก้",
     "puzzlesCount": "{n}/3 ข้อ",
     "start": "เริ่มเลย",

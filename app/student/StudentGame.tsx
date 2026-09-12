@@ -661,6 +661,22 @@ export default function StudentGame() {
               : ""}
           </div>
 
+          {/* Opening a puzzle you have already solved used to give you a board
+              that would not move and no word about why. The board is still
+              locked — it is finished — but now it says so. Shown from `solved`,
+              which is true both on reopening and the moment it is beaten. */}
+          {solved && (
+            <div className="absolute left-[31px] top-[136px] flex w-[328px] items-center gap-3 rounded-[16px] border border-[#bfe4d8] bg-[#ebfaf5] px-3.5 py-2.5">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#15906b]">
+                <Check className="size-5 text-white" strokeWidth={3} />
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="text-[14px] font-bold text-[#10264d]">{t("completedTitle")}</span>
+                <span className="text-[11px] text-[#4a7f6d]">{t("completedBody")}</span>
+              </span>
+            </div>
+          )}
+
           <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
             <div className="relative mb-1 flex w-full justify-start">
               {message && (
@@ -707,6 +723,11 @@ export default function StudentGame() {
                       <button
                         key={idx}
                         onClick={() => select(vr, vc)}
+                        /* Named, like the squares on the shared board. Without
+                           this the puzzle board was a grid of unlabelled
+                           buttons — unreadable to a screen reader and
+                           unaddressable to anything driving it. */
+                        aria-label={squareName(r, c)}
                         className="relative flex size-[34px] cursor-pointer items-center justify-center border-none p-0"
                         style={{ background: bg }}
                       >
