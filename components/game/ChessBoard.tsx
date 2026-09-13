@@ -7,13 +7,14 @@
 
    Styling follows the puzzle board already in StudentGame: pale-blue tray,
    white mat, unicode glyphs. */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  PIECE_GLYPH,
   isPromotion,
   movesFrom,
+  pieceSrc,
   squareName,
+  squareToRC,
   toGrid,
   type BoardGrid,
 } from "@/lib/chess-core";
@@ -25,12 +26,19 @@ type Props = {
   orientation: "w" | "b";
   canMove: boolean;
   onMove: (uci: string) => void;
-  /** Highlights the last move played, so an arriving move is visible. */
+  /** The last move, as a full UCI pair (`e2e4`). Both of its squares are
+      highlighted and the arriving piece slides in from the first, so a move
+      that appeared out of nowhere can now be seen happening. */
   lastMove?: string;
   size?: number;
 };
 
 const PROMOTION_CHOICES = ["q", "r", "b", "n"] as const;
+
+/** Long enough to read as a move rather than a repaint, short enough that a
+    child waiting for their turn is not waiting on an animation. */
+const SLIDE_MS = 320;
+
 
 export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size = 328 }: Props) {
   const t = useTranslations("play");
@@ -40,6 +48,32 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
   const grid: BoardGrid = toGrid(game);
   const legal = from ? movesFrom(game, from) : [];
   const square = size / 8;
+
+  /* The arriving piece is drawn at the square it came *from* for one frame,
+     then released to its real place — so the browser animates the gap rather
+     than us moving anything. Two `requestAnimationFrame`s because one is not
+     enough: the offset has to be painted before the transition is allowed, or
+     the browser coalesces both into a single style and nothing moves. */
+  const [slide, setSlide] = useState<{ to: string; dx: number; dy: number } | null>(null);
+  useEffect(() => {
+    if (!lastMove || lastMove.length < 4) {
+      setSlide(null);
+      return;
+    }
+    const [fr, fc] = squareToRC(lastMove.slice(0, 2));
+    const [tr, tc] = squareToRC(lastMove.slice(2, 4));
+    // A board turned round for Black moves pieces the other way on screen.
+    const facing = orientation === "w" ? 1 : -1;
+    setSlide({ to: lastMove.slice(2, 4), dx: (fc - tc) * square * facing, dy: (fr - tr) * square * facing });
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setSlide(null));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [lastMove, square, orientation]);
 
   /* Black sits at the bottom for the player with black, which is how a real
      board works — asking a child to play upside down is a needless handicap. */
@@ -95,7 +129,11 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
               const isFrom = from === name;
               const dest = legal.find((uci) => uci.slice(2, 4) === name);
               const isCapture = !!dest && !!piece;
-              const wasLast = lastMove === name;
+              /* Both ends of it. Highlighting only where the piece landed left
+                 a child working out where it had come from. */
+              const wasLast =
+                !!lastMove && (lastMove.slice(0, 2) === name || lastMove.slice(2, 4) === name);
+              const sliding = slide?.to === name;
               const bg = isFrom
                 ? "rgb(220,232,248)"
                 : wasLast
@@ -113,16 +151,27 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
                   style={{ width: square, height: square, background: bg, cursor: canMove ? "pointer" : "default" }}
                 >
                   {piece && (
-                    <span
-                      className="select-none leading-none"
+                    /* eslint-disable-next-line @next/next/no-img-element --
+                       a board redraws these every move and next/image adds a
+                       loader round-trip per square for no benefit on a 45px
+                       inline SVG. */
+                    <img
+                      src={pieceSrc(piece.color, piece.type)}
+                      alt=""
+                      draggable={false}
+                      className="pointer-events-none select-none motion-reduce:!transition-none"
                       style={{
-                        fontSize: square * 0.72,
-                        color: piece.color === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
-                        textShadow: piece.color === "w" ? "1px 1px 0 rgb(36,65,124)" : "none",
+                        width: square * 0.86,
+                        height: square * 0.86,
+                        /* While sliding it sits where it came from with no
+                           transition; the frame after, it is released. */
+                        transform: sliding ? `translate(${slide.dx}px, ${slide.dy}px)` : undefined,
+                        transition: sliding ? "none" : `transform ${SLIDE_MS}ms ease-out`,
+                        /* Above the neighbouring squares it crosses. */
+                        zIndex: sliding ? 2 : undefined,
+                        position: "relative",
                       }}
-                    >
-                      {PIECE_GLYPH[piece.color + piece.type]}
-                    </span>
+                    />
                   )}
                   {dest &&
                     (isCapture ? (
@@ -147,11 +196,10 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
                   key={p}
                   onClick={() => choosePromotion(p)}
                   aria-label={t(`piece.${p}`)}
-                  className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-sv-gold text-3xl leading-none shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
-                  style={{ color: game.turn() === "w" ? "var(--color-sv-piece-white)" : "var(--color-sv-piece-black)",
-                           textShadow: game.turn() === "w" ? "1px 1px 0 rgb(36,65,124)" : "none" }}
+                  className="flex size-11 cursor-pointer items-center justify-center rounded-xl bg-sv-gold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
                 >
-                  {PIECE_GLYPH[game.turn() + p]}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={pieceSrc(game.turn(), p)} alt="" className="size-8" draggable={false} />
                 </button>
               ))}
             </div>
