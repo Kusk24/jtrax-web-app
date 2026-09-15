@@ -162,3 +162,76 @@ export function todayISO(now = new Date()): string {
   const pad = (v: number) => String(v).padStart(2, "0");
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
+
+/** How stale the most recent practice may be and still count as a live run.
+    One day, so a child who has not practised *yet today* keeps the streak they
+    earned yesterday — it breaks at the end of the day they miss, not at
+    midnight of the day they are still in. */
+const STREAK_GRACE_DAYS = 1;
+
+/**
+ * Consecutive days practised, ending today or yesterday.
+ *
+ * This is `currentStreak` in the backend's `internal/api/practice.go`, in
+ * TypeScript. The pupil's own portal asks the server for its number, and the
+ * two screens describe the same child — so the rule has to be the same rule,
+ * not merely a similar one. The parent portal cannot call that endpoint: it
+ * derives the whole of a child from the CRUD collections, and
+ * `practice/summary` answers only for whoever is signed in.
+ *
+ * What it must not do is read `student.streak_count`. That column is a number
+ * the browser used to post and nothing ever recomputed, so a child who had not
+ * practised since May still showed twelve days. The backend stopped writing it
+ * and made it un-writable — the comment on `practice-activities` in
+ * `registry.go` says a stored number could only disagree with the truth — and
+ * this screen was the last one still believing it.
+ *
+ * @param dates `activity_date` strings, any order, duplicates allowed.
+ * @param today The day to count back from.
+ */
+export function streakFrom(dates: string[], today = new Date()): number {
+  const todayStr = todayISO(today);
+  /* Distinct, no later than today, newest first — the same shape as the
+     backend's `SELECT DISTINCT ... ORDER BY activity_date DESC`. Lexical sort
+     is date order for YYYY-MM-DD. */
+  const days = [...new Set(dates.filter((d) => d && d <= todayStr))].sort().reverse();
+
+  let streak = 0;
+  /* The day the next entry has to be to continue the run. It starts at today
+     and is allowed to slip once, by the grace, before the first hit. */
+  let want = todayStr;
+  let first = true;
+  for (const day of days) {
+    if (first) {
+      if (dayGap(day, todayStr) > STREAK_GRACE_DAYS) return 0; // the run ended before today
+      want = day;
+      first = false;
+    } else if (day !== want) {
+      break; // a missing day ends it
+    }
+    streak++;
+    want = shiftDay(want, -1);
+  }
+  return streak;
+}
+
+/** Whole days between two YYYY-MM-DD dates, `later - earlier`. Built from the
+    date parts rather than `new Date(str)`, which parses a bare date as UTC and
+    would put the boundary seven hours out in Bangkok. */
+function dayGap(earlier: string, later: string): number {
+  return Math.round((utcOf(later) - utcOf(earlier)) / 86400_000);
+}
+
+function shiftDay(day: string, by: number): string {
+  const d = new Date(utcOf(day) + by * 86400_000);
+  const pad = (v: number) => String(v).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+}
+
+/** Midnight UTC for a YYYY-MM-DD, used only to count days between two of
+    them — never to display one, so the zone it lands in does not matter as
+    long as both sides use the same one. */
+function utcOf(day: string): number {
+  const [y, m, d] = day.split("-").map(Number);
+  return Date.UTC(y, (m ?? 1) - 1, d ?? 1);
+}

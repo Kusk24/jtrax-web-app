@@ -11,7 +11,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
-  CERT_SESSIONS, CURRENT, recentMonths, todayISO,
+  CERT_SESSIONS, CURRENT, recentMonths, streakFrom, todayISO,
   type AnnouncementV2, type ChildKey, type ChildV2, type HistRow, type MonthDef,
   type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind, type TournamentV2,
 } from "@/lib/parent-v2-data";
@@ -213,7 +213,13 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         expiresAhead: daysRaw >= 0,
         attended,
         heldSessions: held,
-        streak: n(st, "streak_count"),
+        /* Counted from the days this child actually practised, not read off
+           `student.streak_count` — a number the browser used to post and
+           nothing ever recomputed, so a child who stopped in May still showed
+           twelve days. The backend made that column un-writable when it began
+           deriving the pupil's own figure; this screen was the last one still
+           believing it. */
+        streak: streakFrom(acts.map((a) => s(a, "activity_date")), today),
         practiceWeek: week,
       };
     });
