@@ -287,6 +287,7 @@
     "dayStreak": "สตรีค {n} วัน",
     "studentIdLabel": "รหัสนักเรียน",
     "ratingLabel": "ระดับ {rating}",
+    "ratingTile": "เรตติ้ง",
     "lastAttendedLabel": "เรียนครั้งล่าสุด",
     "unrated": "ยังไม่มีเรตติ้ง",
     "notYet": "ยังไม่เคยเข้าเรียน",
