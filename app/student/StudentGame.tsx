@@ -37,9 +37,11 @@ import {
   gameAt,
   openPuzzle,
   getDailyPuzzles,
+  getFreePuzzle,
   getPracticeSummary,
   puzzleGoal,
   type DailyPuzzle,
+  type FreeTier,
   type PracticeSummary,
 } from "@/lib/puzzles";
 import type { Chess } from "chess.js";
@@ -126,6 +128,13 @@ export default function StudentGame() {
   const [puzzles, setPuzzles] = useState<DailyPuzzle[]>([]);
   const [exhausted, setExhausted] = useState(false);
   const [loadingPuzzles, setLoadingPuzzles] = useState(true);
+  /* Free Play is a puzzle at a time rather than a set, so it is held apart from
+     `puzzles` — folding it in would make the daily card count a puzzle nobody
+     was set today towards "3 of 3". Null means the pupil is on a daily one. */
+  const [freePuzzle, setFreePuzzle] = useState<DailyPuzzle | null>(null);
+  const [freeTier, setFreeTier] = useState<FreeTier | null>(null);
+  const [freeLoading, setFreeLoading] = useState<FreeTier | null>(null);
+  const [freeExhausted, setFreeExhausted] = useState<FreeTier | null>(null);
   /* The position as chess.js sees it, so the board obeys real rules rather
      than the mate-in-1 toy the three hard-coded puzzles used. */
   const [game, setGame] = useState<Chess | null>(null);
@@ -144,7 +153,7 @@ export default function StudentGame() {
   const [practice, setPractice] = useState<PracticeSummary | null>(null);
 
   const streak = practice?.streak ?? 0;
-  const puzzle = puzzles[puzzleIndex];
+  const puzzle = freePuzzle ?? puzzles[puzzleIndex];
   /* Rank 8 first when the pupil is White; flipped when they are Black, so the
      pieces they move are always the ones nearest them. */
   const flipped = puzzle?.side === "Black";
@@ -280,12 +289,10 @@ export default function StudentGame() {
     }
   }, []);
 
-  const loadPuzzle = (index: number) => {
-    const p = puzzles[index];
-    // Starts the clock server-side. Only the first open counts, so coming back
-    // after a wrong answer continues the same sitting.
+  /* Board state for whichever puzzle is being opened. Both paths reset exactly
+     the same things, so they share this rather than drifting apart. */
+  const openBoard = (p: DailyPuzzle | undefined) => {
     if (p && !p.solved) void openPuzzle(p.puzzleId);
-    setPuzzleIndex(index);
     setGame(p ? gameAt(p.fen) : null);
     setPlayed([]);
     setSelected(null);
@@ -295,8 +302,40 @@ export default function StudentGame() {
     setScreen("puzzle");
   };
 
+  /* Fetches one puzzle at the chosen difficulty and opens it. Each press is a
+     fresh request: the server may have to top the bank up from Lichess, so
+     there is no set to pre-load and nothing useful to cache. */
+  const loadFreePuzzle = (tier: FreeTier) => {
+    setFreeLoading(tier);
+    getFreePuzzle(tier)
+      .then((res) => {
+        if (!res.puzzle) {
+          setFreeExhausted(tier);
+          return;
+        }
+        setFreeExhausted(null);
+        setFreeTier(tier);
+        setFreePuzzle(res.puzzle);
+        openBoard(res.puzzle);
+      })
+      .catch(() => setFreeExhausted(tier))
+      .finally(() => setFreeLoading(null));
+  };
+
+  const loadPuzzle = (index: number) => {
+    const p = puzzles[index];
+    /* Opening a daily puzzle leaves Free Play, or `puzzle` would keep
+       resolving to the free one and the board would not change. */
+    setFreePuzzle(null);
+    setFreeTier(null);
+    setPuzzleIndex(index);
+    // openBoard starts the clock server-side. Only the first open counts, so
+    // coming back after a wrong answer continues the same sitting.
+    openBoard(p);
+  };
+
   const resetPuzzle = () => {
-    const p = puzzles[puzzleIndex];
+    const p = freePuzzle ?? puzzles[puzzleIndex];
     setGame(p ? gameAt(p.fen) : null);
     setPlayed([]);
     setSelected(null);
@@ -309,7 +348,7 @@ export default function StudentGame() {
      Nothing here knows the answer: the old board carried `from`/`to` for each
      of three fixed puzzles, so the solution was in the page. */
   const submit = async (uci: string) => {
-    const p = puzzles[puzzleIndex];
+    const p = freePuzzle ?? puzzles[puzzleIndex];
     if (!p || !game) return;
     setSelected(null);
     let verdict;
@@ -348,12 +387,27 @@ export default function StudentGame() {
 
     setSolved(true);
     setMessage(t("checkmateMsg"));
+    // The practice row was just written server-side by the grader, so the
+    // flame is re-read rather than guessed at. Free Play earns it too: the
+    // child practised, and the streak counts days practised.
+    refreshPractice();
+
+    /* A free puzzle is not part of today's set, so it neither marks a daily
+       row solved nor advances through one. The pupil chose to keep going, so
+       the next one at the same difficulty is fetched instead — and the daily
+       celebration is left for finishing the daily set. */
+    if (freePuzzle) {
+      setFreePuzzle({ ...freePuzzle, solved: true });
+      const tier = freeTier;
+      setTimeout(() => {
+        if (tier) loadFreePuzzle(tier);
+      }, 1400);
+      return;
+    }
+
     setPuzzles((prev) =>
       prev.map((row, i) => (i === puzzleIndex ? { ...row, solved: true } : row)),
     );
-    // The practice row was just written server-side by the grader, so the
-    // flame is re-read rather than guessed at.
-    refreshPractice();
     const wasLast = puzzles.slice(0, puzzleIndex).every((x) => x.solved) && puzzleIndex === puzzles.length - 1;
     setTimeout(() => {
       const nextUnsolved = puzzles.findIndex((x, i) => i !== puzzleIndex && !x.solved);
@@ -569,15 +623,22 @@ export default function StudentGame() {
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <p className="text-[13px] font-bold text-[#10264d]">{tab === "daily" ? t("dailyChallenge") : t("freePlay")}</p>
-                  <p className="mt-0.5 text-[10px] text-[#7083a3]">{t("puzzlesCount", { n: solvedCount })}</p>
+                  {/* The count and the bar are the daily set's progress. Free
+                      Play has no set and no end, so showing "0 of 3" there was
+                      a target that never moved. */}
+                  <p className="mt-0.5 text-[10px] text-[#7083a3]">
+                    {tab === "daily" ? t("puzzlesCount", { n: solvedCount }) : t("freePlayHint")}
+                  </p>
                 </div>
                 <span className="flex size-8 items-center justify-center rounded-xl bg-[#edf4ff] text-[#2563eb]">
                   <Puzzle className="size-4" strokeWidth={2.2} />
                 </span>
               </div>
-              <div className="mb-4 h-2 overflow-hidden rounded-full bg-[#dce8f8]">
-                <div className="h-full rounded-full bg-[#2563eb] transition-[width]" style={{ width: `${(solvedCount / 3) * 100}%` }} />
-              </div>
+              {tab === "daily" && (
+                <div className="mb-4 h-2 overflow-hidden rounded-full bg-[#dce8f8]">
+                  <div className="h-full rounded-full bg-[#2563eb] transition-[width]" style={{ width: `${(solvedCount / 3) * 100}%` }} />
+                </div>
+              )}
               <div className="flex flex-col gap-2.5">
               {tab === "daily"
                 ? loadingPuzzles
@@ -612,25 +673,34 @@ export default function StudentGame() {
                   ))
                 : (
                     [
-                      [t("beginnerPuzzles"), 1],
-                      [t("intermediatePuzzles"), 2],
-                      [t("advancedPuzzles"), 3],
+                      ["beginner", t("beginnerPuzzles"), 1],
+                      ["intermediate", t("intermediatePuzzles"), 2],
+                      ["advanced", t("advancedPuzzles"), 3],
                     ] as const
-                  ).map(([title, n]) => (
-                    <div
-                      key={title}
-                      className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 shadow-[0_4px_12px_rgba(37,99,235,.05)]"
+                  ).map(([tier, title, n]) => (
+                    <button
+                      key={tier}
+                      onClick={() => loadFreePuzzle(tier)}
+                      disabled={freeLoading !== null}
+                      className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 text-left shadow-[0_4px_12px_rgba(37,99,235,.05)] transition hover:border-[#bed5f5] hover:bg-[#f8fbff] disabled:cursor-wait disabled:opacity-60"
                     >
                       <span className="flex size-10 items-center justify-center rounded-xl bg-[#edf4ff] text-[22px] text-[#10264d]">
                         ♞
                       </span>
-                      <span className="flex-1 text-[13px] font-bold text-[#10264d]">{title}</span>
+                      <span className="flex flex-1 flex-col">
+                        <span className="text-[13px] font-bold text-[#10264d]">{title}</span>
+                        {freeLoading === tier ? (
+                          <span className="text-[10px] text-[#8292ad]">{t("puzzlesLoading")}</span>
+                        ) : freeExhausted === tier ? (
+                          <span className="text-[10px] text-[#8292ad]">{t("tierExhausted")}</span>
+                        ) : null}
+                      </span>
                       <span className="flex gap-0.5">
                         {Array.from({ length: n }, (_, i) => (
                           <Star key={i} className="size-[18px] fill-[#f2b632] text-[#c78a1d]" strokeWidth={1.5} />
                         ))}
                       </span>
-                    </div>
+                    </button>
                   ))}
               </div>
             </div>

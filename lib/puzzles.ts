@@ -54,6 +54,25 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const getDailyPuzzles = () => call<DailySet>("puzzles/daily");
 
+/** The three difficulties Free Play offers. The band each covers is the
+    server's business, not the browser's. */
+export type FreeTier = "beginner" | "intermediate" | "advanced";
+
+export type FreePuzzle = {
+  /** Null when this pupil has seen every puzzle at this difficulty and the
+      bank could not be topped up. */
+  puzzle: DailyPuzzle | null;
+  exhausted: boolean;
+};
+
+/** Asks for one puzzle at a chosen difficulty, outside today's set.
+ *
+ * Unlike the daily set this is a puzzle at a time: the pupil chose to keep
+ * going, so there is nothing to pre-assign and nothing to be stable about
+ * across a refresh. */
+export const getFreePuzzle = (tier: FreeTier) =>
+  call<FreePuzzle>(`puzzles/free?tier=${tier}`);
+
 /** Submits one move. `played` is the pupil's own moves so far; the opponent's
     replies come from the server's copy of the solution, so it rebuilds the
     position rather than trusting whatever the board here happens to show. */
