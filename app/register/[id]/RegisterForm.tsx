@@ -15,9 +15,17 @@
  */
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { BadgeCheck, Check, CreditCard, UserRound } from "lucide-react";
-import { categoryAllows, registerForTournament, type PublicCategory } from "@/lib/registration";
+import { BadgeCheck, Check, CreditCard, IdCard, UserRound } from "lucide-react";
+import {
+  ageFromDOB, categoryAllows, registerForTournament, scanIDCard,
+  type PublicCategory, type ScannedIDCard,
+} from "@/lib/registration";
 import { PublicCard } from "@/components/public/PublicShell";
+
+/* The five numbered conditions, in the order the academy wrote them. Data
+   rather than markup so the wording lives in the message files with everything
+   else the entrant reads, and so Thai is a translation rather than a fork. */
+const TERMS = ["termsRegistration", "termsRefund", "termsChanges", "termsConduct", "termsLiability"] as const;
 
 const field =
   "w-full min-h-[44px] rounded-xl border border-pp-line bg-white px-3 py-2.5 text-[15px] text-pp-ink " +
@@ -49,6 +57,19 @@ export function RegisterForm({
   const [categoryId, setCategoryId] = useState("");
   const [isStudent, setIsStudent] = useState(false);
   const [studentId, setStudentId] = useState("");
+  const [nickname, setNickname] = useState("");
+  /* A string, not a number: an empty numeric input is NaN, and a field that
+     flickers to 0 while somebody is deleting a digit is a field that fights
+     back. Converted once, at submit. */
+  const [age, setAge] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+
+  /* The card scan. `scan` holds what was read so the form can show which
+     values came off the document and how sure it was — a prefill the entrant
+     cannot see the provenance of is one they will not think to check. */
+  const [scan, setScan] = useState<ScannedIDCard | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanNote, setScanNote] = useState("");
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -68,6 +89,42 @@ export function RegisterForm({
      changed — can become one this player cannot enter. */
   const categoryBlocked = Boolean(chosen && !chosen.allowed);
 
+  /* Read the card and fill in what it says.
+   *
+   * Every value is written into a field the entrant can see and change. The
+   * scan is a typing aid, not a verification step: a misread date of birth
+   * that silently moved a child into the wrong age group would be worse than
+   * no scan at all, and the backend re-checks the group against whatever is
+   * finally submitted.
+   *
+   * A failure is a note, not an error — the form is still completable by hand,
+   * which is exactly what it was before this existed. */
+  async function readCard(file: File) {
+    setScanning(true);
+    setScanNote("");
+    try {
+      const card = await scanIDCard(tournamentId, file);
+      setScan(card);
+
+      /* Only fill a field that is empty. Somebody who typed their name and
+         then attached a card has told us the name twice, and the one they
+         typed is the one they meant. */
+      const full = [card.firstName.value, card.lastName.value].filter(Boolean).join(" ");
+      if (full && !name) setName(full);
+      if (card.dateOfBirth.value && !dateOfBirth) setDateOfBirth(card.dateOfBirth.value);
+      /* The age follows from the date of birth rather than being read: a card
+         prints a date and never an age. */
+      const derived = ageFromDOB(card.dateOfBirth.value);
+      if (derived > 0 && !age) setAge(String(derived));
+
+      if (!full && !card.dateOfBirth.value) setScanNote(t("scanNothingRead"));
+    } catch (err) {
+      setScanNote(err instanceof Error ? err.message : t("scanFailed"));
+    } finally {
+      setScanning(false);
+    }
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -76,6 +133,9 @@ export function RegisterForm({
       const out = await registerForTournament(tournamentId, {
         name, email, phone, dateOfBirth, categoryId, isStudent,
         studentId: isStudent ? studentId : undefined,
+        nickname,
+        age: Number(age) || undefined,
+        acceptTerms,
       });
       setDone({ feeQuoted: out.feeQuoted });
     } catch (err) {
@@ -144,6 +204,61 @@ export function RegisterForm({
               onChange={(e) => setPhone(e.target.value)}
             />
           </Labelled>
+        </div>
+        <div className="mt-3.5 grid gap-3.5 sm:grid-cols-2">
+          <Labelled label={t("nickname")} htmlFor="reg-nickname" hint={t("nicknameHint")}>
+            <input
+              id="reg-nickname" className={field} value={nickname} maxLength={80}
+              onChange={(e) => setNickname(e.target.value)}
+            />
+          </Labelled>
+          <Labelled label={t("age")} htmlFor="reg-age" hint={t("ageHint")}>
+            <input
+              id="reg-age" className={field} value={age}
+              type="number" inputMode="numeric" min={0} max={120}
+              onChange={(e) => setAge(e.target.value)}
+            />
+          </Labelled>
+        </div>
+
+        {/* The card, under the fields it fills rather than above them: it is
+            optional, and leading with an upload on a phone reads as a wall. */}
+        <div className="mt-3.5 rounded-xl border border-dashed border-pp-line bg-pp-wash p-3">
+          <p className="text-[13px] font-semibold text-pp-ink">{t("idCardTitle")}</p>
+          <p className="mt-0.5 text-[12.5px] text-pp-sub">{t("idCardHint")}</p>
+          <label className="mt-2.5 inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-pp-line bg-white px-3.5 text-[14px] font-semibold text-pp-ink transition-colors duration-150 hover:border-pp-blue">
+            <IdCard className="size-4" />
+            {scanning ? t("scanning") : t("idCardChoose")}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={scanning}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                /* Cleared so picking the same file twice still fires — a
+                   retry after a blurry photo is the ordinary case. */
+                e.target.value = "";
+                if (f) void readCard(f);
+              }}
+            />
+          </label>
+          {scanNote && (
+            <p className="mt-2 text-[12.5px] text-pp-amber-ink" role="status">{scanNote}</p>
+          )}
+          {scan && (
+            /* What the card said, so the entrant knows which fields came off
+               it and can see where the model was unsure. */
+            <p className="mt-2 text-[12.5px] text-pp-sub" role="status">
+              {t("scanRead", {
+                name: [scan.firstName.value, scan.lastName.value].filter(Boolean).join(" ") || "—",
+                dob: scan.dateOfBirth.value || "—",
+              })}
+              {scan.dateOfBirth.value && scan.dateOfBirth.confidence < 0.5 && (
+                <span className="block font-semibold text-pp-amber-ink">{t("scanCheckDate")}</span>
+              )}
+            </p>
+          )}
         </div>
       </Section>
 
@@ -222,6 +337,35 @@ export function RegisterForm({
           </p>
         )}
 
+        {/* The conditions, above the button that accepts them. Collapsed by
+            default because there are five numbered clauses and a phone form
+            that opens with a wall of legal text is a phone form nobody
+            finishes — but present, and openable, on the same screen as the
+            tick. A link away to them would be a tick on something unread. */}
+        <details className="rounded-xl border border-pp-line bg-pp-wash px-3.5 py-3">
+          <summary className="cursor-pointer text-[13.5px] font-semibold text-pp-ink">
+            {t("termsTitle")}
+          </summary>
+          <ol className="mt-2 flex list-decimal flex-col gap-2 pl-5 text-[12.5px] leading-relaxed text-pp-sub">
+            {TERMS.map((key) => (
+              <li key={key}>
+                <span className="font-semibold text-pp-ink">{t(`${key}Title`)}</span>
+                <span className="block">{t(`${key}Body`)}</span>
+              </li>
+            ))}
+          </ol>
+        </details>
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-pp-line bg-white p-3 transition-colors duration-150 hover:border-pp-blue">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-5 shrink-0 cursor-pointer accent-pp-blue"
+            checked={acceptTerms}
+            onChange={(e) => setAcceptTerms(e.target.checked)}
+          />
+          <span className="text-[13.5px] leading-snug text-pp-ink">{t("termsAccept")}</span>
+        </label>
+
         <div className="grid gap-3 md:grid-cols-[1fr_1.2fr] md:items-center">
           <span className="rounded-xl bg-[#f4f8ff] px-4 py-3 text-[13px] text-pp-muted">
             {t("youPay")} <strong className="ml-1 text-[22px] text-pp-navy">{money(payable)}</strong>
@@ -230,8 +374,12 @@ export function RegisterForm({
             type="submit"
             /* The PDF's rule: an ineligible category means they cannot
                proceed to registration or payment. The backend refuses it
-               regardless; this stops the journey earlier. */
-            disabled={busy || categoryBlocked}
+               regardless; this stops the journey earlier.
+
+               Unticked terms disable it for the same reason — the server
+               refuses the entry, and finding that out after pressing Submit
+               teaches nothing the checkbox above could not have said. */
+            disabled={busy || categoryBlocked || !acceptTerms}
             className="flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-pp-blue px-6 text-[14px] font-semibold text-white shadow-[0_8px_18px_rgba(46,92,184,.2)] transition-colors duration-150 hover:bg-pp-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? t("sending") : <><Check className="size-4" />{t("submit")}</>}

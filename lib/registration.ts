@@ -51,6 +51,15 @@ export type RegisterInput = {
   /** Required when isStudent: the discount is only given against an ID the
       academy can find. */
   studentId?: string;
+  /** Printed on the pairing card and called across the hall. */
+  nickname?: string;
+  /** As claimed. The backend prefers the date of birth where there is one —
+      that is what a card proves — and uses this only when there is not. */
+  age?: number;
+  /** The five conditions on the entry form. The backend refuses the entry
+      without it rather than defaulting it: a record that can mean "we assumed
+      yes" answers nothing three weeks later. */
+  acceptTerms: boolean;
 };
 
 /** The age a category name implies — "U8 Boys" is under 8. Mirrors the
@@ -115,4 +124,55 @@ export async function registerForTournament(
     throw new Error((data as { error?: string }).error ?? "registration failed");
   }
   return data as RegisterResult;
+}
+
+/* ------------------------------------------------------ reading an ID card --- */
+
+/** One value read off a document, with how sure the model was of it. */
+export type ScannedField = { value: string; confidence: number };
+
+export type ScannedIDCard = {
+  firstName: ScannedField;
+  lastName: ScannedField;
+  /** YYYY-MM-DD, already converted out of the Buddhist era by the server. */
+  dateOfBirth: ScannedField;
+  /** "thai-id", "passport", or "" when the server would not classify it. */
+  documentType: string;
+};
+
+/**
+ * Read a Thai ID card or passport, to fill in the name and age.
+ *
+ * A convenience, never a requirement: the image is not stored, nothing is
+ * submitted by this call, and an entrant who skips it or whose photo cannot be
+ * read types their details exactly as before. So every failure here is
+ * recoverable by ignoring it, which is why the form treats an error as a hint
+ * rather than a blocked path.
+ */
+export async function scanIDCard(tournamentId: string, image: File): Promise<ScannedIDCard> {
+  const body = new FormData();
+  body.append("image", image);
+  const res = await fetch(`/api/public/tournaments/${tournamentId}/scan-id`, {
+    method: "POST",
+    body,
+    cache: "no-store",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data as { error?: string }).error ?? "could not read the card");
+  }
+  return (data as { fields: ScannedIDCard }).fields;
+}
+
+/** Whole years old on `on`, from a YYYY-MM-DD date of birth. 0 when unknown. */
+export function ageFromDOB(dob: string, on = new Date()): number {
+  if (!dob) return 0;
+  const d = new Date(dob);
+  if (Number.isNaN(d.getTime())) return 0;
+  let age = on.getFullYear() - d.getFullYear();
+  const before =
+    on.getMonth() < d.getMonth() ||
+    (on.getMonth() === d.getMonth() && on.getDate() < d.getDate());
+  if (before) age--;
+  return Math.max(0, age);
 }
