@@ -7,7 +7,7 @@
  * the same answers.
  */
 import { describe, expect, it } from "vitest";
-import { ageOn, categoryAgeLimit, categoryAllows } from "./registration";
+import { ageFromDOB, ageOn, categoryAgeLimit, categoryAllows } from "./registration";
 
 describe("categoryAgeLimit", () => {
   it("reads the age out of the name the organiser wrote", () => {
@@ -64,5 +64,38 @@ describe("categoryAllows", () => {
 
   it("needs nothing at all for a category with no age", () => {
     expect(categoryAllows("Open", "", start)).toMatchObject({ allowed: true, needsDob: false });
+  });
+});
+
+describe("ageFromDOB", () => {
+  /* The age is derived from the card's date rather than read off it, because a
+     card prints a date and never an age. */
+  const on = new Date(2026, 9, 10); // 2026-10-10, the chessfest date
+
+  it("counts whole years", () => {
+    expect(ageFromDOB("2016-01-31", on)).toBe(10);
+  });
+
+  it("has not counted a birthday that has not happened yet this year", () => {
+    // Born in December: on 10 October they are still 9.
+    expect(ageFromDOB("2016-12-01", on)).toBe(9);
+  });
+
+  it("counts a birthday that is today", () => {
+    expect(ageFromDOB("2016-10-10", on)).toBe(10);
+  });
+
+  it("is 0 for a date it cannot read, rather than NaN", () => {
+    // NaN in a number input renders as an empty field that cannot be typed in.
+    for (const bad of ["", "not a date", "2540-05-02-1"]) {
+      expect(ageFromDOB(bad, on)).toBe(0);
+    }
+  });
+
+  /* A card the sanitiser failed to convert would otherwise produce a negative
+     age, which the form would then send and the backend would refuse for a
+     reason nobody could act on. */
+  it("never returns a negative age", () => {
+    expect(ageFromDOB("2540-05-02", on)).toBe(0);
   });
 });
