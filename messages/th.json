@@ -38,7 +38,7 @@
     "errorUnreachable": "เชื่อมต่อเซิร์ฟเวอร์ JTrax ไม่ได้ — กรุณาลองใหม่อีกครั้ง"
   },
   "common": {
-    "hi": "สวัสดี คุณ{name} !",
+    "hi": "สวัสดี คุณ{name}!",
     "viewAll": "ดูทั้งหมด",
     "done": "เสร็จสิ้น",
     "present": "มาเรียน",
@@ -63,7 +63,7 @@
     "roleParent": "ผู้ปกครอง",
     "verifiedAccount": "บัญชีผู้ปกครองยืนยันแล้ว",
     "verified": "ยืนยันแล้ว",
-    "hi": "สวัสดี คุณ{name} !",
+    "hi": "สวัสดี คุณ{name}!",
     "announcements": "ประกาศ",
     "noAnnouncements": "ยังไม่มีประกาศ",
     "viewAll": "ดูทั้งหมด",
