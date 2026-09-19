@@ -17,7 +17,10 @@ import {
 import { useParentData } from "@/components/parent/ParentData";
 import { TournamentBanner } from "@/components/parent/TournamentBanner";
 
-type Step = "detail" | "register" | "payment" | "done";
+/* "done" is a fee that has been settled; "held" is a place taken with the fee
+   still owed — the screen used to show the first for both, and for the card
+   path it showed it without charging anything at all. */
+type Step = "detail" | "register" | "payment" | "done" | "held";
 
 const inputCls =
   "w-full rounded-[13px] border-[1.5px] border-pp-line bg-pp-card px-3.5 py-3 text-[13px] text-pp-ink outline-none focus:border-pp-blue/60";
@@ -57,18 +60,28 @@ const cta =
 export default function TournamentFlow() {
   const t = useTranslations("pv2");
   const router = useRouter();
-  const { children: childrenV2, tournament: tournamentV2, parent, register } = useParentData();
+  const {
+    children: childrenV2, tournament: tournamentV2, tournamentEntries, parent,
+    register, payCardFee,
+  } = useParentData();
   const [submitting, setSubmitting] = useState(false);
   /* Whatever the server said stays in the console. A parent gets one sentence
      they can act on, in their own language, beside the button. */
   const [registerFailed, setRegisterFailed] = useState(false);
+  /* Separate from registerFailed because they mean different things to a
+     parent: one says the child has no place, the other says the child has a
+     place and the fee is still owed. */
+  const [payFailed, setPayFailed] = useState(false);
   const [step, setStep] = useState<Step>("detail");
   const [child, setChild] = useState(childrenV2[0]?.key ?? "");
-  const [pay, setPay] = useState("card");
+  const [pay, setPay] = useState<"card" | "promptpay" | "bank">("card");
   /* Prefilled with the signed-in parent — it used to arrive filled in with a
      sample parent's details, and a family who did not notice registered their
      child under her email. Still editable: the contact for the day is not
      always the account holder. */
+  /* Controlled, and sent. Both boxes used to be uncontrolled and read by
+     nobody: a parent typing an allergy into them was telling the browser. */
+  const [notes, setNotes] = useState({ medical: "", remarks: "" });
   const [contact, setContact] = useState({
     name: parent.name,
     phone: parent.phone,
@@ -76,6 +89,11 @@ export default function TournamentFlow() {
   });
 
   const participant = childrenV2.find((c) => c.key === child) ?? childrenV2[0];
+  /* A child with a place cannot be registered again — the second attempt is
+     refused by a unique index, which is what a family who had a card declined
+     used to hit. They get the fee button instead. */
+  const entered = new Set(tournamentEntries.map((e) => e.studentId));
+  const available = childrenV2.filter((c) => !entered.has(c.key));
 
   /* No event open — nothing to register for. The home screen only links here
      while a tournament exists, but the URL can always be typed. */
@@ -90,21 +108,29 @@ export default function TournamentFlow() {
     );
   }
 
-  if (step === "done") {
+  if (step === "done" || step === "held") {
+    const settled = step === "done";
     return (
       <div className="mx-auto flex min-h-[70dvh] w-full max-w-[620px] flex-col items-center justify-center gap-4 px-5 text-center">
-        <span className="flex size-16 items-center justify-center rounded-full bg-pp-green-soft text-pp-green">
-          <Check className="size-[30px]" strokeWidth={2} />
+        <span
+          className={`flex size-16 items-center justify-center rounded-full ${
+            settled ? "bg-pp-green-soft text-pp-green" : "bg-pp-amber-soft text-pp-amber"
+          }`}
+        >
+          {settled ? <Check className="size-[30px]" strokeWidth={2} />
+            : <CalendarClock className="size-[30px]" strokeWidth={2} />}
         </span>
         <span className="font-pp-display text-[22px] font-semibold text-pp-ink">
-          {t("regConfirmed")}
+          {settled ? t("regConfirmed") : t("placeHeld")}
         </span>
         <span className="text-[13.5px] leading-relaxed text-pp-sub">
-          {t("regConfirmedBody", {
-            name: participant.name,
-            event: tournamentV2.name,
-            email: contact.email,
-          })}
+          {settled
+            ? t("regConfirmedBody", { name: participant.name, event: tournamentV2.name })
+            : t("placeHeldBody", {
+              name: participant.name,
+              event: tournamentV2.name,
+              fee: tournamentV2.fee,
+            })}
         </span>
         <button onClick={() => router.push("/parent")} className={`${cta} px-7`}>
           {t("done")}
@@ -120,7 +146,7 @@ export default function TournamentFlow() {
         <div className="flex flex-col gap-2">
           <span className={label}>{t("selectChild")}</span>
           <div className="flex flex-col gap-2.5">
-            {childrenV2.map((c) => (
+            {available.map((c) => (
               <button
                 key={c.key}
                 onClick={() => setChild(c.key)}
@@ -142,13 +168,27 @@ export default function TournamentFlow() {
           <span className="text-[11px] font-bold uppercase tracking-[.1em] text-pp-sub">
             {t("medicalNotes")}
           </span>
-          <textarea rows={2} placeholder={t("none")} className={`${inputCls} resize-none`} />
+          <textarea
+            rows={2}
+            value={notes.medical}
+            onChange={(e) => setNotes({ ...notes, medical: e.target.value })}
+            maxLength={2000}
+            placeholder={t("none")}
+            className={`${inputCls} resize-none`}
+          />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-[11px] font-bold uppercase tracking-[.1em] text-pp-sub">
             {t("remarks")}
           </span>
-          <textarea rows={2} placeholder={t("remarksPh")} className={`${inputCls} resize-none`} />
+          <textarea
+            rows={2}
+            value={notes.remarks}
+            onChange={(e) => setNotes({ ...notes, remarks: e.target.value })}
+            maxLength={2000}
+            placeholder={t("remarksPh")}
+            className={`${inputCls} resize-none`}
+          />
         </label>
         <div className="flex flex-col gap-2.5">
           <span className={label}>{t("contactInfo")}</span>
@@ -235,29 +275,62 @@ export default function TournamentFlow() {
             {t("registerFailed")}
           </p>
         )}
+        {payFailed && (
+          <p role="alert" className="text-[12.5px] font-semibold text-pp-danger">
+            {t("payFailed")}
+          </p>
+        )}
         <button
           disabled={submitting}
           onClick={async () => {
             setSubmitting(true);
             setRegisterFailed(false);
+            setPayFailed(false);
+            let registrationId = "";
             try {
-              await register({
+              registrationId = await register({
                 tournamentId: tournamentV2.id,
                 studentId: participant.id,
-                participantName: participant.name,
                 contact: contact.phone,
-                fee: tournamentV2.feeAmount,
+                medicalNotes: notes.medical.trim(),
+                remarks: notes.remarks.trim(),
               });
-              setStep("done");
             } catch {
               setRegisterFailed(true);
-            } finally {
+              setSubmitting(false);
+              return;
+            }
+            /* The place exists from here on, whatever happens to the money.
+               PromptPay and bank transfer are taken at the front desk, so
+               choosing either means exactly that and nothing is charged
+               online — which is what the screen now says instead of claiming
+               a payment went through. */
+            if (pay !== "card") {
+              setStep("held");
+              setSubmitting(false);
+              return;
+            }
+            try {
+              const url = await payCardFee(registrationId);
+              if (!url) {
+                // Card payments are not switched on: the place is held and the
+                // desk takes the fee.
+                setStep("held");
+                setSubmitting(false);
+                return;
+              }
+              // Stripe hosts the card form; it sends the parent back to the
+              // academy's thank-you page, and the webhook — not this browser —
+              // is what marks the fee paid.
+              window.location.href = url;
+            } catch {
+              setPayFailed(true);
               setSubmitting(false);
             }
           }}
-          className={cta}
+          className={`${cta} ${submitting ? "opacity-70" : ""}`}
         >
-          {t("payNow")}
+          {submitting && pay === "card" ? t("openingPayment") : t("payNow")}
         </button>
       </div>
     );
@@ -347,9 +420,74 @@ export default function TournamentFlow() {
           </a>
         </div>
       </div>
-      <button onClick={() => setStep("register")} className={cta}>
-        {t("registerMyChild")}
-      </button>
+      {tournamentEntries.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className={label}>{t("yourEntries")}</span>
+          <div className={`${card} flex flex-col gap-3`}>
+            {tournamentEntries.map((e, i) => (
+              <div key={e.registrationId} className="flex flex-col gap-2.5">
+                {i > 0 && <div className="border-t border-pp-line" />}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[13px] font-semibold text-pp-ink">{e.name}</span>
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                      e.paid
+                        ? "bg-pp-green-soft text-pp-green"
+                        : "bg-pp-amber-soft text-pp-amber"
+                    }`}
+                  >
+                    {e.paid ? t("feePaid") : t("feeUnpaid")}
+                  </span>
+                </div>
+                {!e.paid && (
+                  <button
+                    disabled={submitting}
+                    onClick={async () => {
+                      setSubmitting(true);
+                      setPayFailed(false);
+                      try {
+                        const url = await payCardFee(e.registrationId);
+                        if (url) window.location.href = url;
+                        else setPayFailed(true);
+                      } catch {
+                        setPayFailed(true);
+                      } finally {
+                        setSubmitting(false);
+                      }
+                    }}
+                    className={`${cta} ${submitting ? "opacity-70" : ""}`}
+                  >
+                    {submitting ? t("openingPayment") : t("payByCard")}
+                  </button>
+                )}
+              </div>
+            ))}
+            {tournamentEntries.some((e) => !e.paid) && (
+              <span className="text-[11.5px] leading-relaxed text-pp-muted">
+                {t("paidAtDeskNote")}
+              </span>
+            )}
+          </div>
+          {payFailed && (
+            <p role="alert" className="text-[12.5px] font-semibold text-pp-danger">
+              {t("payFailed")}
+            </p>
+          )}
+        </div>
+      )}
+      {available.length > 0 ? (
+        <button
+          onClick={() => {
+            setChild(available[0].key);
+            setStep("register");
+          }}
+          className={cta}
+        >
+          {tournamentEntries.length > 0 ? t("registerAnother") : t("registerMyChild")}
+        </button>
+      ) : (
+        <p className="text-center text-[12.5px] text-pp-muted">{t("allChildrenEntered")}</p>
+      )}
     </div>
   );
 }
