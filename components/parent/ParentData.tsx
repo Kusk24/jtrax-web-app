@@ -13,8 +13,10 @@ import { useTranslations } from "next-intl";
 import {
   CERT_SESSIONS, CURRENT, recentMonths, streakFrom, todayISO,
   type AnnouncementV2, type ChildKey, type ChildV2, type HistRow, type MonthDef,
-  type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind, type TournamentV2,
+  type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind,
+  type TournamentEntryV2, type TournamentV2,
 } from "@/lib/parent-v2-data";
+import { money } from "@/lib/money";
 
 type Row = Record<string, unknown>;
 const s = (r: Row, k: string) => (r[k] as string | null) ?? "";
@@ -70,6 +72,11 @@ type ParentDataValue = {
   isAnnRead: (id: string) => boolean;
   markAnnRead: (id: string) => void;
   tournament: TournamentV2 | null;
+  /** The family's existing entries in that tournament, so the screen can offer
+      to settle a fee instead of re-registering a child who already has a
+      place — the second attempt fails on a unique index, which used to be the
+      only way back after a card was declined. */
+  tournamentEntries: TournamentEntryV2[];
   months: MonthDef[];
   att: Record<ChildKey, Record<number, { present: number[]; absent: number[] }>>;
   hist: HistRow[];
@@ -80,9 +87,17 @@ type ParentDataValue = {
   prefs: Prefs;
   parentId: string;
   savePref: (type: NotifType, enabled: boolean) => Promise<void>;
+  /** Signs a child up and answers with the new registration's id, which is
+      what `payCardFee` needs to collect the entry fee. */
   register: (input: {
-    tournamentId: string; studentId: string; participantName: string; contact: string; fee: number;
-  }) => Promise<void>;
+    tournamentId: string; studentId: string; contact: string;
+    medicalNotes: string; remarks: string;
+  }) => Promise<string>;
+  /** Opens (or reopens) the card checkout for a registration's entry fee and
+      answers with the URL to send the parent to, or `null` when the academy
+      has no card payments configured — in which case the place is still held
+      and the desk takes the money. */
+  payCardFee: (registrationId: string) => Promise<string | null>;
 };
 
 const ParentDataContext = createContext<ParentDataValue | null>(null);
@@ -117,6 +132,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [anns, setAnns] = useState<AnnouncementV2[]>([]);
   const [allNotifs, setAllNotifs] = useState<InboxNotif[]>([]);
   const [tour, setTour] = useState<TournamentV2 | null>(null);
+  const [entries, setEntries] = useState<TournamentEntryV2[]>([]);
   const [months] = useState<MonthDef[]>(() => recentMonths());
   const [att, setAtt] = useState<ParentDataValue["att"]>({});
   const [hist, setHist] = useState<HistRow[]>([]);
@@ -128,11 +144,13 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
 
   const load = useCallback(async () => {
     const [students, enrollments, classes, txs, teachers, attendance, sessions,
-      announcements, tournaments, activities, parents, contacts, config, me] = await Promise.all([
+      announcements, tournaments, activities, parents, contacts, regs, payments,
+      config, me] = await Promise.all([
       get("students"), get("enrollments"), get("classes"), get("credit-transactions"),
       get("teachers"), get("attendance"), get("class-sessions"),
       get("announcements"), get("tournaments"), get("practice-activities"),
       get("parents"), get("parent-contacts"),
+      get("tournament-registrations"), get("payments"),
       /* Tolerant: a backend deployed before system-configuration was readable
          by parents answers 403, and the milestone has a default — that must
          not read as the whole server being down. */
@@ -328,14 +346,35 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         date: fmtDate(s(trn, "start_date")),
         regDeadline: fmtDate(deadline),
         day: fmtDate(s(trn, "start_date")),
-        fee: `THB ${n(trn, "regular_fee")}`,
-        feeAmount: n(trn, "regular_fee"),
+        /* What this family's child is charged, worked out by the server from
+           the tournament's own pricing — the regular fee is only the
+           fallback for a backend that does not send it yet. */
+        fee: money("student_fee" in trn ? n(trn, "student_fee") : n(trn, "regular_fee")),
         closesInDays: deadline
           ? Math.max(0, Math.ceil((new Date(deadline).getTime() - today.getTime()) / 86400_000))
           : 0,
       });
+      /* Which of this family's children already have a place, and whether the
+         fee behind each has settled. Both lists arrive scoped to the family by
+         the server, so nothing here needs to filter by parent — only by which
+         tournament is being shown. */
+      const tid = s(trn, "tournament_id");
+      setEntries(regs
+        .filter((r) => s(r, "tournament_id") === tid && s(r, "status") !== "Rejected")
+        .map((r) => {
+          const rid = s(r, "tournament_registration_id");
+          const pay = payments.find((p) => s(p, "tournament_registration_id") === rid);
+          return {
+            registrationId: rid,
+            studentId: s(r, "student_id"),
+            name: s(r, "participant_name"),
+            status: s(r, "status"),
+            paid: s(pay ?? {}, "status") === "Paid",
+          };
+        }));
     } else {
       setTour(null);
+      setEntries([]);
     }
 
     setTodayActivity(mapped.map((c) => {
@@ -388,23 +427,44 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   }, []);
 
   const register = useCallback(async (input: {
-    tournamentId: string; studentId: string; participantName: string; contact: string; fee: number;
+    tournamentId: string; studentId: string; contact: string;
+    medicalNotes: string; remarks: string;
   }) => {
-    const res = await fetch("/api/tournament-registrations", {
+    /* No name, fee or status: the server takes the name from the academy's
+       records and the price from the tournament. This used to send the fee,
+       and the card payment charged whatever it said. */
+    const res = await fetch(`/api/tournaments/${input.tournamentId}/entries`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        tournament_id: input.tournamentId,
         student_id: input.studentId,
-        participant_name: input.participantName,
         participant_contact: input.contact,
-        fee_charged: input.fee,
+        medical_notes: input.medicalNotes,
+        remarks: input.remarks,
       }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error((data as { error?: string }).error ?? "registration failed");
     }
+    const row = (await res.json()) as { tournament_registration_id?: string };
+    return row.tournament_registration_id ?? "";
+  }, []);
+
+  /* The place comes first and the money second, on purpose: a declined card,
+     a closed tab or a family who decide to pay at the desk must not cost the
+     child their entry. So this is a separate call, made after the registration
+     exists, and a failure here leaves that registration standing. */
+  const payCardFee = useCallback(async (registrationId: string) => {
+    const res = await fetch(`/api/tournament-registrations/${registrationId}/stripe-link`, {
+      method: "POST",
+    });
+    // 503 is the academy not having switched card payments on. That is a
+    // supported state, not an error to show a parent: they pay at the desk.
+    if (res.status === 503) return null;
+    if (!res.ok) throw new Error("could not open the payment");
+    const data = (await res.json()) as { url?: string };
+    return data.url ?? null;
   }, []);
 
   const markNotifRead = useCallback((id: string) => {
@@ -436,10 +496,11 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     },
     isAnnRead: (id) => annRead.has(id),
     markAnnRead,
-    tournament: tour, months, att, hist, todayActivity, certSessions,
-    prefs, parentId, savePref, register,
+    tournament: tour, tournamentEntries: entries, months, att, hist, todayActivity, certSessions,
+    prefs, parentId, savePref, register, payCardFee,
   }), [childList, parent, anns, allNotifs, annRead, markNotifRead, markAnnRead,
-    tour, months, att, hist, todayActivity, certSessions, prefs, parentId, savePref, register]);
+    tour, entries, months, att, hist, todayActivity, certSessions, prefs, parentId, savePref, register,
+    payCardFee]);
 
   /* No screen renders until the data is real. The old behaviour — sample
      children whenever the server was down — looked exactly like working

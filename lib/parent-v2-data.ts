@@ -99,6 +99,17 @@ export interface InboxNotif {
   href: string;
 }
 
+/** One of the family's children already signed up for the current tournament.
+    `paid` is whether the payment against this registration has settled — by
+    card through Stripe, or recorded by the front desk as paid at the counter. */
+export interface TournamentEntryV2 {
+  registrationId: string;
+  studentId: string;
+  name: string;
+  status: string;
+  paid: boolean;
+}
+
 export interface TournamentV2 {
   id: string;
   name: string;
@@ -107,7 +118,6 @@ export interface TournamentV2 {
   regDeadline: string;
   day: string;
   fee: string;
-  feeAmount: number;
   closesInDays: number;
 }
 
