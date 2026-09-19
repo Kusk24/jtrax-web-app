@@ -12,16 +12,21 @@ async function forward(req: NextRequest, params: Promise<{ path: string[] }>) {
   const token = store.get(SESSION_COOKIE)?.value;
 
   const url = `${API_BASE}/api/v1/${path.join("/")}${req.nextUrl.search}`;
+  // A registration carries a file, so the request is multipart with its own
+  // boundary, not JSON — the incoming Content-Type is forwarded as-is rather
+  // than assumed, and the body is read as bytes rather than text() so a
+  // photo's binary content survives the trip.
+  const incomingType = req.headers.get("content-type");
   const init: RequestInit = {
     method: req.method,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": incomingType ?? "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     cache: "no-store",
   };
   if (req.method !== "GET" && req.method !== "HEAD") {
-    init.body = await req.text();
+    init.body = await req.arrayBuffer();
   }
 
   // An event stream never ends, so it must not be buffered — and it must be

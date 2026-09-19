@@ -11,7 +11,7 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CalendarDays, Clock3, FileText, MapPin, Users } from "lucide-react";
+import { CalendarDays, Clock3, ExternalLink, FileText, MapPin, Users } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
@@ -104,7 +104,14 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
                 note={t("discountOf", { pct: tournament.studentDiscountPct })}
               />
             )}
-            {tournament.venueName && <Fact label={t("venue")} value={tournament.venueName} icon={<MapPin className="size-4" />} />}
+            {tournament.venueName && (
+              <Fact
+                label={t("venue")}
+                value={tournament.venueName}
+                icon={<MapPin className="size-4" />}
+                link={tournament.venueMapUrl ? { href: tournament.venueMapUrl, label: t("viewOnMap") } : undefined}
+              />
+            )}
             {tournament.registrationDeadline && (
               <Fact label={t("closes")} value={formatDate(tournament.registrationDeadline, locale)} icon={<Clock3 className="size-4" />} />
             )}
@@ -162,14 +169,37 @@ function money(amount: number, locale = "en"): string {
   }).format(amount);
 }
 
-function Fact({ label, value, note, icon }: { label: string; value: string; note?: string; icon?: React.ReactNode }) {
+function Fact({
+  label, value, note, icon, link,
+}: {
+  label: string;
+  value: string;
+  note?: string;
+  icon?: React.ReactNode;
+  /** A place to send someone for more than this card can say — currently
+      just "View on Map", but the shape is generic. */
+  link?: { href: string; label: string };
+}) {
   return (
-    /* The note lives inside the <dd>, not beside it: a <div> inside a <dl> may
-       only hold <dt>/<dd> pairs, and a stray <p> there is invalid markup that
-       screen readers read out of order. */
+    /* The note and link live inside the <dd>, not beside it: a <div> inside a
+       <dl> may only hold <dt>/<dd> pairs, and a stray element there is
+       invalid markup that screen readers read out of order. */
     <div className="rounded-xl border border-pp-line bg-[#fbfdff] p-3">
       <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-pp-muted"><span className="text-pp-blue">{icon}</span>{label}</dt>
-      <dd className="mt-1 text-[14px] font-semibold text-pp-ink">{value}{note && <span className="block text-[10.5px] font-normal text-pp-muted">{note}</span>}</dd>
+      <dd className="mt-1 text-[14px] font-semibold text-pp-ink">
+        {value}
+        {note && <span className="block text-[10.5px] font-normal text-pp-muted">{note}</span>}
+        {link && (
+          <a
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex items-center gap-1 text-[10.5px] font-semibold text-pp-blue hover:underline"
+          >
+            {link.label}<ExternalLink className="size-3" aria-hidden />
+          </a>
+        )}
+      </dd>
     </div>
   );
 }

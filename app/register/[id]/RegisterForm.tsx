@@ -19,6 +19,12 @@ import { BadgeCheck, Check, CreditCard, UserRound } from "lucide-react";
 import { categoryAllows, registerForTournament, type PublicCategory } from "@/lib/registration";
 import { PublicCard } from "@/components/public/PublicShell";
 
+/* Mirrors the backend's own regulationTypes (see jtrax-backend regulation.go)
+   — the accept list is a UI convenience, the server is the one that actually
+   enforces it. */
+const ID_DOCUMENT_ACCEPT = ".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf";
+const MAX_ID_DOCUMENT_BYTES = 10 << 20;
+
 const field =
   "w-full min-h-[44px] rounded-xl border border-pp-line bg-white px-3 py-2.5 text-[15px] text-pp-ink " +
   "outline-none transition-colors duration-150 placeholder:text-pp-muted " +
@@ -49,6 +55,9 @@ export function RegisterForm({
   const [categoryId, setCategoryId] = useState("");
   const [isStudent, setIsStudent] = useState(false);
   const [studentId, setStudentId] = useState("");
+  const [idDocument, setIdDocument] = useState<File | null>(null);
+  const [idDocumentError, setIdDocumentError] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -68,14 +77,34 @@ export function RegisterForm({
      changed — can become one this player cannot enter. */
   const categoryBlocked = Boolean(chosen && !chosen.allowed);
 
+  function pickIdDocument(file: File | null) {
+    if (!file) {
+      setIdDocument(null);
+      setIdDocumentError("");
+      return;
+    }
+    if (file.size > MAX_ID_DOCUMENT_BYTES) {
+      setIdDocument(null);
+      setIdDocumentError(t("idDocumentTooLarge"));
+      return;
+    }
+    setIdDocument(file);
+    setIdDocumentError("");
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!idDocument) {
+      setIdDocumentError(t("idDocumentRequired"));
+      return;
+    }
     setBusy(true);
     setError("");
     try {
       const out = await registerForTournament(tournamentId, {
         name, email, phone, dateOfBirth, categoryId, isStudent,
         studentId: isStudent ? studentId : undefined,
+        idDocument,
       });
       setDone({ feeQuoted: out.feeQuoted });
     } catch (err) {
@@ -137,13 +166,32 @@ export function RegisterForm({
               onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com"
             />
           </Labelled>
-          <Labelled label={t("phone")} htmlFor="reg-phone">
+          <Labelled label={t("phone")} htmlFor="reg-phone" required>
             <input
-              id="reg-phone" className={field} value={phone}
+              id="reg-phone" className={field} value={phone} required
               type="tel" inputMode="tel" autoComplete="tel" maxLength={32}
               onChange={(e) => setPhone(e.target.value)}
             />
           </Labelled>
+        </div>
+
+        <div className="mt-3.5">
+          <Labelled
+            label={t("idDocument")} htmlFor="reg-id-document" required
+            hint={idDocumentError || t("idDocumentHint")}
+          >
+            <input
+              id="reg-id-document" type="file" required
+              accept={ID_DOCUMENT_ACCEPT}
+              onChange={(e) => pickIdDocument(e.target.files?.[0] ?? null)}
+              className="block w-full min-h-[44px] cursor-pointer rounded-xl border border-pp-line bg-white px-3 py-2.5 text-[13.5px] text-pp-ink outline-none transition-colors duration-150 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[#edf4ff] file:px-3 file:py-1.5 file:text-[12.5px] file:font-semibold file:text-pp-blue focus:border-pp-blue focus:ring-2 focus:ring-pp-soft"
+            />
+          </Labelled>
+          {idDocumentError && (
+            <p role="alert" className="mt-1.5 text-[12.5px] font-semibold text-pp-danger">
+              {idDocumentError}
+            </p>
+          )}
         </div>
       </Section>
 
@@ -222,7 +270,27 @@ export function RegisterForm({
           </p>
         )}
 
-        <div className="grid gap-3 md:grid-cols-[1fr_1.2fr] md:items-center">
+        <div className="rounded-xl border border-pp-line bg-[#fafbfe] p-3.5">
+          <h3 className="mb-2 text-[13px] font-bold text-pp-navy">{t("termsTitle")}</h3>
+          <div className="max-h-40 overflow-y-auto pr-1 text-[12px] leading-relaxed text-pp-muted">
+            {(["terms1", "terms2", "terms3", "terms4", "terms5"] as const).map((key) => (
+              <p key={key} className="mb-2">
+                <strong className="text-pp-sub">{t(`${key}Title`)}</strong> {t(`${key}Body`)}
+              </p>
+            ))}
+            <p className="font-semibold text-pp-sub">{t("termsAcknowledgement")}</p>
+          </div>
+          <label className="mt-3 flex cursor-pointer items-start gap-2.5">
+            <input
+              type="checkbox" required checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[var(--color-pp-blue)]"
+            />
+            <span className="text-[12.5px] font-semibold text-pp-ink">{t("termsCheckboxLabel")}</span>
+          </label>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1.2fr] md:items-center">
           <span className="rounded-xl bg-[#f4f8ff] px-4 py-3 text-[13px] text-pp-muted">
             {t("youPay")} <strong className="ml-1 text-[22px] text-pp-navy">{money(payable)}</strong>
           </span>
@@ -230,8 +298,9 @@ export function RegisterForm({
             type="submit"
             /* The PDF's rule: an ineligible category means they cannot
                proceed to registration or payment. The backend refuses it
-               regardless; this stops the journey earlier. */
-            disabled={busy || categoryBlocked}
+               regardless; this stops the journey earlier. Agreeing to the
+               terms is the same kind of gate. */
+            disabled={busy || categoryBlocked || !agreedToTerms}
             className="flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-pp-blue px-6 text-[14px] font-semibold text-white shadow-[0_8px_18px_rgba(46,92,184,.2)] transition-colors duration-150 hover:bg-pp-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? t("sending") : <><Check className="size-4" />{t("submit")}</>}
