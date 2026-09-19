@@ -17,6 +17,9 @@ export type PublicTournament = {
   endDate: string;
   venueName: string;
   venueAddress: string;
+  /** A Google Maps link for the venue, set by staff at creation. Absent for
+      tournaments created before this existed. */
+  venueMapUrl?: string;
   registrationDeadline: string;
   /** What an outside participant pays right now: the early-bird price while
       its window is open, the regular price after. */
@@ -44,13 +47,17 @@ export type PublicCategory = { id: string; name: string };
 export type RegisterInput = {
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
   dateOfBirth?: string;
   categoryId?: string;
   isStudent?: boolean;
   /** Required when isStudent: the discount is only given against an ID the
       academy can find. */
   studentId?: string;
+  /** A photo of the player's Thai national ID card or passport, so staff can
+      check a face at the board against who registered. Required — there is
+      no version of this form that skips it. */
+  idDocument: File;
 };
 
 /** The age a category name implies — "U8 Boys" is under 8. Mirrors the
@@ -104,10 +111,22 @@ export async function registerForTournament(
   tournamentId: string,
   input: RegisterInput,
 ): Promise<RegisterResult> {
+  // multipart/form-data, not JSON: the ID document has to ride along with
+  // the rest of the entry. Leave Content-Type unset — the browser fills in
+  // the multipart boundary itself.
+  const body = new FormData();
+  body.set("name", input.name);
+  body.set("email", input.email);
+  body.set("phone", input.phone);
+  if (input.dateOfBirth) body.set("dateOfBirth", input.dateOfBirth);
+  if (input.categoryId) body.set("categoryId", input.categoryId);
+  if (input.isStudent) body.set("isStudent", "true");
+  if (input.studentId) body.set("studentId", input.studentId);
+  body.set("idDocument", input.idDocument);
+
   const res = await fetch(`/api/public/tournaments/${tournamentId}/register`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body,
     cache: "no-store",
   });
   const data = await res.json().catch(() => ({}));
