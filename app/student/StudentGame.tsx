@@ -590,7 +590,9 @@ export default function StudentGame() {
             </div>
             <div className="flex gap-2.5">
               <StatTile label={t("ratingTile")} value={rating ? String(rating.value) : t("unrated")} icon={<BarChart3 className="size-[18px]" strokeWidth={2.2} />} />
-              <StatTile label={t("dailyChallenge")} value={`${solvedCount}/3`} icon={<Star className="size-[18px] text-[#f59e0b]" strokeWidth={2.1} />} />
+              {/* Classes, not a second "Daily Challenge": the same 3/3 already
+                  sits at the top of the screen and fills the card below it. */}
+              <StatTile label={t("classesLabel")} value={classes === null ? "—" : String(classes)} icon={<GraduationCap className="size-[18px] text-[#8b5bd7]" strokeWidth={2.2} />} />
             </div>
           </div>
 
