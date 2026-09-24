@@ -98,9 +98,7 @@ export default function ParentAttendanceV2() {
               <div className="flex items-center gap-2 pt-0.5">
                 <CheckSquare className="size-4 flex-none text-pp-muted" strokeWidth={1.8} />
                 <span className="text-xs font-semibold text-pp-ink">
-                  {t("completedClasses", {
-                    label: `${c.attended} / ${c.heldSessions}`,
-                  })}
+                  {t("completedClasses", { count: c.attended })}
                 </span>
               </div>
               <div className="flex flex-col gap-1 pt-0.5">

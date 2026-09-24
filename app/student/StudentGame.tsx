@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { getMyLichess } from "@/lib/lichess";
+import { classesAttended } from "@/lib/classes-attended";
 import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournaments";
 import { LichessCard } from "@/components/student/LichessCard";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -168,8 +169,10 @@ export default function StudentGame() {
     name?: string;
     current_level?: string;
     fide_rating?: number;
-    last_attended_date?: string;
   } | null>(null);
+  /* Classes the pupil has been checked in to — the same count their parent
+     sees. Null until it loads, so the tile does not claim "0" meanwhile. */
+  const [classes, setClasses] = useState<number | null>(null);
   /* The one number in the corner, and it is real.
      It was two invented ones — 10 stars and 32 fish, both hard-coded — sitting
      where a child would reasonably read them as something they had earned. */
@@ -232,7 +235,6 @@ export default function StudentGame() {
                   name?: string;
                   current_level?: string;
                   fide_rating?: number;
-                  last_attended_date?: string;
                   streak_count?: number;
                 }[],
               ) => {
@@ -242,6 +244,18 @@ export default function StudentGame() {
                 if (self) setRecord(self);
               },
             );
+          // `attendance` is scoped to the pupil's own rows; the sessions are
+          // what the count checks each row against.
+          const list = <T,>(path: string): Promise<T[]> =>
+            fetch(`/api/${path}`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
+          Promise.all([
+            list<{ session_id: string; check_in_time?: string }>("attendance"),
+            list<{ session_id: string }>("class-sessions"),
+          ])
+            .then(([attendance, sessions]) =>
+              setClasses(classesAttended(attendance, new Set(sessions.map((x) => x.session_id)))),
+            )
+            .catch(() => {});
         }
       })
       .catch(() => {});
@@ -890,7 +904,7 @@ export default function StudentGame() {
             </div>
             <div className="rounded-[16px] border border-[#eadcf8] bg-[#fbf7ff] px-2 py-3 text-center shadow-sm">
               <GraduationCap className="mx-auto size-5 text-[#8b5bd7]" />
-              <strong className="mt-1 block truncate text-[12px] text-[#10264d]">{record?.last_attended_date ? "1+" : "0"}</strong>
+              <strong className="mt-1 block truncate text-[12px] text-[#10264d]">{classes ?? "—"}</strong>
               <span className="text-[9px] font-semibold text-[#7083a3]">{t("classesLabel")}</span>
             </div>
           </div>
