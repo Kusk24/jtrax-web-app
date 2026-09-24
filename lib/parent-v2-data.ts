@@ -24,8 +24,9 @@ export interface ChildV2 {
       grows with every top-up and every balance moved in, so it reads as a
       quota when it is only history. */
   credits: number;
-  /** Sum of everything ever added — the home card's bar proportion only,
-      never shown as a number (see `credits` for why). */
+  /** Sum of everything ever added. The Children card shows it as the total
+      behind "used" ("4 / 20 credits used"), which is history rather than a
+      quota; the child screen still shows the balance alone. */
   creditsBought: number;
   /** Latest expiry date on the ledger, formatted, or "—" when none is set. */
   valid: string;
