@@ -6,6 +6,7 @@ import Image from "next/image";
 import { CheckSquare } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
+import { creditsUsed } from "@/lib/credits-used";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
@@ -63,6 +64,7 @@ export default function ParentAttendanceV2() {
     <div className="grid grid-cols-2 gap-4">
       {childrenV2.map((c) => {
         const low = c.credits <= 2;
+        const used = creditsUsed(c.credits, c.creditsBought);
         const isBeg = c.level === "Beginner";
         return (
           <Link
@@ -106,13 +108,13 @@ export default function ParentAttendanceV2() {
                   <div
                     className="h-full rounded-full"
                     style={{
-                      width: `${c.creditsBought > 0 ? Math.min(100, Math.round((c.credits / c.creditsBought) * 100)) : 0}%`,
+                      width: `${c.creditsBought > 0 ? Math.min(100, Math.round((used / c.creditsBought) * 100)) : 0}%`,
                       background: low ? "var(--color-pp-amber)" : "var(--color-pp-blue)",
                     }}
                   />
                 </div>
                 <span className="text-[10.5px] text-pp-muted">
-                  {t("creditsLeftLabel", { count: c.credits })}
+                  {t("creditsUsedLabel", { used, total: c.creditsBought })}
                 </span>
               </div>
             </div>

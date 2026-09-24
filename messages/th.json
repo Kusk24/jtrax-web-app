@@ -76,7 +76,7 @@
     "registerNow": "สมัครเลย",
     "myChildren": "บุตรหลานของฉัน ({count})",
     "completedClasses": "เรียนแล้ว {count} คลาส",
-    "creditsLeftLabel": "เหลือ {count} / 20 เครดิต",
+    "creditsUsedLabel": "ใช้ไปแล้ว {used, number} / {total, number} เครดิต",
     "todaysActivity": "กิจกรรมวันนี้",
     "practice": "ฝึกฝน",
     "challenge": "ชาเลนจ์",

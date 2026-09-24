@@ -76,7 +76,7 @@
     "registerNow": "Register Now",
     "myChildren": "My Children ({count})",
     "completedClasses": "{count, plural, one {# class} other {# classes}}",
-    "creditsLeftLabel": "{count} / 20 credits left",
+    "creditsUsedLabel": "{used, number} / {total, number} credits used",
     "todaysActivity": "Today's Activity",
     "practice": "Practice",
     "challenge": "Challenge",
