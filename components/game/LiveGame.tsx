@@ -14,7 +14,10 @@ import { Panel, actionBtn } from "./PlayShell";
 import { useRoom } from "./useRoom";
 import { capturedIn, gameFrom, pairedMoves } from "@/lib/chess-core";
 
-export function LiveGame({ roomId }: { roomId: string }) {
+/** The screen the pupil opened this board from, and the way back to it. */
+export type RoomOrigin = "play" | "challenge";
+
+export function LiveGame({ roomId, from = "play" }: { roomId: string; from?: RoomOrigin }) {
   const t = useTranslations("play");
   const router = useRouter();
   const { room, moves, seat, connection, error, play, resign } = useRoom(roomId);
@@ -161,11 +164,13 @@ export function LiveGame({ roomId }: { roomId: string }) {
               ? t("byReason", { reason: t(`reason.${room.resultReason}`) })
               : undefined
           }
-          /* Nothing to restart here — a teacher opens class games — so the way
-             on is back to the Play screen. Named for where it goes: with both
-             buttons reading "Back" the dialog had two doors and one name. */
-          primaryLabel={t("backToPlay")}
-          onPrimary={() => router.push("/student/play")}
+          /* Nothing to restart here, so the way on is back to the screen the
+             board was opened from: Play for a class game, Challenge for a
+             game with a friend, where the next invitation is. Named for where
+             it goes: with both buttons reading "Back" the dialog had two doors
+             and one name. */
+          primaryLabel={t(from === "challenge" ? "backToChallenge" : "backToPlay")}
+          onPrimary={() => router.push(`/student/${from}`)}
           onClose={() => setShowResult(false)}
         />
       )}

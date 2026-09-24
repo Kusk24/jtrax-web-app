@@ -342,6 +342,7 @@
     "newGame": "New game",
     "viewBoard": "Back to the board",
     "backToPlay": "Back to Play",
+    "backToChallenge": "Back to Challenge",
     "byReason": "by {reason}",
     "resign": "Resign",
     "resignConfirm": "Yes, resign",
