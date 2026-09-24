@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { CheckSquare } from "lucide-react";
+import { CheckSquare, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
 import { creditsUsed } from "@/lib/credits-used";
@@ -128,7 +127,7 @@ export default function ParentAttendanceV2() {
         <div className="flex min-w-0 flex-1 flex-col gap-3.5">
       <div className="flex flex-col gap-3.5">
     <div className="flex items-center gap-2">
-      <Image src="/shared/fish.png" alt="" width={16} height={16} />
+      <Star className="size-4 fill-pp-amber text-pp-amber" strokeWidth={1.8} aria-hidden />
       <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
         {t("todaysActivity")}
       </span>
@@ -176,7 +175,7 @@ export default function ParentAttendanceV2() {
                       strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`}
                     />
                   </svg>
-                  <Image src="/shared/fish.png" alt="" width={9} height={9} className="relative" />
+                  <Star className="relative size-[9px] fill-pp-amber text-pp-amber" strokeWidth={2} aria-hidden />
                 </>
               )}
             </span>
@@ -186,7 +185,7 @@ export default function ParentAttendanceV2() {
             </span>
             <span className="flex w-14 items-center justify-end gap-1 text-[13px] font-bold text-pp-blue">
               +{Math.max(1, Math.round(r.mins / 10))}
-              <Image src="/shared/fish.png" alt="" width={15} height={15} />
+              <Star className="size-[15px] fill-pp-amber text-pp-amber" strokeWidth={1.8} aria-hidden />
             </span>
           </div>
         );
