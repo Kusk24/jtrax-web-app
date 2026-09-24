@@ -916,7 +916,7 @@ export default function StudentGame() {
               <span className="flex size-8 items-center justify-center rounded-xl bg-[#fff2e8]"><Flame className="size-4 text-[#f97316]" /></span>
               {t("dayStreak", { n: streak })}
             </div>
-            <p className="ml-10 -mt-1 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
+            <p className="ml-10 mt-0.5 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
             {/* The days the pupil actually practised, oldest first, each cell
                 labelled with its own weekday. It used to light the first N of
                 seven from the streak number, which drew a week nobody lived —
