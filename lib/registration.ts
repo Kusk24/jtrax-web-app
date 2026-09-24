@@ -105,6 +105,15 @@ export type RegisterResult = {
   status: string;
   feeQuoted: number;
   needsApproval: boolean;
+  /** The entry, and the secret that lets whoever holds it pay for it. Shown to
+      this browser once; the confirmation email carries the same code. */
+  registrationId?: string;
+  payCode?: string;
+  /** Whether "Pay now" can be offered: card payments are on and there is a fee. */
+  cardPayments?: boolean;
+  /** Whether the server can send email, so the screen only says "we've
+      emailed you" when it could have. */
+  emailed?: boolean;
 };
 
 /** Posts one entry. Throws with the server's own message, which is written to
@@ -125,6 +134,66 @@ export async function registerForTournament(
   }
   return data as RegisterResult;
 }
+
+/* ------------------------------------------------- paying for a public entry --- */
+
+/** One public entry, as the holder of its pay link sees it. */
+export type PublicEntry = {
+  tournamentId: string;
+  tournamentName: string;
+  participantName: string;
+  category?: string;
+  fee: number;
+  /** "unpaid", "paid", "free" (nothing to pay) or "closed" (withdrawn or refunded). */
+  state: "unpaid" | "paid" | "free" | "closed";
+  cardPayments: boolean;
+};
+
+/**
+ * Reads the entry id and code out of the emailed pay link:
+ * `/register/{tournament}/pay?entry={id}#code={code}`.
+ *
+ * The code sits after the `#` because a browser never sends that part to a
+ * server, which keeps it out of the web host's request logs. It is then posted
+ * in a body, never put in a URL.
+ */
+export function readPayLink(search: string, hash: string): { entry: string; code: string } | null {
+  const entry = new URLSearchParams(search).get("entry") ?? "";
+  const code = new URLSearchParams(hash.replace(/^#/, "")).get("code") ?? "";
+  if (!entry || !/^[0-9a-f]{64}$/.test(code)) return null;
+  return { entry, code };
+}
+
+async function postEntry<T>(entry: string, suffix: string, code: string): Promise<T> {
+  const res = await fetch(`/api/public/tournament-registrations/${encodeURIComponent(entry)}${suffix}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+    cache: "no-store",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new EntryError(res.status, (data as { error?: string }).error ?? "request failed");
+  }
+  return data as T;
+}
+
+/** Carries the status, so the page can tell "this link does not work" (404)
+    from "already paid" (409) from "card payments are off" (503). */
+export class EntryError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
+
+export const getPublicEntry = (entry: string, code: string) => postEntry<PublicEntry>(entry, "", code);
+
+/** Opens the Stripe page for the entry and returns its URL. Asking twice gives
+    the same page, so a double tap cannot charge twice. */
+export const payForPublicEntry = (entry: string, code: string) =>
+  postEntry<{ url: string }>(entry, "/pay", code).then((r) => r.url);
 
 /* ------------------------------------------------------ reading an ID card --- */
 

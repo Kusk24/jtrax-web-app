@@ -6,7 +6,7 @@
  * every control is at least 44px tall and the whole thing is one column. And
  * the person filling it in has no account and no way to check anything
  * afterwards, so the price updates as they tick the student box, and the
- * confirmation says plainly that a place is not yet theirs.
+ * confirmation says plainly that the place is theirs and how to pay for it.
  *
  * The student box is a *claim*. Nothing here checks it, and that is deliberate:
  * if the discount only appeared for addresses the academy recognised, this form
@@ -21,6 +21,7 @@ import {
   type PublicCategory, type ScannedIDCard,
 } from "@/lib/registration";
 import { PublicCard } from "@/components/public/PublicShell";
+import { PayNow } from "./PayNow";
 
 /* The five numbered conditions, in the order the academy wrote them. Data
    rather than markup so the wording lives in the message files with everything
@@ -73,7 +74,13 @@ export function RegisterForm({
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState<{ feeQuoted: number } | null>(null);
+  const [done, setDone] = useState<{
+    feeQuoted: number;
+    entry?: string;
+    code?: string;
+    cardPayments: boolean;
+    emailed: boolean;
+  } | null>(null);
 
   const payable = isStudent && discountPct > 0 ? studentFee : fee;
 
@@ -137,7 +144,13 @@ export function RegisterForm({
         age: Number(age) || undefined,
         acceptTerms,
       });
-      setDone({ feeQuoted: out.feeQuoted });
+      setDone({
+        feeQuoted: out.feeQuoted,
+        entry: out.registrationId,
+        code: out.payCode,
+        cardPayments: Boolean(out.cardPayments && out.registrationId && out.payCode),
+        emailed: Boolean(out.emailed),
+      });
     } catch (err) {
       // The server's message is written for whoever is standing at the form —
       // "that email is already registered", "this tournament is full" — so it
@@ -158,12 +171,26 @@ export function RegisterForm({
             </svg>
           </span>
           <h2 className="font-pp-display text-lg font-bold text-pp-navy">{t("doneTitle")}</h2>
-          {/* Said plainly: turning up on the day assuming a place is exactly the
-              misunderstanding this sentence exists to prevent. */}
+          {/* Every entry is accepted, so this says the place is theirs. It used
+              to say the opposite and ask them not to pay. */}
           <p className="max-w-sm text-sm text-pp-muted">{t("doneBody")}</p>
-          <p className="text-sm font-semibold text-pp-ink">
-            {t("doneFee", { fee: money(done.feeQuoted) })}
-          </p>
+          {done.feeQuoted > 0 && (
+            <p className="text-sm font-semibold text-pp-ink">
+              {t("doneFee", { fee: money(done.feeQuoted) })}
+            </p>
+          )}
+          {done.feeQuoted > 0 && done.cardPayments && done.entry && done.code && (
+            <div className="mt-2 flex w-full flex-col items-center gap-2">
+              <PayNow entry={done.entry} code={done.code} label={t("payNow", { fee: money(done.feeQuoted) })} />
+              <p className="max-w-sm text-[13px] text-pp-muted">{t("payLater")}</p>
+            </div>
+          )}
+          {done.feeQuoted > 0 && !done.cardPayments && (
+            <p className="max-w-sm text-[13px] text-pp-muted">{t("payAtDesk")}</p>
+          )}
+          {done.emailed && (
+            <p className="max-w-sm text-[13px] text-pp-muted">{t("doneEmailed", { email })}</p>
+          )}
         </div>
       </PublicCard>
     );
