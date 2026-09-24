@@ -61,8 +61,8 @@ export default function ParentSettings() {
     startTransition(() => router.refresh());
   };
 
-  /* The backend's whole catalogue, one switch each. Low credit ships off —
-     it is the one alert a parent asks for rather than gets. */
+  /* The backend's whole catalogue, one switch each, all on until the parent
+     turns one off. */
   const prefDefs = [
     { k: "check_in" as const, label: t("prefCheckin"), sub: t("prefCheckinSub") },
     { k: "credit_deducted" as const, label: t("prefDeducted"), sub: t("prefDeductedSub") },
