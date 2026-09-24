@@ -240,7 +240,9 @@
     "prefExpiry": "Expiry Alerts",
     "prefExpirySub": "When credits are close to their expiry date",
     "prefPayment": "Payment Receipts",
-    "prefPaymentSub": "When a payment is recorded — also sent by email"
+    "prefPaymentSub": "When a payment is recorded — also sent by email",
+    "prefCancelled": "Class Cancellations",
+    "prefCancelledSub": "When the office cancels an upcoming class"
   },
   "sv2": {
     "brand": "JTrax — Student",

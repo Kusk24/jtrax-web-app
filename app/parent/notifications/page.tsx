@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
-  AlertTriangle, Check, Clock3, DoorOpen, Megaphone, Receipt, type LucideIcon,
+  AlertTriangle, CalendarX2, Check, Clock3, DoorOpen, Megaphone, Receipt, type LucideIcon,
 } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
 
@@ -18,6 +18,7 @@ const TYPE_STYLE: Record<string, { icon: LucideIcon; color: string; bg: string }
   credit_expiry: { icon: Clock3, color: "var(--color-pp-amber)", bg: "var(--color-pp-amber-soft)" },
   payment_received: { icon: Receipt, color: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
   announcement: { icon: Megaphone, color: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
+  class_cancelled: { icon: CalendarX2, color: "var(--color-pp-danger)", bg: "var(--color-pp-red-soft)" },
 };
 const FALLBACK_STYLE = TYPE_STYLE.announcement;
 

@@ -70,6 +70,7 @@ export const NOTIF_TYPES = [
   "credit_expiry",
   "announcement",
   "payment_received",
+  "class_cancelled",
 ] as const;
 export type NotifType = (typeof NOTIF_TYPES)[number];
 
@@ -84,6 +85,7 @@ export const NOTIF_DEFAULTS: Record<NotifType, boolean> = {
   credit_expiry: true,
   announcement: true,
   payment_received: true,
+  class_cancelled: true,
 };
 
 /** One inbox row from the backend's notification backbone. Title and body
