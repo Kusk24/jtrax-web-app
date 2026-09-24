@@ -749,47 +749,41 @@ export default function StudentGame() {
               : ""}
           </div>
 
-          {/* Opening a puzzle you have already solved used to give you a board
-              that would not move and no word about why. The board is still
-              locked — it is finished — but now it says so. Shown from `solved`,
-              which is true both on reopening and the moment it is beaten. */}
-          {solved && (
-            <div className="absolute left-[31px] top-[136px] flex w-[328px] items-center gap-3 rounded-[16px] border border-[#bfe4d8] bg-[#ebfaf5] px-3.5 py-2.5">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#15906b]">
-                <Check className="size-5 text-white" strokeWidth={3} />
-              </span>
-              <span className="flex min-w-0 flex-col">
-                <span className="text-[14px] font-bold text-[#10264d]">{t("completedTitle")}</span>
-                <span className="text-[11px] text-[#4a7f6d]">{t("completedBody")}</span>
-              </span>
-            </div>
-          )}
+          {/* One slot under the heading for whatever there is to say about this
+              puzzle, and only one thing at a time: what just happened, or — on
+              reopening one already beaten — that it is finished. The board is
+              locked then, and without the card it would give no word why.
+              The feedback used to be a speech bubble hung over the board's top
+              edge; on a solve it landed on top of the Completed card, two
+              texts over each other. Plain, larger text reads at a glance, and a
+              slot of its own means nothing is drawn over anything else. */}
+          <div className="pointer-events-none absolute left-[31px] top-[136px] flex h-[58px] w-[328px] items-center justify-center">
+            {message ? (
+              <p
+                role="status"
+                className={`flex items-center justify-center gap-2 text-center text-[18px] font-bold leading-tight ${
+                  solved ? "text-[#15906b]" : showWrong ? "text-[rgb(176,63,58)]" : "text-[#10264d]"
+                }`}
+              >
+                {solved && <Check className="size-5 shrink-0" strokeWidth={3} />}
+                {showWrong && <X className="size-5 shrink-0" strokeWidth={3} />}
+                {message}
+              </p>
+            ) : solved ? (
+              <div className="flex w-full items-center gap-3 rounded-[16px] border border-[#bfe4d8] bg-[#ebfaf5] px-3.5 py-2.5">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#15906b]">
+                  <Check className="size-5 text-white" strokeWidth={3} />
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-[14px] font-bold text-[#10264d]">{t("completedTitle")}</span>
+                  <span className="text-[11px] text-[#4a7f6d]">{t("completedBody")}</span>
+                </span>
+              </div>
+            ) : null}
+          </div>
 
           <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
-            <div className="relative mb-1 flex w-full justify-start">
-              {message && (
-                <div
-                  className="absolute left-24 top-[-68px] z-[2] flex max-w-[210px] items-center gap-1.5 rounded-2xl px-3 py-2"
-                  style={{
-                    background: solved ? "rgb(226,240,233)" : "rgb(251,234,234)",
-                    boxShadow: `inset 0 0 0 1.5px ${solved ? "rgb(206,219,236)" : "var(--color-sv-board-dark)"}`,
-                  }}
-                >
-                  {solved && <Check className="size-[18px] text-sv-mint-ink" strokeWidth={3} />}
-                  {showWrong && <X className="size-4 text-[rgb(176,63,58)]" strokeWidth={3} />}
-                  <span className="text-xs font-bold">{message}</span>
-                  <span
-                    className="absolute bottom-3.5 left-[-6px] size-3 rotate-45 [clip-path:polygon(0_0,100%_100%,0_100%)]"
-                    style={{
-                      background: solved ? "rgb(226,240,233)" : "rgb(251,234,234)",
-                      boxShadow: `inset 0 0 0 1.5px ${solved ? "rgb(206,219,236)" : "var(--color-sv-board-dark)"}`,
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="relative top-[-13px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
+            <div className="relative top-[-9px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
               <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
                 <div className="grid grid-cols-[repeat(8,34px)] grid-rows-[repeat(8,34px)] overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(70,96,140)]">
                   {Array.from({ length: 64 }, (_, idx) => {
