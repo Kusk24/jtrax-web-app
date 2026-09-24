@@ -114,6 +114,13 @@ function HomeAction({
   );
 }
 
+/** The heading on a Free Play puzzle, by level. */
+const TIER_TITLE: Record<FreeTier, "beginnerPuzzle" | "intermediatePuzzle" | "advancedPuzzle"> = {
+  beginner: "beginnerPuzzle",
+  intermediate: "intermediatePuzzle",
+  advanced: "advancedPuzzle",
+};
+
 export default function StudentGame() {
   const t = useTranslations("sv2");
   const tc = useTranslations("common");
@@ -731,8 +738,17 @@ export default function StudentGame() {
           <button onClick={() => go("puzzles")} aria-label={t("back")} className="absolute left-5 top-[46px] z-[2] cursor-pointer border-none bg-transparent text-[22px] font-bold text-sv-ink">
             ←
           </button>
-          <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-bold text-[#10264d]">
-            {t("puzzleN", { n: puzzleIndex + 1 })}
+          {/* A Free Play puzzle is named by its level. It used to borrow the
+              daily heading, "Puzzle 1", from whichever daily puzzle was opened
+              last — a number that meant nothing for a puzzle from no set. A
+              level name is longer, so it is set smaller to clear the back
+              arrow and the sound switch on either side. */}
+          <h1
+            className={`absolute w-[390px] text-center font-sv-display font-bold text-[#10264d] ${
+              freeTier ? "top-[47px] text-[22px]" : "top-[44px] text-[26px]"
+            }`}
+          >
+            {freeTier ? t(TIER_TITLE[freeTier]) : t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
           <SoundToggle className="absolute right-5 top-[42px] z-[2]" />
           {/* Sits on the navy wash with the heading, so it is white like the
