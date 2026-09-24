@@ -2,11 +2,10 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Check, Flame } from "lucide-react";
+import { Check, Flame, Star } from "lucide-react";
 import { PawnIcon } from "@/components/PawnIcon";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
@@ -186,7 +185,7 @@ export default function ChildProfileV2({
                             <circle cx="11" cy="11" r="9" fill="none" stroke="var(--color-pp-track)" strokeWidth="3" />
                             <circle cx="11" cy="11" r="9" fill="none" stroke="var(--color-pp-amber)" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${((circ * pct) / 100).toFixed(1)} ${circ.toFixed(1)}`} />
                           </svg>
-                          <Image src="/shared/fish.png" alt="" width={10} height={10} className="relative" />
+                          <Star className="relative size-2.5 fill-pp-amber text-pp-amber" strokeWidth={2} aria-hidden />
                         </span>
                       )}
                     </div>
