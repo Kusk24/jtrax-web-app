@@ -24,6 +24,8 @@ import { getMyLichess } from "@/lib/lichess";
 import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournaments";
 import { LichessCard } from "@/components/student/LichessCard";
 import { SignOutButton } from "@/components/SignOutButton";
+import { SoundToggle } from "@/components/game/SoundToggle";
+import { moveBetween, moveFrom, playSound, preloadSounds, soundForMove } from "@/lib/sound";
 import {
   pieceSrc,
   movesFrom,
@@ -175,6 +177,11 @@ export default function StudentGame() {
   /* The school's live tournament, when there is one — the banner points at the
      public results page, the same link the hall's QR code carries. */
   const [liveTournament, setLiveTournament] = useState<LiveTournament | null>(null);
+
+  // The board's sounds, fetched once a puzzle is open rather than on the home screen.
+  useEffect(() => {
+    if (screen === "puzzle") preloadSounds();
+  }, [screen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -364,9 +371,15 @@ export default function StudentGame() {
     const next = gameAt(verdict.fen);
     if (next) setGame(next);
 
+    /* Sound follows what the pupil sees: their move lands with the new
+       position, and any reply a beat later, like an opponent answering. */
+    const mine = moveFrom(game.fen(), uci);
+    if (mine) playSound(soundForMove(mine));
+
     if (!verdict.correct) {
       setShowWrong(true);
       setMessage(t("wrongMsg"));
+      setTimeout(() => playSound("wrong"), 180);
       setTimeout(() => {
         setGame(gameAt(p.fen));
         setPlayed([]);
@@ -382,8 +395,12 @@ export default function StudentGame() {
     if (!verdict.solved) {
       // A longer puzzle: the opponent has replied and it is their move again.
       setMessage(t("keepGoingMsg"));
+      const reply = mine ? moveBetween(mine.after, verdict.fen) : null;
+      if (reply) setTimeout(() => playSound(soundForMove(reply)), 350);
       return;
     }
+
+    setTimeout(() => playSound("game-end"), 300);
 
     setSolved(true);
     setMessage(t("checkmateMsg"));
@@ -717,6 +734,7 @@ export default function StudentGame() {
           <h1 className="absolute top-[44px] w-[390px] text-center font-sv-display text-[26px] font-bold text-[#10264d]">
             {t("puzzleN", { n: puzzleIndex + 1 })}
           </h1>
+          <SoundToggle className="absolute right-5 top-[42px] z-[2]" />
           {/* Sits on the navy wash with the heading, so it is white like the
               heading — `sv-body` here measured 3.9 luminance spread, i.e. gone. */}
           {/* Whose move and what to look for, from this puzzle. The line used

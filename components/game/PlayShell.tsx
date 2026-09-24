@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
+import { SoundToggle } from "./SoundToggle";
 import { StudentBottomNav } from "./StudentBottomNav";
 
 export const actionBtn =
@@ -48,6 +49,7 @@ export function PlayShell({
           </Link>
         )}
         <h1 className="font-sv-display text-[27px] font-bold text-[#10264d]">{title}</h1>
+        <SoundToggle className="ml-auto" />
       </header>
 
       <div className={`relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pt-4 ${nav ? "pb-[88px]" : "pb-6"}`}>

@@ -54,7 +54,9 @@
     "mother": "Mother",
     "father": "Father",
     "guardian": "Guardian",
-    "loadFailed": "We couldn't load this just now. Please try again."
+    "loadFailed": "We couldn't load this just now. Please try again.",
+    "soundOn": "Turn sound on",
+    "soundOff": "Turn sound off"
   },
   "pv2": {
     "navHome": "Home",

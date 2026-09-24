@@ -15,6 +15,7 @@
  */
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { playSound } from "@/lib/sound";
 import { actionBtn } from "./PlayShell";
 
 export function ResultDialog({
@@ -37,6 +38,14 @@ export function ResultDialog({
 }) {
   const t = useTranslations("play");
   const first = useRef<HTMLButtonElement>(null);
+
+  /* The game-over chime, once, when the result appears. A beat after the
+     final move's own sound rather than on top of it, which is the order a
+     player expects: the move lands, then the game ends. */
+  useEffect(() => {
+    const later = setTimeout(() => playSound("game-end"), 250);
+    return () => clearTimeout(later);
+  }, []);
 
   useEffect(() => {
     /* Moving focus into the dialog is what makes Escape work and what stops a

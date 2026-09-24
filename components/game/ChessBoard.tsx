@@ -7,7 +7,7 @@
 
    Styling follows the puzzle board already in StudentGame: pale-blue tray,
    white mat, unicode glyphs. */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   isPromotion,
@@ -18,6 +18,7 @@ import {
   toGrid,
   type BoardGrid,
 } from "@/lib/chess-core";
+import { lastMoveOf, playSound, preloadSounds, soundForMove } from "@/lib/sound";
 import type { Chess } from "chess.js";
 
 type Props = {
@@ -74,6 +75,26 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
       cancelAnimationFrame(second);
     };
   }, [lastMove, square, orientation]);
+
+  /* The sound of the move that just arrived — yours or your opponent's. Keyed
+     on `lastMove`, the same signal that slides the piece, so sound and motion
+     start together. The first run is skipped: a board opened onto a game
+     already in progress should be quiet, not replay the last move at you. */
+  const heard = useRef(false);
+  useEffect(() => {
+    preloadSounds();
+  }, []);
+  useEffect(() => {
+    if (!heard.current) {
+      heard.current = true;
+      return;
+    }
+    const move = lastMove ? lastMoveOf(game) : undefined;
+    if (move) playSound(soundForMove(move));
+    // `game` is read, not watched: it changes with every move, and lastMove
+    // is what says a *new* move happened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastMove]);
 
   /* Black sits at the bottom for the player with black, which is how a real
      board works — asking a child to play upside down is a needless handicap. */
