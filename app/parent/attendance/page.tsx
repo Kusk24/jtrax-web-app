@@ -184,7 +184,7 @@ export default function ParentAttendanceV2() {
               {t("minShort", { count: r.mins })}
             </span>
             <span className="flex w-14 items-center justify-end gap-1 text-[13px] font-bold text-pp-blue">
-              +{Math.max(1, Math.round(r.mins / 10))}
+              {r.puzzles}
               <Star className="size-[15px] fill-pp-amber text-pp-amber" strokeWidth={1.8} aria-hidden />
             </span>
           </div>
