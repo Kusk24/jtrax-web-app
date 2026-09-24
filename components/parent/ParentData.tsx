@@ -17,6 +17,7 @@ import {
   type TournamentEntryV2, type TournamentV2,
 } from "@/lib/parent-v2-data";
 import { money } from "@/lib/money";
+import { todayActivityOf, type TodayActivity } from "@/lib/today-activity";
 
 type Row = Record<string, unknown>;
 const s = (r: Row, k: string) => (r[k] as string | null) ?? "";
@@ -80,7 +81,7 @@ type ParentDataValue = {
   months: MonthDef[];
   att: Record<ChildKey, Record<number, { present: number[]; absent: number[] }>>;
   hist: HistRow[];
-  todayActivity: { child: string; mins: number; done: boolean }[];
+  todayActivity: TodayActivity[];
   /** Classes attended before a certificate is awarded — the academy's own
       figure from system_configuration, or the 50 default until it saves one. */
   certSessions: number;
@@ -377,13 +378,10 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       setEntries([]);
     }
 
-    setTodayActivity(mapped.map((c) => {
-      const mins = n(
-        activities.find((a) => s(a, "student_id") === c.id && s(a, "activity_date") === todayStr) ?? {},
-        "minutes_practiced",
-      );
-      return { child: c.name, mins, done: mins >= 30 };
-    }));
+    setTodayActivity(mapped.map((c) => todayActivityOf(
+      c.name,
+      activities.find((a) => s(a, "student_id") === c.id && s(a, "activity_date") === todayStr),
+    )));
 
     /* The per-type toggles: the backend stores only overrides, so start from
        the defaults and lay the saved choices over them. The in-app channel is
