@@ -497,19 +497,6 @@ export default function StudentGame() {
         </div>
       )}
 
-      {/* The Lichess rating, synced. Absent rather than zero when there is no
-          linked account: a rating of 0 is a claim about how well a child plays,
-          and an empty corner is not. */}
-      {rating && screen === "home" && (
-        <div className="absolute right-5 top-[54px] z-10 flex items-center gap-1.5 rounded-full border border-[#dbe7f8] bg-white px-3 py-1.5 shadow-[0_5px_14px_rgba(37,99,235,.08)]">
-          <Star className="size-[14px] fill-[#f4b942] text-[#d99a16]" strokeWidth={1.5} />
-          <span className="text-sm font-bold">{rating.value}</span>
-          <span className="text-[10px] font-bold uppercase tracking-wide text-[#7083a3]">
-            {tl(`perf.${rating.perf}`)}
-          </span>
-        </div>
-      )}
-
       {/* ---------------- HOME ---------------- */}
       {screen === "home" && (
         <div className="absolute inset-x-0 bottom-[72px] top-[48px] flex flex-col gap-3 overflow-y-auto px-4 pb-5 pt-3 [scrollbar-width:none]">
@@ -596,7 +583,10 @@ export default function StudentGame() {
               </button>
             </div>
             <div className="flex gap-2.5">
-              <StatTile label={t("ratingTile")} value={rating ? String(rating.value) : t("unrated")} icon={<BarChart3 className="size-[18px]" strokeWidth={2.2} />} />
+              {/* The one place the home screen shows the rating. It also sat in a
+                  chip pinned over the header, where it covered the profile
+                  button; the label names the format, as on the phone. */}
+              <StatTile label={rating ? tl(`perf.${rating.perf}`) : t("ratingTile")} value={rating ? String(rating.value) : t("unrated")} icon={<BarChart3 className="size-[18px]" strokeWidth={2.2} />} />
               {/* Classes, not a second "Daily Challenge": the same 3/3 already
                   sits at the top of the screen and fills the card below it. */}
               <StatTile label={t("classesLabel")} value={classes === null ? "—" : String(classes)} icon={<GraduationCap className="size-[18px] text-[#8b5bd7]" strokeWidth={2.2} />} />
@@ -926,7 +916,7 @@ export default function StudentGame() {
               <span className="flex size-8 items-center justify-center rounded-xl bg-[#fff2e8]"><Flame className="size-4 text-[#f97316]" /></span>
               {t("dayStreak", { n: streak })}
             </div>
-            <p className="ml-10 -mt-1 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
+            <p className="ml-10 mt-0.5 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
             {/* The days the pupil actually practised, oldest first, each cell
                 labelled with its own weekday. It used to light the first N of
                 seven from the streak number, which drew a week nobody lived —
