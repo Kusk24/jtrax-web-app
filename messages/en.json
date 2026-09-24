@@ -236,7 +236,7 @@
     "prefDeducted": "Credit Deduction",
     "prefDeductedSub": "At check-out: class time, credits used and credits left",
     "prefLowCredit": "Low Credit Alerts",
-    "prefLowCreditSub": "A top-up reminder when the balance runs low. Off unless you turn it on",
+    "prefLowCreditSub": "A top-up reminder the office sends when the balance runs low",
     "prefExpiry": "Expiry Alerts",
     "prefExpirySub": "When credits are close to their expiry date",
     "prefPayment": "Payment Receipts",

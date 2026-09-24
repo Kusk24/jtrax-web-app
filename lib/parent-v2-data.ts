@@ -62,7 +62,7 @@ export interface AnnouncementV2 {
 }
 
 /** The notification catalogue the backend sends, in the order Settings lists
-    it. Low credit is the one opt-in: everything else defaults on. */
+    it. Everything defaults on. */
 export const NOTIF_TYPES = [
   "check_in",
   "credit_deducted",
@@ -78,7 +78,9 @@ export type NotifType = (typeof NOTIF_TYPES)[number];
 export const NOTIF_DEFAULTS: Record<NotifType, boolean> = {
   check_in: true,
   credit_deducted: true,
-  low_credit: false,
+  /* On since 2026-09-24: the office sends it by hand now, rather than every
+     check-out sending it, so it arrives unless the parent turns it off. */
+  low_credit: true,
   credit_expiry: true,
   announcement: true,
   payment_received: true,
