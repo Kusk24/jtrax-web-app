@@ -32,10 +32,8 @@ export interface ChildV2 {
   daysLeft: number;
   /** False once the expiry date has passed — expired, not "expiring soon". */
   expiresAhead: boolean;
-  /** Attendance rows on file for this child. */
+  /** Classes this child was checked in to — see `classesAttended`. */
   attended: number;
-  /** Sessions the enrolled class has held up to today. */
-  heldSessions: number;
   streak: number;
   practiceWeek: number[];
 }

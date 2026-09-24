@@ -16,6 +16,7 @@ import {
   type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind,
   type TournamentEntryV2, type TournamentV2,
 } from "@/lib/parent-v2-data";
+import { classesAttended } from "@/lib/classes-attended";
 import { money } from "@/lib/money";
 
 type Row = Record<string, unknown>;
@@ -181,7 +182,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
 
     const today = new Date();
     const todayStr = todayISO(today);
-    const nowClock = `${String(today.getHours()).padStart(2, "0")}:${String(today.getMinutes()).padStart(2, "0")}`;
+    const sessionIds = new Set(sessions.map((x) => s(x, "session_id")));
 
     const mapped: ChildV2[] = students.map((st, i) => {
       const sid = s(st, "student_id");
@@ -197,17 +198,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         : 0;
       const daysLeft = Math.max(0, daysRaw);
 
-      /* Sessions the class has already held. Sessions are written one at a
-         time by the desk — there is no weekly pattern — which is also why the
-         screen shows no upcoming schedule: a session not yet written is not a
-         plan a parent can rely on. */
-      const mySessions = cls
-        ? sessions.filter((x) => s(x, "class_id") === s(cls, "class_id"))
-        : [];
-      const held = mySessions.filter((x) => s(x, "session_date") < todayStr
-        || (s(x, "session_date") === todayStr && s(x, "end_time") < nowClock)).length;
-
-      const attended = attendance.filter((a) => s(a, "student_id") === sid).length;
+      const attended = classesAttended(attendance.filter((a) => s(a, "student_id") === sid), sessionIds);
       const acts = activities.filter((a) => s(a, "student_id") === sid);
       const week = Array.from({ length: 7 }, (_, d) => {
         const day = todayISO(new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6 - d)));
@@ -230,7 +221,6 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         daysLeft,
         expiresAhead: daysRaw >= 0,
         attended,
-        heldSessions: held,
         /* Counted from the days this child actually practised, not read off
            `student.streak_count` — a number the browser used to post and
            nothing ever recomputed, so a child who stopped in May still showed

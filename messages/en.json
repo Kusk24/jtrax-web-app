@@ -75,7 +75,7 @@
     "days": "days",
     "registerNow": "Register Now",
     "myChildren": "My Children ({count})",
-    "completedClasses": "{label} classes",
+    "completedClasses": "{count, plural, one {# class} other {# classes}}",
     "creditsLeftLabel": "{count} / 20 credits left",
     "todaysActivity": "Today's Activity",
     "practice": "Practice",

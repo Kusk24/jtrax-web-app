@@ -75,7 +75,7 @@
     "days": "วัน",
     "registerNow": "สมัครเลย",
     "myChildren": "บุตรหลานของฉัน ({count})",
-    "completedClasses": "เรียนแล้ว {label} คลาส",
+    "completedClasses": "เรียนแล้ว {count} คลาส",
     "creditsLeftLabel": "เหลือ {count} / 20 เครดิต",
     "todaysActivity": "กิจกรรมวันนี้",
     "practice": "ฝึกฝน",
