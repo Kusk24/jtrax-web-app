@@ -121,7 +121,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
               <span className="block text-[12px] text-sv-body">{c.rated ? t("rated") : t("friendly")}</span>
             </span>
             <button
-              onClick={() => router.push(`/student/play/room/${c.gameRoomId}`)}
+              onClick={() => router.push(`/student/play/room/${c.gameRoomId}?from=challenge`)}
               className={`${actionBtn} min-h-[44px] px-4 text-[13.5px]`}
             >
               {t("openBoard")}
@@ -158,7 +158,7 @@ export function ChallengeScreen({ myStudentId }: { myStudentId: string }) {
                         onClick={() =>
                           void run(c.challengeId, async () => {
                             const out = await acceptChallenge(c.challengeId);
-                            router.push(`/student/play/room/${out.gameRoomId}`);
+                            router.push(`/student/play/room/${out.gameRoomId}?from=challenge`);
                           })
                         }
                         className="flex size-11 cursor-pointer items-center justify-center rounded-full border-none bg-sv-mint shadow-[inset_0_0_0_1.25px_rgb(143,191,168)] disabled:opacity-60"

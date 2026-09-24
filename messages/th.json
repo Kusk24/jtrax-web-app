@@ -342,6 +342,7 @@
     "newGame": "เริ่มเกมใหม่",
     "viewBoard": "กลับไปที่กระดาน",
     "backToPlay": "กลับไปหน้าเล่น",
+    "backToChallenge": "กลับไปหน้าท้าประลอง",
     "byReason": "ด้วยการ{reason}",
     "resign": "ยอมแพ้",
     "resignConfirm": "ยืนยันยอมแพ้",
