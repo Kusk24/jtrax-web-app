@@ -5,6 +5,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { API_BASE, SESSION_COOKIE } from "@/lib/session";
+import { forwardAs } from "@/lib/proxy-body";
 
 async function forward(req: NextRequest, params: Promise<{ path: string[] }>) {
   const { path } = await params;
@@ -12,16 +13,22 @@ async function forward(req: NextRequest, params: Promise<{ path: string[] }>) {
   const token = store.get(SESSION_COOKIE)?.value;
 
   const url = `${API_BASE}/api/v1/${path.join("/")}${req.nextUrl.search}`;
+  // Almost every call here is JSON, but the ID card on the tournament entry
+  // form arrives as multipart, and that body has to survive the hop untouched.
+  // Hardcoding application/json here is what made the entry form report
+  // "image is too large" for a 200 KB photo — see lib/proxy-body.ts, which
+  // owns the decision so it can be tested.
+  const plan = forwardAs(req.headers.get("content-type"));
   const init: RequestInit = {
     method: req.method,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": plan.type,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     cache: "no-store",
   };
   if (req.method !== "GET" && req.method !== "HEAD") {
-    init.body = await req.text();
+    init.body = plan.asText ? await req.text() : await req.arrayBuffer();
   }
 
   // An event stream never ends, so it must not be buffered — and it must be
