@@ -20,6 +20,7 @@ import { LogOut } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { SignOutButton } from "@/components/SignOutButton";
+import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card";
@@ -29,7 +30,7 @@ export default function ParentSettings() {
   const locale = useLocale();
   const router = useRouter();
   const [, startTransition] = useTransition();
-  const { prefs, savePref } = useParentData();
+  const { prefs, schoolAllows, savePref } = useParentData();
   /* Initialised from the shell's data-theme (server-rendered from the
      account), so the picker shows the saved choice without a fetch. */
   const [theme, setTheme] = useState("system");
@@ -61,17 +62,20 @@ export default function ParentSettings() {
     startTransition(() => router.refresh());
   };
 
-  /* The backend's whole catalogue, one switch each, all on until the parent
-     turns one off. */
-  const prefDefs = [
-    { k: "check_in" as const, label: t("prefCheckin"), sub: t("prefCheckinSub") },
-    { k: "credit_deducted" as const, label: t("prefDeducted"), sub: t("prefDeductedSub") },
-    { k: "low_credit" as const, label: t("prefLowCredit"), sub: t("prefLowCreditSub") },
-    { k: "credit_expiry" as const, label: t("prefExpiry"), sub: t("prefExpirySub") },
-    { k: "announcement" as const, label: t("prefNews"), sub: t("prefNewsSub") },
-    { k: "payment_received" as const, label: t("prefPayment"), sub: t("prefPaymentSub") },
-    { k: "class_cancelled" as const, label: t("prefCancelled"), sub: t("prefCancelledSub") },
+  /* The catalogue, one switch each, all on until the parent turns one off —
+     but only the types the school sends. The school's switch (Admin →
+     Settings → Notifications) is the master: a type it has off is not
+     offered here at all, rather than shown as a switch that does nothing. */
+  const allPrefDefs = [
+    { k: "check_in" as const, label: t("prefCheckin") },
+    { k: "credit_deducted" as const, label: t("prefDeducted") },
+    { k: "low_credit" as const, label: t("prefLowCredit") },
+    { k: "credit_expiry" as const, label: t("prefExpiry") },
+    { k: "announcement" as const, label: t("prefNews") },
+    { k: "payment_received" as const, label: t("prefPayment") },
+    { k: "class_cancelled" as const, label: t("prefCancelled") },
   ];
+  const prefDefs = allPrefDefs.filter((p) => schoolAllows[p.k]);
   /* Same order and wording as the console's pill: Auto first, because
      following the device is the default nobody has to think about. */
   const themeDefs = [
@@ -81,7 +85,7 @@ export default function ParentSettings() {
   ];
 
   return (
-    <div className="grid content-start gap-5 md:grid-cols-2 md:gap-x-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] content-start gap-5 md:grid-cols-2 md:gap-x-6">
       <div className="md:col-span-2">
         <ParentPageHeader title={t("settingsTitle")} sub={t("settingsSub")} />
       </div>
@@ -90,12 +94,12 @@ export default function ParentSettings() {
         <div className="flex flex-col gap-3">
           <span className={label}>{t("notifPrefs")}</span>
           <div className={panel}>
+            {prefDefs.length === 0 && (
+              <p className="px-4 py-3.5 text-[13px] text-pp-muted">{t("notifNoneFromSchool")}</p>
+            )}
             {prefDefs.map((p) => (
               <div key={p.k} className="flex items-center justify-between gap-3 border-b border-pp-panel px-4 py-3.5 last:border-0">
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-sm font-semibold">{p.label}</span>
-                  <span className="text-[11px] text-pp-muted">{p.sub}</span>
-                </div>
+                <span className="min-w-0 text-sm font-semibold">{p.label}</span>
                 <button
                   onClick={() => {
                     setPrefError(false);
@@ -150,6 +154,11 @@ export default function ParentSettings() {
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <span className={label}>{t("security")}</span>
+          <ChangePasswordForm tone="parent" />
         </div>
 
         <div className="flex flex-col gap-3">

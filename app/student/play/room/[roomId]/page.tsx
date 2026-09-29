@@ -16,7 +16,7 @@ export default async function RoomPage({
   const from = (await searchParams).from === "challenge" ? "challenge" : "play";
   const t = await getTranslations("play");
   return (
-    <PlayShell title={t("classGame")} back={`/student/${from}`}>
+    <PlayShell title={t("classGame")} back={`/student/${from}`} wide>
       <LiveGame roomId={roomId} from={from} />
     </PlayShell>
   );

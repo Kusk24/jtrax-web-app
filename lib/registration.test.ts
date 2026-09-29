@@ -52,10 +52,15 @@ describe("categoryAllows", () => {
     expect(categoryAllows("U8 Boys", "2017-06-15", start)).toMatchObject({ allowed: false, limit: 8 });
   });
 
-  it("is decided on the tournament's day, not today", () => {
-    // Turns 8 on 15 June 2026, so: in for a tournament in May, out for one in July.
+  it("goes by birth year: U10 in 2026 is born on or after 1 Jan 2016", () => {
+    expect(categoryAllows("U10", "2016-01-01", "2026-10-10")).toMatchObject({ allowed: true, bornFrom: 2016 });
+    expect(categoryAllows("U10", "2016-12-31", "2026-02-01").allowed).toBe(true);
+    expect(categoryAllows("U10", "2015-12-31", "2026-10-10").allowed).toBe(false);
+  });
+
+  it("is decided by the tournament's year, not this year", () => {
     expect(categoryAllows("U8", "2018-06-15", "2026-05-01").allowed).toBe(true);
-    expect(categoryAllows("U8", "2018-06-15", "2026-07-01").allowed).toBe(false);
+    expect(categoryAllows("U8", "2018-06-15", "2027-01-10").allowed).toBe(false);
   });
 
   it("asks for a date of birth before judging an age category", () => {

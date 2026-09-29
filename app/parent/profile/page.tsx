@@ -14,16 +14,19 @@ import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
+import { PaymentHistory } from "@/components/parent/PaymentHistory";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card";
 
 export default function ParentProfileV2() {
   const t = useTranslations("pv2");
-  const { children: childrenV2, parent, parentId } = useParentData();
+  const { children: childrenV2, parent, parentId, payments } = useParentData();
 
+  /* minmax(0, 1fr), not the implicit auto column: that grew to its widest
+     card and pushed everything past the frame. */
   return (
-    <div className="grid content-start gap-5 md:grid-cols-2 md:gap-x-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] content-start gap-5 md:grid-cols-2 md:gap-x-6">
       <div className="md:col-span-2">
         <ParentPageHeader title={t("myProfile")} sub={t("profileSub")} />
       </div>
@@ -83,6 +86,7 @@ export default function ParentProfileV2() {
         </div>
       </div>
 
+      <PaymentHistory payments={payments} />
     </div>
   );
 }

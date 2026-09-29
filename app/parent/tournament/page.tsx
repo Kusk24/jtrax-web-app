@@ -15,7 +15,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
-import { TournamentBanner } from "@/components/parent/TournamentBanner";
+import { TournamentBanner } from "@/components/public/TournamentBanner";
 
 /* "done" is a fee that has been settled; "held" is a place taken with the fee
    still owed — the screen used to show the first for both, and for the card
@@ -339,7 +339,13 @@ export default function TournamentFlow() {
   return (
     <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
       <BackHeader title={t("tournamentTitle")} onBack={() => router.push("/parent")} />
-      <TournamentBanner className="h-[200px] w-full rounded-xl shadow-[0_8px_24px_rgba(35,53,94,.10)]" />
+      <TournamentBanner
+        name={tournamentV2.name}
+        when={tournamentV2.date}
+        venue={tournamentV2.venue}
+        imageUrl={tournamentV2.hasBanner ? `/api/tournaments/${tournamentV2.id}/banner` : undefined}
+        className="h-[200px] w-full rounded-xl shadow-[0_8px_24px_rgba(35,53,94,.10)]"
+      />
       <span className="font-pp-display text-xl font-semibold leading-snug text-pp-ink">
         {tournamentV2.name}
       </span>

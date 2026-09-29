@@ -11,9 +11,11 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CalendarDays, Clock3, FileText, MapPin, Users } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
+import { TournamentBanner } from "@/components/public/TournamentBanner";
+import { SiteFooter } from "@/components/public/SiteFooter";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
 import { RegisterForm } from "./RegisterForm";
 
@@ -25,11 +27,19 @@ export const revalidate = 30;
 
 type Payload = { tournament: PublicTournament; categories: PublicCategory[] };
 
-async function fetchTournament(id: string): Promise<Payload | null> {
+/* `preview` is a draft's review link, opened by the console before the event
+   is published. It is never cached: the organiser goes back, edits, and looks
+   again, and must see the edit. */
+async function fetchTournament(id: string, preview?: string): Promise<Payload | null> {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/public/tournaments/${id}`, {
-      next: { revalidate },
-    });
+    const res = preview
+      ? await fetch(
+          `${API_BASE}/api/v1/public/tournaments/${id}/preview?preview=${encodeURIComponent(preview)}`,
+          { cache: "no-store" },
+        )
+      : await fetch(`${API_BASE}/api/v1/public/tournaments/${id}`, {
+          next: { revalidate },
+        });
     if (!res.ok) return null;
     return (await res.json()) as Payload;
   } catch {
@@ -37,15 +47,21 @@ async function fetchTournament(id: string): Promise<Payload | null> {
   }
 }
 
+type SearchParams = Promise<{ preview?: string }>;
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: SearchParams;
 }): Promise<Metadata> {
   const { id } = await params;
-  const data = await fetchTournament(id);
+  const { preview } = await searchParams;
+  const data = await fetchTournament(id, preview);
   // A tournament nobody opened must not leak its name through a page title.
   if (!data) return { title: "JTrax" };
+  if (preview) return { title: `Preview — ${data.tournament.name}`, robots: { index: false, follow: false } };
   return {
     title: `${data.tournament.name} — JCA Chess Academy`,
     description: `Register for ${data.tournament.name}.`,
@@ -60,9 +76,16 @@ function formatDate(iso: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(d);
 }
 
-export default async function RegisterPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RegisterPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: SearchParams;
+}) {
   const { id } = await params;
-  const data = await fetchTournament(id);
+  const { preview } = await searchParams;
+  const data = await fetchTournament(id, preview);
   // Closed and non-existent are the same 404 here, exactly as the API treats
   // them — the page must not be a way to discover which ids are real.
   if (!data) notFound();
@@ -79,56 +102,136 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
         ? formatDate(dates[0], locale)
         : "";
 
-  return (
-    <PublicShell title={tournament.name} subtitle={when || undefined} wide>
-      <div className="flex flex-col gap-4">
-        <PublicCard className="!p-4 sm:!p-5">
-          <dl className="grid grid-cols-2 gap-2.5 md:grid-cols-5">
-            <Fact
-              label={t("fee")}
-              value={money(tournament.fee, locale)}
-              icon={<CalendarDays className="size-4" />}
-              /* Says why the price is what it is: an early-bird price that
-                 expires is worth knowing the expiry of. */
-              note={
-                tournament.earlyBirdActive && tournament.earlyBirdUntil
-                  ? t("earlyBirdUntil", { date: formatDate(tournament.earlyBirdUntil, locale) })
-                  : undefined
-              }
-            />
-            {tournament.studentDiscountPct > 0 && (
-              <Fact
-                label={t("studentFee")}
-                value={money(tournament.studentFee, locale)}
-                icon={<Users className="size-4" />}
-                note={t("discountOf", { pct: tournament.studentDiscountPct })}
-              />
-            )}
-            {tournament.venueName && <Fact label={t("venue")} value={tournament.venueName} icon={<MapPin className="size-4" />} />}
-            {tournament.registrationDeadline && (
-              <Fact label={t("closes")} value={formatDate(tournament.registrationDeadline, locale)} icon={<Clock3 className="size-4" />} />
-            )}
-            {tournament.spotsLeft !== null && (
-              <Fact label={t("placesLeft")} value={String(tournament.spotsLeft)} icon={<Users className="size-4" />} />
-            )}
-          </dl>
+  /* The preview link has to ride along on the draft's own files, which are
+     not public until it is published. */
+  const previewQuery = preview ? `?preview=${encodeURIComponent(preview)}` : "";
+  const venue = tournament.venueName || tournament.venueAddress;
 
-          {/* The organiser's own rules — schedule, categories, prizes. A
-              parent deciding whether to enter should be able to read them
-              without asking the desk for a copy. */}
-          {tournament.hasRegulation && (
-            <a
-              href={`/api/tournaments/${tournament.id}/regulation`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 flex min-h-[54px] w-full items-center gap-3 rounded-xl border border-[#cbdcf6] bg-[#f4f8ff] px-4 text-[13px] font-semibold text-pp-blue transition-colors duration-150 hover:border-pp-blue"
-            >
-              <span className="flex size-8 items-center justify-center rounded-lg bg-white shadow-sm"><FileText className="size-4" aria-hidden /></span>
-              <span className="flex flex-1 flex-col"><strong>{t("regulation")}</strong><span className="text-[11px] font-normal text-pp-muted">{t("regulationHint")}</span></span>
-              <span className="rounded-lg border border-[#cbdcf6] bg-white px-3 py-1.5 text-[11px] font-bold">{t("viewRegulation")}</span>
-            </a>
-          )}
-        </PublicCard>
+  const mapUrl = venue
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([tournament.venueName, tournament.venueAddress].filter(Boolean).join(", "))}`
+    : "";
+  const earlyBird = tournament.earlyBirdActive && tournament.earlyBirdUntil && tournament.earlyBirdFee;
+  /* Whole days until the deadline, counted on the academy's calendar
+     (Bangkok): entries close at the end of that day, whatever the reader's
+     own time zone. The last week is drawn in red — early enough to act on,
+     late enough that a deadline two months out does not look like an alarm. */
+  const daysLeft = tournament.registrationDeadline ? daysUntil(tournament.registrationDeadline) : null;
+  const urgent = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7;
+
+  return (
+    <PublicShell footer={<SiteFooter />}
+      title={tournament.name}
+      subtitle={when || undefined}
+      wide
+      /* The banner is the whole header: nothing above it, and the heading is
+         for screen readers only. */
+      titleHidden
+      hero={
+        <TournamentBanner
+          name={tournament.name}
+          when={when}
+          venue={venue}
+          imageUrl={tournament.hasBanner ? `/api/tournaments/${tournament.id}/banner${previewQuery}` : undefined}
+          className="w-full rounded-2xl shadow-[0_12px_32px_rgba(35,53,94,.14)]"
+        />
+      }
+    >
+      <div className="flex flex-col gap-4">
+        {preview && (
+          <p className="rounded-xl border border-[#f1d9b5] bg-pp-amber-soft px-4 py-3 text-[13px] font-semibold text-pp-amber">
+            {t("previewBanner")}
+          </p>
+        )}
+
+        {/* Four facts, each a label, one big answer and a line under it: what
+            it costs, how long there is to enter, when it is, where it is. */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <InfoCard
+            label={t("cards.fees")}
+            badge={
+              earlyBird ? (
+                <span className="rounded-md border border-[#bfe4d8] bg-pp-green-soft px-2 py-0.5 text-[11.5px] font-semibold text-pp-green">
+                  {t("cards.earlyBird")}
+                </span>
+              ) : undefined
+            }
+          >
+            <p className="font-pp-display text-[18px] font-bold leading-snug text-pp-navy">{money(tournament.fee, locale)}</p>
+            <p className="mt-1 text-[12.5px] text-pp-muted">
+              {[
+                earlyBird
+                  ? t("cards.regularAfter", { fee: money(tournament.regularFee, locale), date: shortDate(tournament.earlyBirdUntil!, locale) })
+                  : "",
+                tournament.studentDiscountPct > 0 ? t("cards.students", { fee: money(tournament.studentFee, locale) }) : "",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </InfoCard>
+
+          <InfoCard
+            label={t("cards.deadline")}
+            badge={
+              daysLeft !== null && daysLeft >= 0 ? (
+                <span
+                  className={`rounded-md border px-2 py-0.5 text-[11.5px] font-semibold ${
+                    urgent ? "border-[#f3c4c4] bg-pp-red-soft text-pp-red" : "border-[#cfdcf5] bg-pp-soft text-pp-blue"
+                  }`}
+                >
+                  {daysLeft === 0 ? t("cards.lastDay") : t("cards.daysLeft", { count: daysLeft })}
+                </span>
+              ) : undefined
+            }
+          >
+            <p className={`font-pp-display text-[18px] font-bold leading-snug ${urgent ? "text-pp-red" : "text-pp-navy"}`}>
+              {tournament.registrationDeadline ? longDate(tournament.registrationDeadline, locale) : t("cards.noDeadline")}
+            </p>
+            {tournament.registrationDeadline && daysLeft !== null && daysLeft >= 0 && (
+              <p className="mt-1 text-[12.5px] text-pp-muted">
+                {[
+                  t("cards.closesAt"),
+                  daysLeft === 0 ? t("cards.closesToday") : t("cards.closesIn", { count: daysLeft }),
+                ].join(" · ")}
+              </p>
+            )}
+          </InfoCard>
+
+          {/* The event date in red, so the day to be there stands out. */}
+          <InfoCard label={t("cards.eventDate")}>
+            <p className="font-pp-display text-[18px] font-bold leading-snug text-pp-red">
+              {tournament.startDate ? longDate(tournament.startDate, locale) : t("dateTbc")}
+            </p>
+            {tournament.endDate && tournament.endDate !== tournament.startDate ? (
+              <p className="mt-1 text-[12.5px] text-pp-muted">{t("cards.until", { date: longDate(tournament.endDate, locale) })}</p>
+            ) : tournament.startDate ? (
+              <p className="mt-1 text-[12.5px] text-pp-muted">{t("cards.oneDay")}</p>
+            ) : null}
+          </InfoCard>
+
+          <InfoCard
+            label={t("cards.venue")}
+            badge={
+              mapUrl ? (
+                <a
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-md px-1 text-[12.5px] font-semibold text-pp-blue hover:underline"
+                >
+                  <MapPin className="size-3.5 text-pp-red" aria-hidden /> {t("cards.maps")}
+                  <ExternalLink className="size-3.5" aria-hidden />
+                </a>
+              ) : undefined
+            }
+          >
+            <p className="font-pp-display text-[18px] font-bold leading-snug text-pp-navy">
+              {tournament.venueName || tournament.venueAddress || t("dateTbc")}
+            </p>
+            {tournament.venueAddress && tournament.venueAddress !== tournament.venueName && (
+              <p className="mt-1 text-[12.5px] text-pp-muted">{tournament.venueAddress}</p>
+            )}
+          </InfoCard>
+        </div>
 
         {tournament.open ? (
           <RegisterForm
@@ -138,6 +241,11 @@ export default async function RegisterPage({ params }: { params: Promise<{ id: s
             studentFee={tournament.studentFee}
             discountPct={tournament.studentDiscountPct}
             startDate={tournament.startDate}
+            regulationHref={tournament.hasRegulation ? `/api/tournaments/${tournament.id}/regulation${previewQuery}` : undefined}
+            cardPayments={Boolean(tournament.cardPayments)}
+            earlyBirdUntil={tournament.earlyBirdActive ? tournament.earlyBirdUntil : undefined}
+            registrationDeadline={tournament.registrationDeadline || undefined}
+            preview={Boolean(preview)}
           />
         ) : (
           <PublicCard>
@@ -162,14 +270,38 @@ function money(amount: number, locale = "en"): string {
   }).format(amount);
 }
 
-function Fact({ label, value, note, icon }: { label: string; value: string; note?: string; icon?: React.ReactNode }) {
+/** A label, an optional chip or link on the right, then the answer. */
+function InfoCard({ label, badge, children }: { label: string; badge?: React.ReactNode; children: React.ReactNode }) {
   return (
-    /* The note lives inside the <dd>, not beside it: a <div> inside a <dl> may
-       only hold <dt>/<dd> pairs, and a stray <p> there is invalid markup that
-       screen readers read out of order. */
-    <div className="rounded-xl border border-pp-line bg-[#fbfdff] p-3">
-      <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-pp-muted"><span className="text-pp-blue">{icon}</span>{label}</dt>
-      <dd className="mt-1 text-[14px] font-semibold text-pp-ink">{value}{note && <span className="block text-[10.5px] font-normal text-pp-muted">{note}</span>}</dd>
-    </div>
+    <section className="flex min-w-0 flex-col rounded-2xl border border-pp-line bg-white p-4 shadow-[0_4px_16px_rgba(35,53,94,.05)] sm:p-5">
+      <div className="mb-2 flex min-h-6 items-start justify-between gap-2">
+        <h2 className="text-[11.5px] font-semibold uppercase tracking-[.06em] text-pp-muted">{label}</h2>
+        {badge && <span className="shrink-0">{badge}</span>}
+      </div>
+      {children}
+    </section>
   );
+}
+
+/** "Sunday, Jun 7, 2026", in the reader's language. */
+function longDate(iso: string, locale: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat(locale, { weekday: "long", month: "short", day: "numeric", year: "numeric" }).format(d);
+}
+
+/** "Jun 7". */
+function shortDate(iso: string, locale: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(d);
+}
+
+/** Days from today to `iso` on the academy's calendar; 0 on the day itself,
+    negative once it has passed. Worked in UTC so no time zone shifts a day. */
+function daysUntil(iso: string): number {
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
+  const a = Date.parse(`${today}T00:00:00Z`);
+  const b = Date.parse(`${iso}T00:00:00Z`);
+  return Number.isNaN(b) ? -1 : Math.round((b - a) / 86_400_000);
 }

@@ -23,7 +23,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
+import { TournamentBanner } from "@/components/public/TournamentBanner";
+import { SiteFooter } from "@/components/public/SiteFooter";
 import { Bracket, knockoutRounds } from "./Bracket";
+import { CategoryResults, type Category } from "./CategoryResults";
 import { ResultsView } from "./ResultsView";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
@@ -59,7 +62,16 @@ type Board = {
 type Round = { round: number; date?: string; status: string; pairings: Board[] };
 
 type Results = {
-  tournament: { name: string; status: string };
+  tournament: {
+    name: string;
+    status: string;
+    /* For the banner, the same one the registration page opens with. */
+    startDate?: string;
+    endDate?: string;
+    venueName?: string;
+    venueAddress?: string;
+    hasBanner?: boolean;
+  };
   rounds: Round[];
   standings: Standing[];
   /** "chess-results" when the arbiter's table is what is being shown. */
@@ -67,6 +79,9 @@ type Results = {
   sourceUrl?: string;
   stage?: string;
   fetchedAt?: string;
+  /** A tournament connected with one link: every chess-results category,
+      each with its own table. When present, the page is these. */
+  sections?: Category[];
 };
 
 async function fetchResults(id: string): Promise<Results | null> {
@@ -113,14 +128,43 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
      the round list would be noise. Swiss events keep the list. */
   const knockout = knockoutRounds(rounds);
 
-  const subtitle = external
+  const categories = data.sections ?? [];
+  const dates = [tournament.startDate, tournament.endDate].filter((d): d is string => !!d);
+  const when =
+    dates.length === 2 && dates[0] !== dates[1]
+      ? `${formatDate(dates[0], locale)} – ${formatDate(dates[1], locale)}`
+      : dates.length
+        ? formatDate(dates[0], locale)
+        : "";
+  const hero = (
+    <TournamentBanner
+      name={tournament.name}
+      when={when}
+      venue={tournament.venueName || tournament.venueAddress}
+      imageUrl={tournament.hasBanner ? `/api/tournaments/${id}/banner` : undefined}
+      className="w-full rounded-2xl shadow-[0_12px_32px_rgba(35,53,94,.14)]"
+    />
+  );
+  const subtitle = categories.length > 0
+    ? t("liveFromSource")
+    : external
     ? data.stage || t("liveFromSource")
     : started
       ? t("liveWithCount", { count: standings.length })
       : t("registeredCount", { count: standings.length });
 
   return (
-    <PublicShell title={tournament.name} subtitle={subtitle}>
+    /* The tournament's banner across the top, as on its registration page.
+       The banner carries the name, so the heading is for screen readers; the
+       line saying where the table comes from is kept, under the banner. */
+    <PublicShell footer={<SiteFooter />} title={tournament.name} subtitle={subtitle} hero={hero} titleHidden>
+      <p className="mb-4 text-center text-sm text-pp-sub">{subtitle}</p>
+      {categories.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          <CategoryResults categories={categories} />
+          <p className="text-center text-xs text-pp-sub">{t("updatesAutomatically")}</p>
+        </div>
+      ) : (
       <div className="flex flex-col gap-4">
         {/* A page served from a cache of somebody else's site has to say so, and
             link back — a parent reading a stale table deserves to know where it
@@ -172,6 +216,7 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
 
         <p className="text-center text-xs text-pp-sub">{t("updatesAutomatically")}</p>
       </div>
+      )}
     </PublicShell>
   );
 }
@@ -183,4 +228,10 @@ function formatTime(iso: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, {
     day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
   }).format(d);
+}
+
+function formatDate(iso: string, locale: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(d);
 }

@@ -40,6 +40,9 @@ export type Verdict = {
   /** The position after the move and any reply — the server's view, which is
       the one that counts. */
   fen: string;
+  /** Practice list only: this solve was the first, so it earned points. A
+      replay of a ticked puzzle is graded and earns nothing. */
+  firstSolve?: boolean;
 };
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -72,6 +75,28 @@ export type FreePuzzle = {
  * across a refresh. */
 export const getFreePuzzle = (tier: FreeTier) =>
   call<FreePuzzle>(`puzzles/free?tier=${tier}`);
+
+/** A puzzle in the practice list: its level as well as its rating. */
+export type ListPuzzle = DailyPuzzle & { position: number; tier: FreeTier };
+
+/** The practice list: twenty puzzles, levels mixed — two in three from the
+    pupil's own level. A solved one is ticked for the day; the next day it is
+    replaced by a new one and the unsolved ones stay. */
+export type PuzzleList = { puzzles: ListPuzzle[]; level: FreeTier };
+
+export const getPuzzleList = () => call<PuzzleList>("puzzles/list");
+
+export const attemptListMove = (puzzleId: string, move: string, played: string[]) =>
+  call<Verdict>(`puzzles/list/${encodeURIComponent(puzzleId)}/attempt`, {
+    method: "POST",
+    body: JSON.stringify({ move, played }),
+  });
+
+/** Stamps when a list puzzle was opened, for the minutes its first solve adds. */
+export const openListPuzzle = (puzzleId: string) =>
+  call<{ started: boolean }>(`puzzles/list/${encodeURIComponent(puzzleId)}/open`, { method: "POST" }).catch(
+    () => ({ started: false }),
+  );
 
 /** Submits one move. `played` is the pupil's own moves so far; the opponent's
     replies come from the server's copy of the solution, so it rebuilds the

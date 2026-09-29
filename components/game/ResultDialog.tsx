@@ -13,8 +13,9 @@
  * Deliberately not a "review" or a share — neither exists here, and a dialog
  * full of buttons that do nothing is worse than the line it replaced.
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Check, Minus, X } from "lucide-react";
 import { playSound } from "@/lib/sound";
 import { actionBtn } from "./PlayShell";
 
@@ -24,6 +25,8 @@ export function ResultDialog({
   primaryLabel,
   onPrimary,
   onClose,
+  outcome,
+  facts,
 }: {
   title: string;
   /** How it ended — "checkmate", "stalemate". Absent when the game was stopped
@@ -35,6 +38,10 @@ export function ResultDialog({
   primaryLabel: string;
   onPrimary: () => void;
   onClose: () => void;
+  /** The pupil's result, for the mark above the title. */
+  outcome?: "win" | "loss" | "draw" | null;
+  /** What the game was: opponent, side, time control, when. */
+  facts?: { label: string; value: ReactNode }[];
 }) {
   const t = useTranslations("play");
   const first = useRef<HTMLButtonElement>(null);
@@ -70,12 +77,33 @@ export function ResultDialog({
         aria-modal="true"
         aria-labelledby="result-title"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-[320px] rounded-[22px] bg-white p-5 text-center shadow-[0_20px_50px_rgba(16,38,77,.35)]"
+        className="st-enter w-full max-w-[360px] rounded-2xl bg-pp-card p-[18px] text-center shadow-[0_24px_60px_rgba(20,33,58,.28)]"
       >
-        <h2 id="result-title" className="font-sv-display text-[22px] font-bold text-[#10264d]">
+        {outcome && (
+          <span
+            className={`st-badge-reveal mx-auto mb-3 flex size-14 items-center justify-center rounded-full ${
+              outcome === "win" ? "bg-pp-green-soft text-pp-green" : outcome === "loss" ? "bg-pp-red-soft text-pp-red" : "bg-pp-neutral text-pp-muted"
+            }`}
+            aria-hidden
+          >
+            {outcome === "win" ? <Check className="size-7" strokeWidth={2.6} /> : outcome === "loss" ? <X className="size-7" strokeWidth={2.6} /> : <Minus className="size-7" strokeWidth={2.6} />}
+          </span>
+        )}
+        <h2 id="result-title" className="font-pp-display text-[23px] font-bold text-pp-ink">
           {title}
         </h2>
-        {detail && <p className="mt-1.5 text-[12.5px] text-[#7083a3]">{detail}</p>}
+        {detail && <p className="mt-1.5 text-[13px] text-pp-muted">{detail}</p>}
+
+        {facts && facts.length > 0 && (
+          <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 rounded-xl bg-pp-bg p-3 text-left">
+            {facts.map((f) => (
+              <div key={f.label} className="min-w-0">
+                <dt className="text-[11.5px] text-pp-muted">{f.label}</dt>
+                <dd className="truncate text-[13.5px] font-semibold text-pp-ink">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
         <button
           ref={first}
@@ -88,7 +116,7 @@ export function ResultDialog({
         <button
           type="button"
           onClick={onClose}
-          className="mt-2 min-h-11 w-full cursor-pointer rounded-[20px] border-none bg-transparent text-[13px] font-bold text-[#60779c]"
+          className="mt-2 min-h-11 w-full cursor-pointer rounded-full border border-pp-line bg-pp-card text-[14px] font-semibold text-pp-ink transition-colors hover:border-pp-blue hover:bg-pp-soft"
         >
           {t("viewBoard")}
         </button>

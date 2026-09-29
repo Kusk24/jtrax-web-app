@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import StudentGame from "./StudentGame";
 
+/* StudentGame reads `?screen=`, which needs a Suspense boundary. */
 export default function StudentPage() {
   return (
-    <div className="sv-frame">
+    <Suspense fallback={null}>
       <StudentGame />
-    </div>
+    </Suspense>
   );
 }

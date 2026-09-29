@@ -139,12 +139,12 @@ export function LichessCard() {
   }
 
   const card =
-    "w-full rounded-[18px] border border-[#dce8f8] bg-white shadow-[0_7px_20px_rgba(37,99,235,.06)]";
-  const inner = "rounded-[18px] bg-white px-4 py-3.5";
+    "w-full rounded-2xl border-[1.5px] border-pp-line bg-pp-card";
+  const inner = "rounded-2xl bg-pp-card p-[18px]";
   const field =
-    "w-full rounded-xl border border-[#dce8f8] bg-[#f8fbff] px-3 py-2.5 text-[13px] font-bold text-[#10264d] outline-none placeholder:font-normal placeholder:text-[#9aabc2] focus:border-[#2563eb]";
+    "min-h-10 w-full rounded-[9px] border border-pp-line bg-pp-card px-3 text-[14.5px] text-pp-ink outline-none placeholder:text-pp-faint focus:border-pp-blue";
   const button =
-    "cursor-pointer rounded-xl border-none bg-[#2563eb] px-4 py-2.5 text-[12px] font-bold text-white shadow-[0_6px_14px_rgba(37,99,235,.18)] disabled:opacity-60";
+    "min-h-10 cursor-pointer rounded-full border-none bg-pp-blue px-4 text-[14px] font-semibold text-white transition-colors hover:bg-pp-deep disabled:cursor-not-allowed disabled:bg-pp-faint";
 
   if (loading) {
     return (
@@ -172,13 +172,13 @@ export function LichessCard() {
 
         {/* The callback bounces back here with an outcome to show. */}
         {outcome && outcome !== "connected" && (
-          <p className="mb-2.5 rounded-xl bg-[rgb(255,240,240)] px-3 py-2 text-[12px] font-bold text-[rgb(160,60,60)]">
+          <p className="mb-2.5 rounded-xl bg-pp-red-soft px-3 py-2 text-[12.5px] font-semibold text-pp-red">
             {t(`outcome.${outcome}`)}
           </p>
         )}
 
         {loadFailed && (
-          <p role="alert" className="mb-2.5 rounded-xl bg-[rgb(255,240,240)] px-3 py-2 text-[12px] font-bold text-[rgb(160,60,60)]">
+          <p role="alert" className="mb-2.5 rounded-xl bg-pp-red-soft px-3 py-2 text-[12.5px] font-semibold text-pp-red">
             {tCommon("loadFailed")}
           </p>
         )}
@@ -229,13 +229,13 @@ export function LichessCard() {
 
             {link.verifyCode ? (
               <div className="mt-2 flex items-center gap-2">
-                <code className="flex-1 truncate rounded-xl bg-sv-paper px-3 py-2 font-mono text-[13px] font-bold shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
+                <code className="flex-1 truncate rounded-[9px] border border-pp-line bg-pp-mist px-3 py-2 font-mono text-[13px] font-bold">
                   {link.verifyCode}
                 </code>
                 <button
                   onClick={() => void copyCode()}
                   aria-label={t("copyCode")}
-                  className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border-none bg-sv-paper shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]"
+                  className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-pp-line bg-pp-card transition-colors hover:border-pp-blue hover:bg-pp-soft"
                 >
                   {copied ? <Check className="size-4 text-sv-mint-ink" /> : <Copy className="size-4" />}
                 </button>
@@ -256,7 +256,7 @@ export function LichessCard() {
             </a>
 
             {notFound && (
-              <p className="mt-2 rounded-xl bg-[rgb(255,240,240)] px-3 py-2 text-[12px] font-bold text-[rgb(160,60,60)]">
+              <p className="mt-2 rounded-xl bg-pp-red-soft px-3 py-2 text-[12.5px] font-semibold text-pp-red">
                 {t("codeNotFound")}
               </p>
             )}
@@ -268,7 +268,7 @@ export function LichessCard() {
               <button
                 onClick={() => void run(unlinkLichess)}
                 disabled={busy}
-                className="cursor-pointer rounded-[16px] border-none bg-sv-paper px-4 py-2.5 text-[13.5px] font-bold text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] disabled:"
+                className="min-h-10 px-4 cursor-pointer rounded-full border border-pp-line bg-pp-card text-[14px] font-semibold text-pp-ink transition-colors hover:border-pp-blue hover:bg-pp-soft disabled:"
               >
                 {t("remove")}
               </button>
@@ -310,7 +310,7 @@ export function LichessCard() {
               </div>
             )}
             {/* ---- rated play ---- */}
-            <div className="mt-3 rounded-xl bg-sv-paper px-3 py-2.5 shadow-[inset_0_0_0_1.5px_rgb(206,219,236)]">
+            <div className="mt-3 rounded-xl border border-pp-line bg-pp-mist px-3 py-2.5">
               {play?.canPlay ? (
                 <>
                   <p className="flex items-center gap-1.5 text-[12.5px] font-bold">
@@ -356,7 +356,7 @@ export function LichessCard() {
         )}
 
         {error && (
-          <p className="mt-2 rounded-xl bg-[rgb(255,240,240)] px-3 py-2 text-[12px] font-bold text-[rgb(160,60,60)]">
+          <p className="mt-2 rounded-xl bg-pp-red-soft px-3 py-2 text-[12.5px] font-semibold text-pp-red">
             {error}
           </p>
         )}

@@ -59,6 +59,10 @@ export const acceptChallenge = (id: string) =>
 export const declineChallenge = (id: string) =>
   call<{ status: string }>("POST", `challenges/${id}/decline`, {});
 
+/** Clears a decline off the challenger's list once they have seen it. */
+export const dismissDecline = (id: string) =>
+  call<{ status: string }>("POST", `challenges/${id}/dismiss`, {});
+
 export const cancelChallenge = (id: string) =>
   call<{ status: string }>("DELETE", `challenges/${id}`);
 

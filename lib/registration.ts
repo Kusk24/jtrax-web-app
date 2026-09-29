@@ -24,6 +24,8 @@ export type PublicTournament = {
   regularFee: number;
   earlyBirdFee?: number;
   earlyBirdUntil?: string;
+  /** The organiser uploaded a banner; without one the page draws its own. */
+  hasBanner?: boolean;
   earlyBirdActive: boolean;
   /** Whether the organiser's regulation document can be read. */
   hasRegulation: boolean;
@@ -37,6 +39,9 @@ export type PublicTournament = {
   open: boolean;
   /** "deadline" or "full" — why it closed, when it has. */
   closedReason?: string;
+  /** Whether Pay & Register can go on to Stripe. Without it the entry is saved
+      and paid at the desk. */
+  cardPayments?: boolean;
 };
 
 export type PublicCategory = { id: string; name: string };
@@ -60,6 +65,13 @@ export type RegisterInput = {
       without it rather than defaulting it: a record that can mean "we assumed
       yes" answers nothing three weeks later. */
   acceptTerms: boolean;
+  /** As a Thai ID card prints it; a passport holder has none. */
+  nameTh?: string;
+  documentType?: "thai-id" | "passport";
+  /** What the ID card scan read, kept beside what was submitted so staff can
+      check an age group against the document. */
+  scannedName?: string;
+  scannedDateOfBirth?: string;
 };
 
 /** The age a category name implies — "U8 Boys" is under 8. Mirrors the
@@ -85,19 +97,31 @@ export function ageOn(dateOfBirth: string, on: string): number | null {
   return years;
 }
 
-/** Whether a player of this date of birth may enter this category on this
-    day. A category with no age in its name is open to everyone; a category
-    that has one needs a date of birth before it can be judged. */
+/** The first birth year an under-`limit` category takes at an event held in
+    `year` — chess groups go by birth year, so U10 in 2026 is anybody born in
+    2016 or later. */
+export function earliestBirthYear(limit: number, year: number): number {
+  return year - limit;
+}
+
+/** Whether a player of this date of birth may enter this category at an event
+    starting on `startDate`. By birth year, as the backend decides it. A
+    category with no age in its name is open to everyone; one that has an age
+    needs a date of birth before it can be judged. `bornFrom` is the earliest
+    birth year it takes, for the "born on or after" line. */
 export function categoryAllows(
   categoryName: string,
   dateOfBirth: string,
   startDate: string,
-): { allowed: boolean; limit: number; needsDob: boolean } {
+): { allowed: boolean; limit: number; needsDob: boolean; bornFrom: number } {
   const limit = categoryAgeLimit(categoryName);
-  if (limit === 0) return { allowed: true, limit: 0, needsDob: false };
-  if (!dateOfBirth) return { allowed: false, limit, needsDob: true };
-  const age = ageOn(dateOfBirth, startDate || new Date().toISOString().slice(0, 10));
-  return { allowed: age !== null && age < limit, limit, needsDob: false };
+  const start = new Date(startDate || new Date().toISOString().slice(0, 10));
+  const year = Number.isNaN(start.getTime()) ? new Date().getFullYear() : start.getFullYear();
+  if (limit === 0) return { allowed: true, limit: 0, needsDob: false, bornFrom: 0 };
+  const bornFrom = earliestBirthYear(limit, year);
+  if (!dateOfBirth) return { allowed: false, limit, needsDob: true, bornFrom };
+  const dob = new Date(dateOfBirth);
+  return { allowed: !Number.isNaN(dob.getTime()) && dob.getFullYear() >= bornFrom, limit, needsDob: false, bornFrom };
 }
 
 export type RegisterResult = {
@@ -205,6 +229,8 @@ export type ScannedIDCard = {
   lastName: ScannedField;
   /** YYYY-MM-DD, already converted out of the Buddhist era by the server. */
   dateOfBirth: ScannedField;
+  /** The whole name in Thai script, off a Thai ID card. */
+  thaiName?: ScannedField;
   /** "thai-id", "passport", or "" when the server would not classify it. */
   documentType: string;
 };
@@ -245,3 +271,41 @@ export function ageFromDOB(dob: string, on = new Date()): number {
   if (before) age--;
   return Math.max(0, age);
 }
+
+/* ---- The arrival reminder: "are you coming?" ---- */
+
+export type ArrivalStatus = "Pending" | "Confirmed" | "NotAttending";
+
+export type ArrivalEntry = {
+  tournamentName: string;
+  participantName: string;
+  startDate: string;
+  venue?: string;
+  status: ArrivalStatus;
+  /** False once the tournament has started: the answer is then final. */
+  open: boolean;
+};
+
+/** The entry is in the path, the code after the #, as the email writes it. */
+export function readArrivalLink(pathname: string, hash: string): { entry: string; code: string } | null {
+  const entry = decodeURIComponent(pathname.split("/").filter(Boolean).at(-1) ?? "");
+  const code = new URLSearchParams(hash.replace(/^#/, "")).get("code") ?? "";
+  if (!entry || entry === "arrival" || !/^[0-9a-f]{64}$/.test(code)) return null;
+  return { entry, code };
+}
+
+async function postArrival(entry: string, suffix: string, body: Record<string, string>): Promise<ArrivalEntry> {
+  const res = await fetch(`/api/public/arrival/${encodeURIComponent(entry)}${suffix}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new EntryError(res.status, (data as { error?: string }).error ?? "request failed");
+  return data as ArrivalEntry;
+}
+
+export const getArrival = (entry: string, code: string) => postArrival(entry, "", { code });
+export const answerArrival = (entry: string, code: string, answer: "Confirmed" | "NotAttending") =>
+  postArrival(entry, "/answer", { code, answer });
