@@ -13,9 +13,9 @@ import { ChevronRight } from "lucide-react";
 /* Flat colours, one per way to play: a tinted icon tile on the parent's
    bordered card. */
 const TONE = {
-  ai: { card: "hover:bg-pp-soft", tile: "bg-pp-soft", arrow: "bg-pp-soft text-pp-blue" },
-  friend: { card: "hover:bg-st-orange-soft/60", tile: "bg-st-orange-soft", arrow: "bg-st-orange-soft text-st-orange" },
-  room: { card: "hover:bg-pp-green-soft", tile: "bg-pp-green-soft", arrow: "bg-pp-green-soft text-pp-green" },
+  ai: { card: "hover:bg-pp-soft", tile: "bg-pp-soft", arrow: "bg-pp-soft text-pp-blue", hover: "group-hover:-rotate-[15deg] group-hover:scale-105" },
+  friend: { card: "hover:bg-st-orange-soft/60", tile: "bg-st-orange-soft", arrow: "bg-st-orange-soft text-st-orange", hover: "group-hover:scale-110" },
+  room: { card: "hover:bg-pp-green-soft", tile: "bg-pp-green-soft", arrow: "bg-pp-green-soft text-pp-green", hover: "origin-left group-hover:[transform:perspective(120px)_rotateY(-28deg)]" },
 } as const;
 
 export function GameModeCard({
@@ -58,9 +58,10 @@ export function GameModeCard({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={`${id}-panel`}
-        className="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left"
+        className="group flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left"
       >
-        <span className={`flex size-11 shrink-0 items-center justify-center rounded-lg ${c.tile}`} aria-hidden>
+        {/* The same hover as Home's tile: the robot tilts, the pawns grow, the door swings open. */}
+        <span className={`flex size-11 shrink-0 items-center justify-center rounded-lg transition-transform duration-200 ${c.tile} ${c.hover}`} aria-hidden>
           {art}
         </span>
         <span className="min-w-0 flex-1">
