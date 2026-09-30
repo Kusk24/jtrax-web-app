@@ -32,14 +32,14 @@ export function ProfileScreen({ data }: { data: StudentData }) {
 
   return (
     <div className="st-enter mx-auto flex w-full max-w-[640px] flex-col gap-5">
-      {/* Who: the initial, the name and the login ID, on one row. */}
-      <section className="flex min-w-0 items-center gap-3 px-0.5">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-pp-soft text-[18px] font-bold text-pp-blue" aria-hidden>
+      {/* Who, centred: the avatar, then the name, then the login ID and level. */}
+      <section className="flex flex-col items-center gap-2 pt-1 text-center">
+        <span className="flex size-20 items-center justify-center rounded-full bg-pp-soft font-pp-display text-[32px] font-bold text-pp-blue ring-4 ring-pp-card" aria-hidden>
           {data.name.trim().charAt(0).toUpperCase() || "S"}
         </span>
-        <div className="min-w-0">
-          <h1 className="truncate font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">{data.name || "—"}</h1>
-          <p className="flex items-center gap-2 text-[12px] text-pp-muted">
+        <div className="flex min-w-0 max-w-full flex-col items-center gap-1">
+          <h1 className="max-w-full truncate font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">{data.name || "—"}</h1>
+          <p className="flex items-center justify-center gap-2 text-[12px] text-pp-muted">
             @{data.studentId || "—"}
             {/* The level the office set. */}
             {data.level && (
