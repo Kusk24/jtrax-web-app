@@ -100,7 +100,7 @@ export function ProfileEditSheet({
             placeholder="+"
             title={t3("ownEmoji")}
             aria-label={t3("ownEmoji")}
-            className={`size-11 shrink-0 rounded-full border-[1.5px] border-dashed bg-pp-card p-0 text-center text-[22px] outline-none placeholder:text-[20px] placeholder:font-bold placeholder:text-pp-faint ${
+            className={`size-10 shrink-0 rounded-full border-[1.5px] border-dashed bg-pp-card p-0 text-center text-[20px] outline-none placeholder:text-[20px] placeholder:font-bold placeholder:text-pp-faint ${
               ownEmoji && pick === ownEmoji ? "border-solid border-pp-blue ring-2 ring-pp-blue" : "border-pp-line focus:border-pp-blue"
             }`}
           />
@@ -111,7 +111,7 @@ export function ProfileEditSheet({
               onClick={() => setPick(e)}
               aria-pressed={pick === e}
               aria-label={e}
-              className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-[24px] transition-colors ${
+              className={`flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-[22px] transition-colors ${
                 pick === e ? "bg-pp-soft ring-2 ring-pp-blue" : "bg-pp-mist hover:bg-pp-soft"
               }`}
             >
