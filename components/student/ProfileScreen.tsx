@@ -49,8 +49,8 @@ export function ProfileScreen({ data }: { data: StudentData }) {
           <span className="flex size-20 items-center justify-center rounded-full bg-pp-soft font-pp-display text-[32px] font-bold text-pp-blue ring-4 ring-pp-card" aria-hidden>
             {avatar ? <span className="text-[40px] leading-none">{avatar}</span> : data.name.trim().charAt(0).toUpperCase() || "S"}
           </span>
-          <span className="absolute -bottom-0.5 -right-0.5 flex size-7 items-center justify-center rounded-full bg-st-brand text-white ring-2 ring-pp-card" aria-hidden>
-            <Pencil className="size-3.5" strokeWidth={2.4} />
+          <span className="absolute bottom-0 right-0 flex size-5 items-center justify-center rounded-full bg-st-brand text-white ring-2 ring-pp-card" aria-hidden>
+            <Pencil className="size-2.5" strokeWidth={2.6} />
           </span>
         </button>
         <div className="flex min-w-0 max-w-full flex-col items-center gap-1">
