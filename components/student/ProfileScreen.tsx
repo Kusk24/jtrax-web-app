@@ -29,7 +29,6 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 export function ProfileScreen({ data }: { data: StudentData }) {
   const t = useTranslations("st");
   const t3 = useTranslations("sv3");
-  const tp = useTranslations("pv2");
   const [editing, setEditing] = useState(false);
   /* The emoji avatar lives in this browser; read after the first paint. */
   const [avatar, setAvatar] = useState("");
@@ -111,7 +110,6 @@ export function ProfileScreen({ data }: { data: StudentData }) {
       </section>
 
       <section className="flex flex-col gap-2">
-        <SectionTitle>{tp("appearance")}</SectionTitle>
         <AppearancePicker />
       </section>
 
