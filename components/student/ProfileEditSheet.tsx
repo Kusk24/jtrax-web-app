@@ -49,13 +49,13 @@ export function ProfileEditSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(20,33,58,0.45)] sm:items-center sm:px-6" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(20,33,58,0.45)] px-5" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-profile-title"
         onClick={(e) => e.stopPropagation()}
-        className="st-enter w-full max-w-[420px] rounded-t-2xl bg-pp-card p-5 shadow-[0_24px_60px_rgba(20,33,58,.28)] sm:rounded-2xl"
+        className="st-enter w-full max-w-[420px] rounded-2xl bg-pp-card p-5 shadow-[0_24px_60px_rgba(20,33,58,.28)]"
       >
         <div className="flex items-center justify-between">
           <h2 id="edit-profile-title" className="font-pp-display text-[18px] font-bold text-pp-ink">{t3("editProfile")}</h2>
