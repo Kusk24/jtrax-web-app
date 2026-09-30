@@ -8,16 +8,19 @@
  */
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, X } from "lucide-react";
+import { Check, Copy, X } from "lucide-react";
 import { DEFAULT_AVATARS, firstEmoji } from "@/lib/student-avatar";
 
 export function ProfileEditSheet({
   name,
+  studentId,
   avatar,
   onClose,
   onSave,
 }: {
   name: string;
+  /** Shown read-only, with a copy button — the ID the student signs in with. */
+  studentId: string;
   avatar: string;
   onClose: () => void;
   /** Resolves false when the name could not be saved. */
@@ -29,6 +32,17 @@ export function ProfileEditSheet({
   const [own, setOwn] = useState(DEFAULT_AVATARS.includes(avatar as (typeof DEFAULT_AVATARS)[number]) ? "" : avatar);
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function copyId() {
+    try {
+      await navigator.clipboard.writeText(studentId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* Clipboard blocked: the ID is on screen to copy by hand. */
+    }
+  }
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -115,6 +129,28 @@ export function ProfileEditSheet({
           maxLength={40}
           className="mt-2 w-full rounded-xl border-[1.5px] border-pp-line bg-pp-card px-3.5 py-2.5 text-[15px] font-semibold text-pp-ink outline-none focus:border-pp-blue"
         />
+
+        {/* The student ID: read-only — the office sets it — with a copy button. */}
+        <p className="mt-5 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">{t3("studentIdLabel")}</p>
+        <div className="mt-2 flex items-center gap-2 rounded-xl border-[1.5px] border-pp-line bg-pp-mist py-1.5 pl-3.5 pr-1.5">
+          <input
+            value={studentId || "—"}
+            readOnly
+            aria-label={t3("studentIdLabel")}
+            className="min-w-0 flex-1 bg-transparent py-1 font-mono text-[14px] font-semibold text-pp-muted outline-none"
+          />
+          <button
+            type="button"
+            onClick={copyId}
+            disabled={!studentId}
+            className={`flex shrink-0 cursor-pointer items-center gap-1 rounded-lg px-2.5 py-1.5 text-[12.5px] font-bold transition-colors ${
+              copied ? "bg-pp-green-soft text-pp-green" : "bg-pp-card text-pp-blue hover:bg-pp-soft"
+            }`}
+          >
+            {copied ? <Check className="size-3.5" strokeWidth={2.8} aria-hidden /> : <Copy className="size-3.5" strokeWidth={2.4} aria-hidden />}
+            {copied ? t3("copied") : t3("copy")}
+          </button>
+        </div>
 
         {failed && <p role="alert" className="mt-3 text-[12.5px] font-semibold text-pp-danger">{t3("saveFailed")}</p>}
 

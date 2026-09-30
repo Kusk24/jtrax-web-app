@@ -1063,6 +1063,9 @@
     "nameLabel": "Name",
     "save": "Save",
     "cancel": "Cancel",
-    "saveFailed": "Couldn't save. Try again."
+    "saveFailed": "Couldn't save. Try again.",
+    "studentIdLabel": "Student ID",
+    "copy": "Copy",
+    "copied": "Copied"
   }
 }

@@ -67,6 +67,7 @@ export function ProfileScreen({ data }: { data: StudentData }) {
       {editing && (
         <ProfileEditSheet
           name={data.name}
+          studentId={data.studentId}
           avatar={avatar}
           onClose={() => setEditing(false)}
           onSave={async (next) => {
