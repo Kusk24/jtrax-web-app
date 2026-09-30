@@ -45,8 +45,9 @@ export function ProfileScreen({ data }: { data: StudentData }) {
       <section className="flex flex-col items-center gap-2 pt-1 text-center">
         {/* The avatar opens the editor; the pencil says it can be changed. */}
         <button type="button" onClick={() => setEditing(true)} aria-label={t3("editProfile")} className="relative cursor-pointer">
-          <span className="flex size-20 items-center justify-center rounded-full bg-pp-soft font-pp-display text-[32px] font-bold text-pp-blue ring-4 ring-pp-card" aria-hidden>
-            {avatar ? <span className="text-[40px] leading-none">{avatar}</span> : data.name.trim().charAt(0).toUpperCase() || "S"}
+          <span className="st-badge-reveal flex size-20 items-center justify-center rounded-full bg-pp-soft font-pp-display text-[32px] font-bold text-pp-blue ring-4 ring-pp-card" aria-hidden>
+            {/* Their emoji, or the white knight until they choose one. */}
+            <span className="text-[40px] leading-none">{avatar || "♘"}</span>
           </span>
           <span className="absolute bottom-0 right-0 flex size-5 items-center justify-center rounded-full bg-st-brand text-white ring-2 ring-pp-card" aria-hidden>
             <Pencil className="size-2.5" strokeWidth={2.6} />

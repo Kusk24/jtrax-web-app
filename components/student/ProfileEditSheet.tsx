@@ -81,7 +81,7 @@ export function ProfileEditSheet({
         {/* The avatar: the one chosen, big, above the choices. */}
         <div className="mt-4 flex justify-center">
           <span className="flex size-20 items-center justify-center rounded-full bg-pp-soft text-[40px]" aria-hidden>
-            {pick || <span className="font-pp-display text-[32px] font-bold text-pp-blue">{draftName.trim().charAt(0).toUpperCase() || "S"}</span>}
+            {pick || <span className="text-pp-blue">♘</span>}
           </span>
         </div>
 
