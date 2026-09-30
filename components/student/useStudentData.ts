@@ -27,6 +27,9 @@ export type StudentData = {
   certificates: number | null;
   progress: Progress | null;
   refreshProgress: () => void;
+  /** Saves a new display name — what the student panel calls the pupil. The
+      official name the office entered is untouched. Resolves false on failure. */
+  rename: (name: string) => Promise<boolean>;
 };
 
 export function useStudentData(): StudentData {
@@ -36,6 +39,23 @@ export function useStudentData(): StudentData {
   const [classes, setClasses] = useState<number | null>(null);
   const [certSessions, setCertSessions] = useState(DEFAULT_CERT_SESSIONS);
   const [progress, setProgress] = useState<Progress | null>(null);
+
+  const rename = useCallback(async (name: string): Promise<boolean> => {
+    const clean = name.trim().replace(/\s+/g, " ").slice(0, 40);
+    if (!clean) return false;
+    try {
+      const res = await fetch("/api/auth/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ displayName: clean }),
+      });
+      if (!res.ok) return false;
+      setMe((m) => (m ? { ...m, displayName: clean } : m));
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
 
   const refreshProgress = useCallback(() => {
     getProgress()
@@ -97,7 +117,8 @@ export function useStudentData(): StudentData {
   }, []);
 
   return {
-    name: record?.name ?? me?.displayName ?? "",
+    /* The display name the pupil chose, else the office's name for them. */
+    name: me?.displayName || record?.name || "",
     studentId: me?.studentId ?? "",
     userAccountId: me?.userAccountId ?? "",
     level: record?.current_level ?? "",
@@ -107,5 +128,6 @@ export function useStudentData(): StudentData {
     certificates: classes === null ? null : Math.floor(classes / certSessions),
     progress,
     refreshProgress,
+    rename,
   };
 }

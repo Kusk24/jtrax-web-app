@@ -1056,6 +1056,13 @@
     "puzzlesLeft": "{n, plural, one {# puzzle left} other {# puzzles left}} today",
     "allDoneToday": "All done for today!",
     "completedOf": "{n} of {total} completed",
-    "dayStreak": "{n, plural, one {# day streak} other {# day streak}}"
+    "dayStreak": "{n, plural, one {# day streak} other {# day streak}}",
+    "editProfile": "Edit profile",
+    "avatarLabel": "Avatar",
+    "ownEmoji": "Or type your own emoji",
+    "nameLabel": "Name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saveFailed": "Couldn't save. Try again."
   }
 }

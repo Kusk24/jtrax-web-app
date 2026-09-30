@@ -1056,6 +1056,13 @@
     "puzzlesLeft": "เหลืออีก {n} ข้อวันนี้",
     "allDoneToday": "วันนี้ทำครบแล้ว!",
     "completedOf": "ทำแล้ว {n} จาก {total}",
-    "dayStreak": "ต่อเนื่อง {n} วัน"
+    "dayStreak": "ต่อเนื่อง {n} วัน",
+    "editProfile": "แก้ไขโปรไฟล์",
+    "avatarLabel": "รูปประจำตัว",
+    "ownEmoji": "หรือพิมพ์อีโมจิของคุณเอง",
+    "nameLabel": "ชื่อ",
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "saveFailed": "บันทึกไม่สำเร็จ ลองอีกครั้ง"
   }
 }

@@ -6,12 +6,15 @@
  * games played, puzzles solved), this week's streak with the current count,
  * and the account settings last. No points: the student panel has none. */
 import { useTranslations } from "next-intl";
-import { Flame, LogOut, Trophy } from "lucide-react";
+import { Flame, LogOut, Pencil, Trophy } from "lucide-react";
 import { LichessCard } from "@/components/student/LichessCard";
 import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import { SignOutButton } from "@/components/SignOutButton";
 import { StreakCalendar, secondaryPill } from "./kit";
 import { SummaryPills, stCard } from "./HomeScreen";
+import { ProfileEditSheet } from "./ProfileEditSheet";
+import { loadAvatar, saveAvatar } from "@/lib/student-avatar";
+import { useEffect, useState } from "react";
 import { AppearancePicker } from "./AppearancePicker";
 import type { StudentData } from "./useStudentData";
 
@@ -27,6 +30,13 @@ export function ProfileScreen({ data }: { data: StudentData }) {
   const t = useTranslations("st");
   const t3 = useTranslations("sv3");
   const tp = useTranslations("pv2");
+  const [editing, setEditing] = useState(false);
+  /* The emoji avatar lives in this browser; read after the first paint. */
+  const [avatar, setAvatar] = useState("");
+  useEffect(() => {
+    const id = setTimeout(() => setAvatar(loadAvatar(data.studentId)), 0);
+    return () => clearTimeout(id);
+  }, [data.studentId]);
   const tc = useTranslations("common");
   const p = data.progress;
 
@@ -34,9 +44,15 @@ export function ProfileScreen({ data }: { data: StudentData }) {
     <div className="st-enter mx-auto flex w-full max-w-[640px] flex-col gap-5">
       {/* Who, centred: the avatar, then the name, then the login ID and level. */}
       <section className="flex flex-col items-center gap-2 pt-1 text-center">
-        <span className="flex size-20 items-center justify-center rounded-full bg-pp-soft font-pp-display text-[32px] font-bold text-pp-blue ring-4 ring-pp-card" aria-hidden>
-          {data.name.trim().charAt(0).toUpperCase() || "S"}
-        </span>
+        {/* The avatar opens the editor; the pencil says it can be changed. */}
+        <button type="button" onClick={() => setEditing(true)} aria-label={t3("editProfile")} className="relative cursor-pointer">
+          <span className="flex size-20 items-center justify-center rounded-full bg-pp-soft font-pp-display text-[32px] font-bold text-pp-blue ring-4 ring-pp-card" aria-hidden>
+            {avatar ? <span className="text-[40px] leading-none">{avatar}</span> : data.name.trim().charAt(0).toUpperCase() || "S"}
+          </span>
+          <span className="absolute -bottom-0.5 -right-0.5 flex size-7 items-center justify-center rounded-full bg-st-brand text-white ring-2 ring-pp-card" aria-hidden>
+            <Pencil className="size-3.5" strokeWidth={2.4} />
+          </span>
+        </button>
         <div className="flex min-w-0 max-w-full flex-col items-center gap-1">
           <h1 className="max-w-full truncate font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">{data.name || "—"}</h1>
           <p className="flex items-center justify-center gap-2 text-[12px] text-pp-muted">
@@ -48,6 +64,21 @@ export function ProfileScreen({ data }: { data: StudentData }) {
           </p>
         </div>
       </section>
+
+      {editing && (
+        <ProfileEditSheet
+          name={data.name}
+          avatar={avatar}
+          onClose={() => setEditing(false)}
+          onSave={async (next) => {
+            const cleanName = next.name.trim();
+            if (cleanName !== data.name && !(await data.rename(cleanName))) return false;
+            saveAvatar(data.studentId, next.avatar);
+            setAvatar(next.avatar);
+            return true;
+          }}
+        />
+      )}
 
       <SummaryPills data={data} />
 
@@ -75,13 +106,16 @@ export function ProfileScreen({ data }: { data: StudentData }) {
       </section>
 
       <section className="flex flex-col gap-2">
+        <SectionTitle>{t3("account")}</SectionTitle>
+        <LichessCard />
+      </section>
+
+      <section className="flex flex-col gap-2">
         <SectionTitle>{tp("appearance")}</SectionTitle>
         <AppearancePicker />
       </section>
 
       <section className="flex flex-col gap-2">
-        <SectionTitle>{t3("account")}</SectionTitle>
-        <LichessCard />
         <ChangePasswordForm tone="student" />
         <SignOutButton className={`${secondaryPill} w-full lg:hidden`}>
           <LogOut className="size-4" aria-hidden /> {tc("signOut")}
