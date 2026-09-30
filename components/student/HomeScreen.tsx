@@ -8,7 +8,7 @@
  * small card, so most of it fits on one phone screen. */
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { Bot, Check, ChessKnight, Flame, ChevronRight, DoorOpen, Play, Puzzle as PuzzleIcon, Star, Trophy } from "lucide-react";
+import { Bot, Check, ChessKnight, Clock, Flame, ChevronRight, DoorOpen, Play, Puzzle as PuzzleIcon, Star, Trophy } from "lucide-react";
 import { MyGames } from "@/components/game/MyGames";
 import type { LiveTournament } from "@/lib/live-tournaments";
 import type { StudentData } from "./useStudentData";
@@ -58,37 +58,42 @@ export function SummaryPills({ data }: { data: StudentData }) {
   );
 }
 
-/** The day's progress as a big ring, the percentage inside. */
+/** The day's progress as a ring, the percentage inside and a tick badge
+    once everything is done. */
 function ProgressRing({ pct }: { pct: number }) {
-  const r = 40;
+  const r = 30;
   const c = 2 * Math.PI * r;
   return (
-    <span className="relative flex size-[104px] shrink-0 items-center justify-center" aria-hidden>
-      <svg viewBox="0 0 104 104" className="absolute inset-0 -rotate-90">
-        <circle cx="52" cy="52" r={r} fill="none" stroke="var(--color-pp-card)" strokeWidth={9} />
+    <span className="relative flex size-[74px] shrink-0 items-center justify-center" aria-hidden>
+      <svg viewBox="0 0 74 74" className="size-full -rotate-90">
+        <circle cx="37" cy="37" r={r} fill="transparent" stroke="var(--color-st-ring)" strokeWidth={6.5} />
         {pct > 0 && (
           <circle
-            cx="52"
-            cy="52"
+            cx="37"
+            cy="37"
             r={r}
-            fill="none"
-            stroke="var(--color-pp-deep)"
-            strokeWidth={9}
+            fill="transparent"
+            stroke="var(--color-st-brand)"
+            strokeWidth={6.5}
             strokeLinecap="round"
             strokeDasharray={`${(c * pct) / 100} ${c}`}
-            style={{ transition: "stroke-dasharray 700ms ease" }}
+            style={{ transition: "stroke-dasharray 1000ms ease-out" }}
           />
         )}
       </svg>
-      <span className="relative font-pp-display text-[24px] font-bold text-pp-ink">{pct}%</span>
+      <span className="absolute inset-0 flex items-center justify-center text-[14px] font-black tracking-tight text-st-brand-ink">{pct}%</span>
+      {pct >= 100 && (
+        <span className="absolute -bottom-1 -right-0.5 flex size-5 items-center justify-center rounded-full bg-pp-green text-white shadow-sm ring-2 ring-pp-card">
+          <Check className="size-3" strokeWidth={3} />
+        </span>
+      )}
     </span>
   );
 }
 
-/** The day's puzzles on Home, laid out as a progress card: what is done and
-    a line of encouragement on the left, a big ring on the right, the streak
-    along the bottom, then the button for the next
-    puzzle. Light blue with deep blue, the student panel's own colours. */
+/** The day's puzzles on Home, to the student design: a soft blue card with
+    the label, "x of 3 completed" and a line under it on the left, the ring on
+    the right, and the button for the next puzzle. */
 export function DailyProgressCard({
   solved,
   total,
@@ -108,36 +113,40 @@ export function DailyProgressCard({
   const done = total > 0 && solved >= total;
   const pct = n > 0 ? Math.round((Math.min(solved, n) / n) * 100) : 0;
   return (
-    <section
-      /* Admin's Create Class light blue in light mode; in dark mode the card
-         turns dark with the rest of the page. */
-      className="rounded-3xl border border-pp-line bg-st-hero p-5"
-    >
-      <Link href={href} className="flex items-center gap-4">
+    <section className="relative overflow-hidden rounded-[26px] border border-st-hero-line bg-linear-to-br from-st-hero-a via-st-hero-b to-st-hero-c p-5 shadow-[0_12px_36px_-6px_rgba(43,76,237,.14),0_4px_16px_-2px_rgba(43,76,237,.06)]">
+      {/* The design's soft backdrop glow, top right. */}
+      <span className="pointer-events-none absolute -right-8 -top-8 size-36 rounded-full bg-blue-400/20 blur-2xl" aria-hidden />
+      <Link href={href} className="relative z-10 flex items-start justify-between gap-4">
         <span className="min-w-0 flex-1">
-          <span className="block text-[13px] font-medium text-pp-muted">{t3("todaysChallenge")}</span>
-          <span className="mt-1 block font-pp-display text-[22px] font-bold leading-tight text-pp-ink">
+          <span className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-st-brand-deep">
+            <Clock className="size-3.5" strokeWidth={2.5} aria-hidden />
+            {t3("todaysChallenge")}
+          </span>
+          <span className="mt-1 block text-[22px] font-extrabold leading-tight tracking-tight text-pp-ink">
             {loading ? "…" : t3("completedOf", { n: solved, total: n })}
           </span>
-          <span className="mt-1.5 block text-[13px] text-pp-muted">
+          <span className="mt-1 block pt-0.5 text-[12px] font-semibold leading-snug text-pp-muted">
             {done ? t3("dailyDoneBody") : t3("dailyBody", { n })}
           </span>
         </span>
-        <span className="shrink-0 translate-y-2.5">
-          <ProgressRing pct={loading ? 0 : pct} />
-        </span>
+        <ProgressRing pct={loading ? 0 : pct} />
       </Link>
 
-
-      <button
-        type="button"
-        onClick={action.onClick}
-        disabled={loading}
-        className="mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-pp-deep py-3 text-[14px] font-bold text-white shadow-[0_6px_16px_rgba(36,59,99,.28)] transition-colors hover:bg-pp-navy disabled:cursor-wait disabled:opacity-70"
-      >
-        {done ? <Check className="size-4" strokeWidth={3} aria-hidden /> : <Play className="size-4 fill-current" strokeWidth={0} aria-hidden />}
-        {action.label}
-      </button>
+      <div className="relative z-10 mt-4 pt-1">
+        <button
+          type="button"
+          onClick={action.onClick}
+          disabled={loading}
+          className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-st-brand px-4 py-3.5 text-[14px] font-bold tracking-wide text-white shadow-md shadow-st-brand/25 transition duration-150 ease-in-out hover:bg-st-brand-deep active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
+        >
+          {done ? (
+            <Check className="size-4 transition-transform group-hover:scale-110" strokeWidth={2.5} aria-hidden />
+          ) : (
+            <Play className="size-4 fill-current transition-transform group-hover:scale-110" strokeWidth={0} aria-hidden />
+          )}
+          {action.label}
+        </button>
+      </div>
     </section>
   );
 }
@@ -158,22 +167,25 @@ export function StSectionTitle({ title, href, linkLabel }: { title: string; href
 }
 
 const MODE_TONE = {
-  blue: { card: "border-pp-soft bg-pp-soft hover:bg-pp-soft", icon: "text-pp-blue", sub: "text-pp-blue" },
-  orange: { card: "border-st-orange-line bg-st-orange-soft hover:bg-st-orange-line", icon: "text-st-orange", sub: "text-st-orange" },
-  emerald: { card: "border-pp-green-soft bg-pp-green-soft hover:bg-pp-green-soft", icon: "text-pp-green", sub: "text-pp-green" },
+  blue: { card: "border-st-indigo-line bg-st-indigo-soft", well: "border-st-indigo-line text-st-indigo", sub: "text-pp-muted", hover: "group-hover:-rotate-6" },
+  orange: { card: "border-st-amber-line bg-st-amber-soft", well: "border-st-amber-line text-st-amber", sub: "text-st-amber", hover: "group-hover:scale-110" },
+  emerald: { card: "border-st-emerald-line bg-st-emerald-soft", well: "border-st-emerald-line text-st-emerald", sub: "text-st-emerald", hover: "group-hover:translate-x-0.5" },
 } as const;
 
-/** One of the three ways to play: a tile in its own colour, the icon on a
-    white well, opening its card on Games. */
+/** One of the three ways to play, to the student design: a tinted tile, the
+    icon on a white well, the title and one line under it. */
 function ModeTile({ href, tone, icon, title, sub }: { href: string; tone: keyof typeof MODE_TONE; icon: React.ReactNode; title: string; sub: string }) {
   const c = MODE_TONE[tone];
   return (
-    <Link href={href} className={`flex min-w-0 flex-col items-center gap-1 rounded-xl border px-2 py-[12.5px] text-center transition-colors ${c.card}`}>
-      <span className={`flex size-9 items-center justify-center rounded-lg bg-pp-card ${c.icon}`} aria-hidden>
+    <Link
+      href={href}
+      className={`group flex min-w-0 flex-col items-center rounded-2xl border p-3.5 text-center shadow-[0_8px_30px_-4px_rgba(16,24,40,.04),0_4px_12px_-2px_rgba(16,24,40,.02)] transition-all duration-200 active:scale-[0.97] ${c.card}`}
+    >
+      <span className={`mb-2.5 flex size-12 items-center justify-center rounded-xl border bg-pp-card shadow-sm transition-transform ${c.well} ${c.hover}`} aria-hidden>
         {icon}
       </span>
-      <span className="max-w-full truncate text-[12px] font-bold text-pp-ink">{title}</span>
-      <span className={`max-w-full truncate text-[10.5px] font-medium ${c.sub}`}>{sub}</span>
+      <span className="max-w-full truncate text-[13px] font-bold leading-tight text-pp-ink">{title}</span>
+      <span className={`mt-1 max-w-full truncate text-[11px] font-semibold ${c.sub}`}>{sub}</span>
     </Link>
   );
 }
@@ -257,40 +269,45 @@ export function HomeScreen({
         </Link>
       )}
 
-      <section className="flex flex-col gap-2">
+      <section className="flex flex-col gap-3">
         <StSectionTitle title={t3("games")} />
-        <div className="grid grid-cols-3 gap-2">
-          <ModeTile href="/student/play#computer" tone="blue" title={t3("vsAi")} sub={t3("vsAiSub")} icon={<Bot className="size-5" strokeWidth={2} />} />
+        <div className="grid grid-cols-3 gap-3">
+          <ModeTile href="/student/play#computer" tone="blue" title={t3("vsAi")} sub={t3("vsAiSub")} icon={<Bot className="size-6" strokeWidth={2} />} />
           <ModeTile
             href="/student/play#challenge"
             tone="orange"
             title={t3("withFriend")}
             sub={t3("withFriendSub")}
-            icon={<FriendPawns size="size-5" />}
+            icon={<FriendPawns size="size-6" />}
           />
-          <ModeTile href="/student/play#room" tone="emerald" title={t3("gameRoom")} sub={t3("gameRoomSub")} icon={<DoorOpen className="size-5" strokeWidth={2} />} />
+          <ModeTile href="/student/play#room" tone="emerald" title={t3("gameRoom")} sub={t3("gameRoomSub")} icon={<DoorOpen className="size-6" strokeWidth={2} />} />
         </div>
       </section>
 
-      <section className="flex flex-col gap-2">
+      <section className="flex flex-col gap-3">
         <StSectionTitle title={t3("practice")} />
         <button
           type="button"
           onClick={onFreePlay}
-          className={`${stCard} group flex w-full cursor-pointer items-center gap-3 px-3 py-[12.5px] text-left transition-colors hover:border-pp-soft`}
+          className="group flex w-full cursor-pointer items-center justify-between rounded-2xl border border-pp-line bg-pp-card p-3.5 text-left shadow-[0_8px_30px_-4px_rgba(16,24,40,.04),0_4px_12px_-2px_rgba(16,24,40,.02)] transition-all hover:border-st-brand-line hover:shadow-md active:scale-[0.99]"
         >
-          {/* A solid jigsaw piece — the nav's Puzzles icon is an outline, so the
-              two do not read as the same button. */}
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-pp-soft text-pp-blue" aria-hidden>
-            <svg viewBox="0 0 24 24" className="size-6" fill="currentColor">
-              <path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" />
-            </svg>
+          <span className="flex min-w-0 items-center gap-3.5">
+            {/* A solid jigsaw piece — the nav's Puzzles icon is an outline, so
+                the two do not read as the same button. */}
+            <span
+              className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-st-brand-line bg-st-brand-soft text-st-brand transition-colors duration-200 group-hover:bg-st-brand group-hover:text-white"
+              aria-hidden
+            >
+              <svg viewBox="0 0 24 24" className="size-5" fill="currentColor">
+                <path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z" />
+              </svg>
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[14px] font-bold text-pp-ink transition-colors group-hover:text-st-brand">{t3("puzzlesCard")}</span>
+              <span className="mt-0.5 truncate text-[12px] font-medium text-pp-muted">{t3("puzzlesCardSub")}</span>
+            </span>
           </span>
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="text-[13.5px] font-bold text-pp-ink">{t3("puzzlesCard")}</span>
-            <span className="truncate text-[11.5px] text-pp-muted">{t3("puzzlesCardSub")}</span>
-          </span>
-          <ChevronRight className="size-4 shrink-0 text-pp-faint transition-transform group-hover:translate-x-0.5" strokeWidth={2.4} aria-hidden />
+          <ChevronRight className="size-5 shrink-0 text-pp-faint transition-all group-hover:translate-x-0.5 group-hover:text-st-brand" strokeWidth={2.5} aria-hidden />
         </button>
       </section>
     </div>
