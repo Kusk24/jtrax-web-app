@@ -167,7 +167,7 @@ export function StSectionTitle({ title, href, linkLabel }: { title: string; href
 }
 
 const MODE_TONE = {
-  blue: { card: "border-st-indigo-line bg-st-indigo-soft", well: "border-st-indigo-line text-st-indigo", sub: "text-pp-muted", hover: "group-hover:-rotate-6" },
+  blue: { card: "border-st-indigo-line bg-st-indigo-soft", well: "border-st-indigo-line text-st-indigo", sub: "text-pp-muted", hover: "group-hover:-rotate-[15deg] group-hover:scale-105" },
   orange: { card: "border-st-amber-line bg-st-amber-soft", well: "border-st-amber-line text-st-amber", sub: "text-st-amber", hover: "group-hover:scale-110" },
   emerald: { card: "border-st-emerald-line bg-st-emerald-soft", well: "border-st-emerald-line text-st-emerald", sub: "text-st-emerald", hover: "origin-left group-hover:[transform:perspective(120px)_rotateY(-28deg)]" },
 } as const;
