@@ -179,9 +179,9 @@ function ModeTile({ href, tone, icon, title, sub }: { href: string; tone: keyof 
   return (
     <Link
       href={href}
-      className={`group flex min-w-0 flex-col items-center rounded-2xl border p-3.5 text-center shadow-[0_8px_30px_-4px_rgba(16,24,40,.04),0_4px_12px_-2px_rgba(16,24,40,.02)] transition-all duration-200 active:scale-[0.97] ${c.card}`}
+      className={`group flex min-w-0 flex-col items-center rounded-2xl border p-3.5 text-center transition-all duration-200 active:scale-[0.97] ${c.card}`}
     >
-      <span className={`mb-2.5 flex size-12 items-center justify-center rounded-xl border bg-pp-card shadow-sm transition-transform ${c.well} ${c.hover}`} aria-hidden>
+      <span className={`mb-2.5 flex size-12 items-center justify-center rounded-xl border bg-pp-card transition-transform ${c.well} ${c.hover}`} aria-hidden>
         {icon}
       </span>
       <span className="max-w-full truncate text-[13px] font-bold leading-tight text-pp-ink">{title}</span>
