@@ -1066,6 +1066,7 @@
     "saveFailed": "Couldn't save. Try again.",
     "studentIdLabel": "Student ID",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "ownEmojiHint": "Tap + to type your own emoji"
   }
 }

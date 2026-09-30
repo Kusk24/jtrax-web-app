@@ -86,24 +86,8 @@ export function ProfileEditSheet({
         </div>
 
         <p className="mt-4 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">{t3("avatarLabel")}</p>
+        {/* The student's own emoji comes first, then the five defaults — one row. */}
         <div className="mt-2 flex items-center gap-2">
-          {DEFAULT_AVATARS.map((e) => (
-            <button
-              key={e}
-              type="button"
-              onClick={() => setPick(e)}
-              aria-pressed={pick === e}
-              aria-label={e}
-              className={`flex size-11 cursor-pointer items-center justify-center rounded-full text-[24px] transition-colors ${
-                pick === e ? "bg-pp-soft ring-2 ring-pp-blue" : "bg-pp-mist hover:bg-pp-soft"
-              }`}
-            >
-              {e}
-            </button>
-          ))}
-        </div>
-        {/* Any emoji from the keyboard: only the first one typed is kept. */}
-        <label className="mt-3 flex items-center gap-2">
           <input
             value={own}
             onChange={(e) => {
@@ -113,14 +97,29 @@ export function ProfileEditSheet({
             }}
             maxLength={16}
             inputMode="text"
-            placeholder="😀"
+            placeholder="+"
+            title={t3("ownEmoji")}
             aria-label={t3("ownEmoji")}
-            className={`w-16 rounded-xl border-[1.5px] bg-pp-card px-2 py-2 text-center text-[22px] outline-none ${
-              ownEmoji && pick === ownEmoji ? "border-pp-blue" : "border-pp-line"
+            className={`size-11 shrink-0 rounded-full border-[1.5px] border-dashed bg-pp-card p-0 text-center text-[22px] outline-none placeholder:text-[20px] placeholder:font-bold placeholder:text-pp-faint ${
+              ownEmoji && pick === ownEmoji ? "border-solid border-pp-blue ring-2 ring-pp-blue" : "border-pp-line focus:border-pp-blue"
             }`}
           />
-          <span className="text-[12.5px] text-pp-muted">{t3("ownEmoji")}</span>
-        </label>
+          {DEFAULT_AVATARS.map((e) => (
+            <button
+              key={e}
+              type="button"
+              onClick={() => setPick(e)}
+              aria-pressed={pick === e}
+              aria-label={e}
+              className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-[24px] transition-colors ${
+                pick === e ? "bg-pp-soft ring-2 ring-pp-blue" : "bg-pp-mist hover:bg-pp-soft"
+              }`}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[11.5px] text-pp-muted">{t3("ownEmojiHint")}</p>
 
         <p className="mt-5 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">{t3("nameLabel")}</p>
         <input
