@@ -19,6 +19,7 @@ import {
   type BoardGrid,
 } from "@/lib/chess-core";
 import { lastMoveOf, playSound, preloadSounds, soundForMove } from "@/lib/sound";
+import { boardSize, useFitWidth } from "@/lib/use-fit-width";
 import type { Chess } from "chess.js";
 
 type Props = {
@@ -31,8 +32,14 @@ type Props = {
       highlighted and the arriving piece slides in from the first, so a move
       that appeared out of nowhere can now be seen happening. */
   lastMove?: string;
+  /** Fixed width of the squares, in px. Left out, the board fills the column
+      it sits in (up to MAX_BOARD). */
   size?: number;
 };
+
+/* The wood-and-cream frame drawn around the squares: p-2.5 + p-2, both sides. */
+const FRAME = 36;
+const MAX_BOARD = 560;
 
 const PROMOTION_CHOICES = ["q", "r", "b", "n"] as const;
 
@@ -41,8 +48,10 @@ const PROMOTION_CHOICES = ["q", "r", "b", "n"] as const;
 const SLIDE_MS = 320;
 
 
-export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size = 328 }: Props) {
+export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size: fixed }: Props) {
   const t = useTranslations("play");
+  const [fitRef, fitWidth] = useFitWidth<HTMLDivElement>(328 + FRAME, MAX_BOARD + FRAME);
+  const size = fixed ?? boardSize(fitWidth, FRAME);
   const [from, setFrom] = useState<string | null>(null);
   const [pending, setPending] = useState<{ from: string; to: string } | null>(null);
 
@@ -134,7 +143,9 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
   }
 
   return (
-    <div className="relative rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
+    /* The outer box is what is measured: as wide as its column, capped. */
+    <div ref={fitRef} className="w-full" style={{ maxWidth: (fixed ?? MAX_BOARD) + FRAME }}>
+    <div className="relative mx-auto w-fit rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
       <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
         <div
           className="grid overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(70,96,140)]"
@@ -227,6 +238,7 @@ export function ChessBoard({ game, orientation, canMove, onMove, lastMove, size 
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

@@ -8,19 +8,24 @@
    turned down — see useAiOpponent.ts for why that distinction matters. */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bot } from "lucide-react";
 import { Chess } from "chess.js";
 import { ChessBoard } from "./ChessBoard";
 import { CapturedTray } from "./CapturedTray";
 import { ResultDialog } from "./ResultDialog";
 import { Panel, actionBtn } from "./PlayShell";
-import { OPPONENTS, useAiOpponent, type Opponent } from "./useAiOpponent";
+import { useAiOpponent, type Opponent } from "./useAiOpponent";
+import { clearSavedAiGame, loadSavedAiGame, saveAiGame } from "@/lib/saved-ai-game";
 import { capturedIn, endingOf, gameFrom, pairedMoves, type Ending } from "@/lib/chess-core";
+import { recordSoloGame } from "@/lib/progress";
 
-export function AiGame() {
+export function AiGame({ initialOpponent = "novice" }: { initialOpponent?: Opponent }) {
   const t = useTranslations("play");
+  const t3 = useTranslations("sv3");
+  const ts = useTranslations("st");
 
-  const [opponent, setOpponent] = useState<Opponent>("novice");
+  /* Chosen on the Games page; this page plays that one robot. */
+  const opponent = initialOpponent;
   const { ready, failed, loading, bestMove } = useAiOpponent(opponent);
   const [moves, setMoves] = useState<string[]>([]);
   const [thinking, setThinking] = useState(false);
@@ -31,6 +36,11 @@ export function AiGame() {
   const [showResult, setShowResult] = useState(false);
   // Guards against a reply arriving for a game the player already restarted.
   const generation = useRef(0);
+  /* When this game's first move was made, and which game was last saved — so
+     a finished game is recorded exactly once, and counts in History like any
+     other game. */
+  const startedAt = useRef<string | null>(null);
+  const saved = useRef(-1);
 
   const sync = useCallback((next: string[]) => {
     const replayed = gameFrom(next);
@@ -44,12 +54,35 @@ export function AiGame() {
 
   const reset = () => {
     generation.current += 1;
+    startedAt.current = null;
     setThinking(false);
+    clearSavedAiGame();
     sync([]);
   };
 
+  /* An unfinished game against this robot, left with the back button: picked
+     up where it stopped. Restored after the first paint, so the server's page
+     and the browser's agree. */
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const kept = loadSavedAiGame();
+      if (!kept || kept.opponent !== opponent) return;
+      startedAt.current = kept.startedAt;
+      sync(kept.moves);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [opponent, sync]);
+
+  /* Kept after every move, so leaving by any route keeps the game; a
+     finished one is cleared — it is in History now. */
+  useEffect(() => {
+    if (ending) clearSavedAiGame();
+    else if (moves.length > 0) saveAiGame({ opponent, moves, startedAt: startedAt.current });
+  }, [moves, ending, opponent]);
+
   function onMove(uci: string) {
     if (thinking || ending) return;
+    if (!startedAt.current) startedAt.current = new Date().toISOString().slice(0, 19).replace("T", " ");
     sync([...moves, uci]);
   }
 
@@ -67,6 +100,22 @@ export function AiGame() {
     });
   }, [ready, ending, game, moves, thinking, bestMove, sync]);
 
+  useEffect(() => {
+    if (!ending || saved.current === generation.current || moves.length === 0) return;
+    saved.current = generation.current;
+    recordSoloGame({
+      opponent,
+      moves,
+      result: ending.result,
+      reason: ending.reason,
+      startedAt: startedAt.current ?? undefined,
+    })
+      .catch(() => {
+        /* Not saved (offline, or not a pupil's session): the game still
+           happened on screen, it just is not in History. */
+      });
+  }, [ending, moves, opponent]);
+
   const captured = capturedIn(game);
 
   const resultKey = ending
@@ -77,12 +126,21 @@ export function AiGame() {
         : "youLost"
     : null;
 
+  /* Board on the left and everything about the game beside it on a wide
+     screen; one column, board first, on a phone. */
   return (
-    <div className="flex flex-col gap-3">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
       {ending && showResult && resultKey && (
         <ResultDialog
           title={t(`result.${resultKey}`)}
           detail={t("byReason", { reason: t(`reason.${ending.reason}`) })}
+          outcome={resultKey === "draw" ? "draw" : resultKey === "youWon" ? "win" : "loss"}
+          facts={[
+            { label: ts("opponent"), value: t3(`robotName.${opponent}`) },
+            { label: ts("youPlayed"), value: ts("side.white") },
+            { label: ts("moves"), value: Math.ceil(moves.length / 2) },
+            { label: ts("when"), value: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
+          ]}
           primaryLabel={t("newGame")}
           onPrimary={() => {
             setShowResult(false);
@@ -92,37 +150,14 @@ export function AiGame() {
         />
       )}
 
-      <Panel className="!p-3">
-        <p className="mb-2 text-[13px] font-bold">{t("opponent")}</p>
-        <div className="flex gap-1.5">
-          {OPPONENTS.map((o) => (
-            <button
-              key={o}
-              onClick={() => setOpponent(o)}
-              aria-pressed={opponent === o}
-              /* min-h-11 is the 44px touch minimum. The selected state is the
-                 navy fill rather than --color-sv-gold, which despite its name
-                 is rgb(232,239,249) and sits at 1.06:1 against sv-paper — you
-                 could not tell which opponent you had chosen. */
-              className={`min-h-11 flex-1 cursor-pointer rounded-xl border-none px-2 py-2 text-[13px] font-bold transition-colors ${
-                opponent === o
-                  ? "bg-sv-ink text-sv-paper"
-                  : "bg-sv-paper text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(216,226,240)]"
-              }`}
-            >
-              {t(`opponentName.${o}`)}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-[11px] leading-snug text-sv-body">
-          {t(`opponentHint.${opponent}`)}
-        </p>
-      </Panel>
-
       {/* You always play White here, so the engine sits at the top of the board. */}
-      <div className="flex flex-col items-center gap-1.5">
-        <div className="flex w-[328px] items-center justify-between gap-2 px-1">
-          <span className="text-[12px] font-bold">{t("computer")}</span>
+      <div className="mx-auto flex w-full max-w-[596px] flex-col items-stretch gap-1.5">
+        <div className="flex w-full items-center justify-between gap-2 px-1">
+          {/* Who you are playing — chosen on the Games page. */}
+          <span className="flex items-center gap-1.5 text-[13px] font-bold text-pp-ink">
+            <Bot className="size-4 text-pp-blue" strokeWidth={2.2} aria-hidden />
+            {t3(`robotName.${opponent}`)}
+          </span>
           <CapturedTray side="b" pieces={captured.byBlack} advantage={captured.advantage} />
         </div>
         <ChessBoard
@@ -138,12 +173,13 @@ export function AiGame() {
           onMove={onMove}
           lastMove={moves.length ? moves[moves.length - 1] : undefined}
         />
-        <div className="flex w-[328px] items-center justify-between gap-2 px-1">
+        <div className="flex w-full items-center justify-between gap-2 px-1">
           <span className="text-[12px] font-bold">{t("you")}</span>
           <CapturedTray side="w" pieces={captured.byWhite} advantage={captured.advantage} />
         </div>
       </div>
 
+      <div className="flex flex-col gap-3">
       <Panel className="!py-2.5 text-center">
         {failed ? (
           <p className="text-[13px] font-bold">
@@ -185,6 +221,7 @@ export function AiGame() {
       <button onClick={reset} className={`${actionBtn} py-3 text-sm`}>
         {t("newGame")}
       </button>
+      </div>
     </div>
   );
 }

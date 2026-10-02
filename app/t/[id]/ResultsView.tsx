@@ -19,6 +19,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { PublicCard } from "@/components/public/PublicShell";
+import { whiteScore } from "@/lib/board-result";
 
 type Standing = {
   rank: number;
@@ -83,6 +84,14 @@ export function ResultsView({
   const router = useRouter();
   const [query, setQuery] = useState("");
   const started = standings.some((s) => (s.played ?? 0) > 0 || s.points > 0);
+  /* A column nobody has anything in is left out: a table of names and points
+     reads better as just that than beside two columns of dashes or zeros. */
+  const show = {
+    federation: external && standings.some((s) => s.federation),
+    rating: external && standings.some((s) => s.rating),
+    wdl: !external && standings.some((s) => (s.wins ?? 0) + (s.draws ?? 0) + (s.losses ?? 0) > 0),
+    buchholz: !external && standings.some((s) => (s.buchholz ?? 0) > 0),
+  };
 
   /* The page a projector or a pocketed phone keeps open must follow the
      tournament by itself. One refresh a minute is enough — the backend's own
@@ -252,17 +261,10 @@ export function ResultsView({
                   <th scope="col" className="px-4 py-2.5 text-left font-semibold">#</th>
                   <th scope="col" className="px-4 py-2.5 text-left font-semibold">{t("player")}</th>
                   <th scope="col" className="px-4 py-2.5 text-right font-semibold">{t("points")}</th>
-                  {external ? (
-                    <>
-                      <th scope="col" className="px-3 py-2.5 text-left font-semibold">{t("federation")}</th>
-                      <th scope="col" className="px-3 py-2.5 text-right font-semibold">{t("rating")}</th>
-                    </>
-                  ) : (
-                    <th scope="col" className="whitespace-nowrap px-3 py-2.5 text-right font-semibold">{t("wdl")}</th>
-                  )}
-                  {!external && (
-                    <th scope="col" className="px-4 py-2.5 text-right font-semibold">{t("buchholz")}</th>
-                  )}
+                  {show.federation && <th scope="col" className="px-3 py-2.5 text-left font-semibold">{t("federation")}</th>}
+                  {show.rating && <th scope="col" className="px-3 py-2.5 text-right font-semibold">{t("rating")}</th>}
+                  {show.wdl && <th scope="col" className="whitespace-nowrap px-3 py-2.5 text-right font-semibold">{t("wdl")}</th>}
+                  {show.buchholz && <th scope="col" className="px-4 py-2.5 text-right font-semibold">{t("buchholz")}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -276,19 +278,14 @@ export function ResultsView({
                       {s.category && <span className="ml-2 text-xs text-pp-muted">{s.category}</span>}
                     </td>
                     <td className="px-4 py-2.5 text-right font-bold text-pp-ink">{points(s.points)}</td>
-                    {external ? (
-                      <>
-                        <td className="px-3 py-2.5 text-pp-muted">{s.federation || "—"}</td>
-                        <td className="px-3 py-2.5 text-right text-pp-muted">{s.rating || "—"}</td>
-                      </>
-                    ) : (
+                    {show.federation && <td className="px-3 py-2.5 text-pp-muted">{s.federation || "—"}</td>}
+                    {show.rating && <td className="px-3 py-2.5 text-right text-pp-muted">{s.rating || "—"}</td>}
+                    {show.wdl && (
                       <td className="whitespace-nowrap px-3 py-2.5 text-right text-pp-muted">
                         {s.wins ?? 0}/{s.draws ?? 0}/{s.losses ?? 0}
                       </td>
                     )}
-                    {!external && (
-                      <td className="px-4 py-2.5 text-right text-pp-muted">{points(s.buchholz ?? 0)}</td>
-                    )}
+                    {show.buchholz && <td className="px-4 py-2.5 text-right text-pp-muted">{points(s.buchholz ?? 0)}</td>}
                   </tr>
                 ))}
               </tbody>
@@ -315,22 +312,47 @@ function BoardLine({
 }) {
   const isBye = !board.black || board.black === "bye";
   return (
-    <>
-      <span className="w-9 shrink-0 text-xs text-pp-muted">{boardLabel}</span>
-      <span className="min-w-0 flex-1 text-pp-ink">
+    /* Columns, like the console's boards: white on the left, the result in a
+       fixed-width tag in the middle, black flush right — so every board of a
+       round lines up and the colours read down the page. */
+    <div className="grid min-w-0 flex-1 grid-cols-[2.25rem_minmax(0,1fr)_4.25rem_minmax(0,1fr)] items-center gap-2.5">
+      <span className="text-xs text-pp-muted">{boardLabel}</span>
+      <span className="min-w-0 truncate text-pp-ink">
         <Name text={board.white} query={query} />
-        {board.whiteRating ? <span className="ml-1 text-xs text-pp-muted">{board.whiteRating}</span> : null}
-        <span className="mx-1.5 whitespace-nowrap font-mono text-xs font-bold text-pp-sub">{boardResult(board.result)}</span>
+        {board.whiteRating ? <span className="ml-1.5 text-xs text-pp-muted">{board.whiteRating}</span> : null}
+      </span>
+      <ResultTag result={board.result} bye={isBye} />
+      <span className="min-w-0 truncate text-right text-pp-ink">
         {isBye ? (
           <span className="text-pp-muted">{byeLabel}</span>
         ) : (
           <>
+            {board.blackRating ? <span className="mr-1.5 text-xs text-pp-muted">{board.blackRating}</span> : null}
             <Name text={board.black!} query={query} />
-            {board.blackRating ? <span className="ml-1 text-xs text-pp-muted">{board.blackRating}</span> : null}
           </>
         )}
       </span>
-    </>
+    </div>
+  );
+}
+
+/** The result as a coloured tag, from white's side: green a white win, amber
+    a draw, red a black win, grey before the game. */
+function ResultTag({ result, bye }: { result: string; bye: boolean }) {
+  const score = bye ? null : whiteScore(result);
+  const tone =
+    score === 1
+      ? "bg-pp-green-soft text-pp-green-dot"
+      : score === 0.5
+        ? "bg-pp-amber-soft text-pp-amber"
+        : score === 0
+          ? "bg-pp-red-soft text-pp-red"
+          : "bg-pp-mist text-pp-sub";
+  const label = score === 1 ? "1 – 0" : score === 0.5 ? "½ – ½" : score === 0 ? "0 – 1" : bye ? boardResult(result) : result && result !== "Pending" ? result : "vs";
+  return (
+    <span className={`justify-self-center whitespace-nowrap rounded-lg px-2 py-1 text-center text-xs font-bold ${tone}`} style={{ minWidth: "3.75rem" }}>
+      {label}
+    </span>
   );
 }
 

@@ -6,7 +6,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Panel, actionBtn } from "./PlayShell";
+import { actionBtn } from "./PlayShell";
 
 const CODE_LENGTH = 6;
 
@@ -44,7 +44,7 @@ export function JoinForm() {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-3.5">
-      <Panel>
+      <div>
         <label htmlFor="code" className="mb-2 block text-[13px] font-bold">
           {t("codeLabel")}
         </label>
@@ -58,13 +58,13 @@ export function JoinForm() {
           maxLength={CODE_LENGTH}
           onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
           placeholder="ABC123"
-          className="w-full rounded-xl border-none bg-sv-paper px-3 py-3 text-center font-mono text-[26px] font-bold tracking-[0.35em] text-sv-ink shadow-[inset_0_0_0_1.5px_rgb(206,219,236)] outline-none placeholder:opacity-30 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]"
+          className="w-full rounded-[9px] border border-pp-line bg-pp-card px-3 py-3 text-center font-mono text-[26px] font-bold tracking-[0.35em] text-pp-ink outline-none focus:border-pp-blue placeholder:opacity-30 focus:shadow-[inset_0_0_0_2px_rgb(27,50,96)]"
         />
         <p className="mt-2 text-xs leading-snug text-sv-body">{t("codeHint")}</p>
-      </Panel>
+      </div>
 
       {error && (
-        <p role="alert" className="rounded-2xl bg-[rgb(251,234,234)] px-3.5 py-2.5 text-xs font-bold text-[rgb(176,63,58)] shadow-[inset_0_0_0_1.5px_rgb(224,180,180)]">
+        <p role="alert" className="rounded-2xl bg-pp-red-soft px-3.5 py-2.5 text-[12.5px] font-semibold text-pp-red">
           {t(`error.${error}`)}
         </p>
       )}

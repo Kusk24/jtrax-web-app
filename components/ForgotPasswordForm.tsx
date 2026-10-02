@@ -2,7 +2,10 @@
 
 /* Asks the backend to mail a reset link. The confirmation is deliberately
    vague about whether the address exists — the API answers the same way either
-   way, and a friendlier message here would undo that. */
+   way, and a friendlier message here would undo that.
+
+   A child signs in with an ID, not an address, so the field takes either: a
+   child's link goes to their parent's email. */
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -34,11 +37,14 @@ export function ForgotPasswordForm() {
     >
       <p className="text-xs text-muted">{t("requestHint")}</p>
       <label className="flex flex-col gap-1 text-sm font-bold text-ink">
-        {t("email")}
+        {t("emailOrId")}
         <input
           name="email"
-          type="email"
-          autoComplete="email"
+          type="text"
+          inputMode="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="username"
           className="rounded-xl border-2 border-line bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-navy/50"
         />
       </label>

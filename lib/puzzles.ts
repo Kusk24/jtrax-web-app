@@ -40,6 +40,9 @@ export type Verdict = {
   /** The position after the move and any reply — the server's view, which is
       the one that counts. */
   fen: string;
+  /** Practice list only: this solve was the first, so it earned points. A
+      replay of a ticked puzzle is graded and earns nothing. */
+  firstSolve?: boolean;
 };
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
@@ -54,24 +57,31 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const getDailyPuzzles = () => call<DailySet>("puzzles/daily");
 
-/** The three difficulties Free Play offers. The band each covers is the
-    server's business, not the browser's. */
+/** The three levels a puzzle can be — Beginner, Intermediate, Advanced. The
+    rating band each covers is the server's business, not the browser's. */
 export type FreeTier = "beginner" | "intermediate" | "advanced";
 
-export type FreePuzzle = {
-  /** Null when this pupil has seen every puzzle at this difficulty and the
-      bank could not be topped up. */
-  puzzle: DailyPuzzle | null;
-  exhausted: boolean;
-};
+/** A puzzle in the practice list: its level as well as its rating. */
+export type ListPuzzle = DailyPuzzle & { position: number; tier: FreeTier };
 
-/** Asks for one puzzle at a chosen difficulty, outside today's set.
- *
- * Unlike the daily set this is a puzzle at a time: the pupil chose to keep
- * going, so there is nothing to pre-assign and nothing to be stable about
- * across a refresh. */
-export const getFreePuzzle = (tier: FreeTier) =>
-  call<FreePuzzle>(`puzzles/free?tier=${tier}`);
+/** The practice list: twenty puzzles, levels mixed — two in three from the
+    pupil's own level. A solved one is ticked for the day; the next day it is
+    replaced by a new one and the unsolved ones stay. */
+export type PuzzleList = { puzzles: ListPuzzle[]; level: FreeTier };
+
+export const getPuzzleList = () => call<PuzzleList>("puzzles/list");
+
+export const attemptListMove = (puzzleId: string, move: string, played: string[]) =>
+  call<Verdict>(`puzzles/list/${encodeURIComponent(puzzleId)}/attempt`, {
+    method: "POST",
+    body: JSON.stringify({ move, played }),
+  });
+
+/** Stamps when a list puzzle was opened, for the minutes its first solve adds. */
+export const openListPuzzle = (puzzleId: string) =>
+  call<{ started: boolean }>(`puzzles/list/${encodeURIComponent(puzzleId)}/open`, { method: "POST" }).catch(
+    () => ({ started: false }),
+  );
 
 /** Submits one move. `played` is the pupil's own moves so far; the opponent's
     replies come from the server's copy of the solution, so it rebuilds the

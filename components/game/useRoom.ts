@@ -21,6 +21,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { gameFrom, uciToMove } from "@/lib/chess-core";
+import type { GameClock } from "@/lib/live-games";
 
 export type Seat = { userAccountId: string; displayName: string; studentId?: string };
 
@@ -45,6 +46,19 @@ export type Room = {
       only logged: being told mid-game that this one no longer counts is the
       whole point of tracking it. */
   lichessDetachedReason?: string;
+
+  /** The time control the office chose, if any. Only a rated game's clock
+      runs — Lichess keeps it — and `clock` is where it stands. */
+  timeControl?: { limit: number; increment: number };
+  clock?: GameClock;
+  /** The colour offering a draw, while the offer stands. */
+  drawOffer?: "White" | "Black";
+  /** Whether each player has pressed Enter; a game the office set up starts
+      once both have. */
+  whiteEntered?: boolean;
+  blackEntered?: boolean;
+  /** Paused by the office mid-game: nobody can move until it resumes it. */
+  stopped?: boolean;
 };
 
 export type Move = { ply: number; san: string; uci: string; fenAfter: string };
@@ -102,7 +116,9 @@ export function useRoom(roomId: string) {
     const source = new EventSource(`/api/game-rooms/${roomId}/events`);
 
     source.addEventListener("room", (ev) => {
-      const snap = JSON.parse((ev as MessageEvent).data);
+      /* An answered draw offer is simply absent from the event, so it is
+         cleared here rather than left standing from the one before. */
+      const snap = { drawOffer: undefined, ...JSON.parse((ev as MessageEvent).data) };
       setBoth((s) => {
         if (snap.ply < s.moves.length) {
           // Behind us — our own optimistic move, or a duplicate. Room fields
@@ -199,7 +215,23 @@ export function useRoom(roomId: string) {
     await refetch();
   }, [roomId, refetch]);
 
-  return { ...state, play, resign, refetch };
+  /** Offer a draw, or answer the opponent's. The server settles which is
+      allowed; a refused one (the offer was withdrawn by a move) just resyncs. */
+  const draw = useCallback(
+    async (action: "offer" | "accept" | "decline") => {
+      await fetch(`/api/game-rooms/${roomId}/draw/${action}`, { method: "POST" }).catch(() => {});
+      await refetch();
+    },
+    [roomId, refetch],
+  );
+
+  /** Sit down at a game the office set up. It starts once both have. */
+  const enter = useCallback(async () => {
+    await fetch(`/api/game-rooms/${roomId}/enter`, { method: "POST" }).catch(() => {});
+    await refetch();
+  }, [roomId, refetch]);
+
+  return { ...state, play, resign, draw, enter, refetch };
 }
 
 /** Builds the entry to show while the server is still answering. Returns null

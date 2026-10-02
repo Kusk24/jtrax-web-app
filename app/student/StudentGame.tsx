@@ -1,30 +1,23 @@
 "use client";
 
+/* The student portal's /student screens: Home, Puzzles (with the puzzle
+   board) and Profile, addressed by `?screen=`. Home and Profile are drawn by
+   their own components; the puzzle board lives here because it shares the
+   daily set's state with Home's Daily Challenge card. */
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
-  BarChart3,
-  Bot,
+  ArrowLeft,
+  BadgeCheck,
   Check,
   ChevronRight,
-  Flame,
-  Gamepad2,
-  GraduationCap,
-  Home,
-  LogOut,
-  Puzzle,
-  Star,
-  Swords,
-  Trophy,
-  UserRound,
+  RotateCcw,
+  Target,
   X,
 } from "lucide-react";
-import { getMyLichess } from "@/lib/lichess";
-import { classesAttended } from "@/lib/classes-attended";
+import { boardSize, useFitWidth } from "@/lib/use-fit-width";
 import { fetchLiveTournaments, type LiveTournament } from "@/lib/live-tournaments";
-import { LichessCard } from "@/components/student/LichessCard";
-import { SignOutButton } from "@/components/SignOutButton";
 import { SoundToggle } from "@/components/game/SoundToggle";
 import { moveBetween, moveFrom, playSound, preloadSounds, soundForMove } from "@/lib/sound";
 import {
@@ -40,80 +33,37 @@ import {
   gameAt,
   openPuzzle,
   getDailyPuzzles,
-  getFreePuzzle,
-  getPracticeSummary,
+  getPuzzleList,
+  attemptListMove,
+  openListPuzzle,
   puzzleGoal,
   type DailyPuzzle,
   type FreeTier,
-  type PracticeSummary,
+  type PuzzleList,
 } from "@/lib/puzzles";
 import type { Chess } from "chess.js";
+import { useStudentData } from "@/components/student/useStudentData";
+import { HomeScreen } from "@/components/student/HomeScreen";
+import { MiniBoard } from "@/components/student/MiniBoard";
+import { puzzleTitleKey } from "@/lib/puzzle-title";
+import { ProfileScreen } from "@/components/student/ProfileScreen";
+import {
+  Card,
+  primaryPill,
+  secondaryPill,
+} from "@/components/student/kit";
 
 type Square = [number, number];
 
-type Screen = "home" | "puzzles" | "puzzle" | "profile";
+/** How long the opponent "thinks" before a puzzle's reply lands — the same
+    feel as the robot's minimum think time. */
+const REPLY_PAUSE_MS = 550;
 
+type Screen = "home" | "puzzles" | "daily" | "puzzle" | "profile";
+type Section = Exclude<Screen, "puzzle">;
 
-/* Shared button chrome: navy pill with a double outline. */
-const actionBtn =
-  "cursor-pointer rounded-[20px] border-none bg-sv-primary font-bold text-white shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)]";
-
-function PuzzlePieceIcon({ fill, size = 20 }: { fill: string; size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 26 26" fill="none">
-      <path
-        d="M9 2H14V5.2C14 6 14.6 6.5 15.3 6.3C15.7 6.15 16.15 6.05 16.6 6.05C18.5 6.05 20 7.55 20 9.45C20 9.9 19.9 10.35 19.75 10.75C19.55 11.45 20.05 12.05 20.85 12.05H24V17H20.85C20.05 17 19.55 17.6 19.75 18.3C19.9 18.7 20 19.15 20 19.6C20 21.5 18.5 23 16.6 23C16.15 23 15.7 22.9 15.3 22.75C14.6 22.55 14 23.05 14 23.85V24H9V19.5C9 18.6 8.15 18.05 7.35 18.4C6.95 18.55 6.55 18.65 6.1 18.65C4.2 18.65 2.7 17.15 2.7 15.25C2.7 13.35 4.2 11.85 6.1 11.85C6.55 11.85 6.95 11.95 7.35 12.1C8.15 12.45 9 11.9 9 11V2Z"
-        fill={fill}
-      />
-    </svg>
-  );
-}
-
-/* Compact stat cards shared by the reference home and profile screens. */
-function StatTile({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
-  return (
-    <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[15px] border border-[#dce8f8] bg-white px-3 py-2.5 shadow-[0_6px_18px_rgba(37,99,235,.07)]">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#edf4ff] text-[#2563eb]">{icon}</span>
-      <span className="flex min-w-0 flex-col">
-        <span className="text-[16px] font-bold leading-none text-[#10264d]">{value}</span>
-        <span className="mt-1 truncate text-[10.5px] font-semibold text-[#7083a3]">{label}</span>
-      </span>
-    </div>
-  );
-}
-
-function HomeAction({
-  href,
-  label,
-  body,
-  icon,
-  tone,
-}: {
-  href: string;
-  label: string;
-  body: string;
-  icon: React.ReactNode;
-  tone: "mint" | "lilac";
-}) {
-  return (
-    <Link
-      href={href}
-      className={`flex min-h-[116px] min-w-0 flex-1 flex-col items-start justify-between rounded-[18px] border p-3.5 text-[#10264d] shadow-[0_8px_22px_rgba(37,99,235,.06)] transition-colors duration-150 ${
-        tone === "mint"
-          ? "border-[#c7eadf] bg-[#ebfaf5] hover:bg-[#ddf7ee]"
-          : "border-[#e2d9fb] bg-[#f3efff] hover:bg-[#ebe4ff]"
-      }`}
-    >
-      <span className="flex size-10 items-center justify-center rounded-[13px] bg-white shadow-[0_3px_10px_rgba(37,99,235,.09)]">
-        {icon}
-      </span>
-      <span>
-        <span className="block text-[14px] font-bold">{label}</span>
-        <span className="mt-0.5 block text-[10.5px] leading-snug text-[#7083a3]">{body}</span>
-      </span>
-    </Link>
-  );
-}
+/* The pages a puzzle board opens from, and goes back to. */
+const BOARD_PAGES: Section[] = ["puzzles", "daily"];
 
 /** The heading on a Free Play puzzle, by level. */
 const TIER_TITLE: Record<FreeTier, "beginnerPuzzle" | "intermediatePuzzle" | "advancedPuzzle"> = {
@@ -122,73 +72,140 @@ const TIER_TITLE: Record<FreeTier, "beginnerPuzzle" | "intermediatePuzzle" | "ad
   advanced: "advancedPuzzle",
 };
 
+
+/* The three levels, easiest first, with their colour — the filter tags and
+   each puzzle's tile use the same one. */
+const TIER_ROWS = [
+  { tier: "beginner", tone: "emerald" },
+  { tier: "intermediate", tone: "sky" },
+  { tier: "advanced", tone: "amber" },
+] as const;
+const toneOf = (tier: FreeTier) => TIER_ROWS.find((r) => r.tier === tier)!.tone;
+/** A daily puzzle's level, from its rating — the same bands the list uses. */
+const tierOfRating = (rating: number): FreeTier => (rating < 800 ? "beginner" : rating < 1200 ? "intermediate" : "advanced");
+
+const TIER_SUB: Record<FreeTier, "tierBeginnerSub" | "tierIntermediateSub" | "tierAdvancedSub"> = {
+  beginner: "tierBeginnerSub",
+  intermediate: "tierIntermediateSub",
+  advanced: "tierAdvancedSub",
+};
+
+/* A page opened from Puzzles: a back arrow, the title and a line under it. */
+function SubPageHeader({ onBack, backLabel, title, sub }: { onBack: () => void; backLabel: string; title: string; sub?: string }) {
+  return (
+    <header className="flex items-center gap-2.5 px-0.5">
+      <button
+        type="button"
+        onClick={onBack}
+        aria-label={backLabel}
+        className="flex size-[38px] flex-none cursor-pointer items-center justify-center rounded-xl border-[1.5px] border-pp-line bg-pp-card text-pp-ink hover:bg-pp-soft"
+      >
+        <ArrowLeft className="size-4" strokeWidth={2.2} />
+      </button>
+      <div className="min-w-0">
+        <h1 className="truncate font-pp-display text-2xl font-semibold leading-tight text-pp-ink">{title}</h1>
+        {sub && <p className="truncate text-[11.5px] text-pp-muted">{sub}</p>}
+      </div>
+    </header>
+  );
+}
+
+/* The levels' colours: tinted, flat. */
+const TIER_TONE = {
+  emerald: { card: "hover:border-pp-green-soft", well: "bg-pp-green-soft text-pp-green", sub: "text-pp-green", arrow: "text-pp-green" },
+  sky: { card: "hover:border-pp-soft", well: "bg-pp-soft text-pp-blue", sub: "text-pp-blue", arrow: "text-pp-blue" },
+  amber: { card: "hover:border-pp-amber-soft", well: "bg-pp-amber-soft text-pp-amber", sub: "text-pp-amber", arrow: "text-pp-amber" },
+} as const;
+
+/** The day's set finished: said once, with the bonus it earned. */
+function DailyCompleteDialog({ onHome, onMore }: { onHome: () => void; onMore: () => void }) {
+  const t = useTranslations("st");
+  const first = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    first.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onHome();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onHome]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(20,33,58,0.45)] px-6" onClick={onHome}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="daily-done-title"
+        onClick={(e) => e.stopPropagation()}
+        className="st-enter w-full max-w-[360px] rounded-2xl bg-pp-card p-6 text-center shadow-[0_24px_60px_rgba(20,33,58,.28)]"
+      >
+        <span className="st-badge-reveal mx-auto flex size-20 items-center justify-center rounded-full bg-pp-green-soft text-pp-green ring-8 ring-pp-green-soft/50" aria-hidden>
+          <BadgeCheck className="size-10" strokeWidth={1.8} />
+        </span>
+        <h2 id="daily-done-title" className="mt-4 font-pp-display text-[22px] font-bold text-pp-ink">{t("challengeDone")}</h2>
+        <p className="mt-1 text-[14px] text-pp-muted">{t("challengeDoneDialog")}</p>
+        <button ref={first} type="button" onClick={onHome} className={`${primaryPill} mt-5 w-full`}>
+          {t("backToHome")}
+        </button>
+        <button type="button" onClick={onMore} className={`${secondaryPill} mt-2 w-full`}>
+          {t("keepPractising")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function StudentGame() {
   const t = useTranslations("sv2");
-  const tc = useTranslations("common");
+  const ts = useTranslations("st");
   const tp = useTranslations("play");
-  const tch = useTranslations("challenge");
-  const tl = useTranslations("lichess");
+  const t3 = useTranslations("sv3");
 
-  const [screen, setScreen] = useState<Screen>("home");
-  const [tab, setTab] = useState<"daily" | "free">("daily");
+  const router = useRouter();
+  const params = useSearchParams();
+  const wanted = params.get("screen");
+  const section: Section =
+    wanted === "puzzles" || wanted === "profile" || wanted === "daily"
+      ? wanted
+      : params.has("lichess")
+        ? "profile"
+        : "home";
+  const [boardOpen, setBoardOpen] = useState(false);
+  const screen: Screen = BOARD_PAGES.includes(section) && boardOpen ? "puzzle" : section;
+  /* The board fills its column, up to 560px of squares plus the frame. */
+  const [boardRef, boardWidth] = useFitWidth<HTMLDivElement>(364, 596);
+  const square = boardSize(boardWidth, 36) / 8;
   const [puzzleIndex, setPuzzleIndex] = useState(0);
-  /* Today's set, from the academy's bank, matched to this pupil's rating.
-     Empty until it loads; `exhausted` means every puzzle in the bank has been
-     set to them before — they are never repeated. */
   const [puzzles, setPuzzles] = useState<DailyPuzzle[]>([]);
   const [exhausted, setExhausted] = useState(false);
   const [loadingPuzzles, setLoadingPuzzles] = useState(true);
-  /* Free Play is a puzzle at a time rather than a set, so it is held apart from
-     `puzzles` — folding it in would make the daily card count a puzzle nobody
-     was set today towards "3 of 3". Null means the pupil is on a daily one. */
   const [freePuzzle, setFreePuzzle] = useState<DailyPuzzle | null>(null);
   const [freeTier, setFreeTier] = useState<FreeTier | null>(null);
-  const [freeLoading, setFreeLoading] = useState<FreeTier | null>(null);
-  const [freeExhausted, setFreeExhausted] = useState<FreeTier | null>(null);
-  /* The position as chess.js sees it, so the board obeys real rules rather
-     than the mate-in-1 toy the three hard-coded puzzles used. */
+  /* The practice list: twenty puzzles, levels mixed. Null until loaded. */
+  const [list, setList] = useState<PuzzleList | null>(null);
+  const [listFailed, setListFailed] = useState(false);
+  const [listIndex, setListIndex] = useState(0);
+  /* "" for every level. */
+  const [listFilter, setListFilter] = useState<FreeTier | "">("");
+  /* A list puzzle solved again today: said so on the board. */
+  const [replay, setReplay] = useState(false);
   const [game, setGame] = useState<Chess | null>(null);
-  /* The pupil's own moves in this puzzle, which is what the grader wants —
-     it replays the opponent from its copy of the solution. */
   const [played, setPlayed] = useState<string[]>([]);
   const [selected, setSelected] = useState<Square | null>(null);
   const [solved, setSolved] = useState(false);
   const [showWrong, setShowWrong] = useState(false);
+  /* The pupil's move is on the board and the opponent's reply is coming. */
+  const [waiting, setWaiting] = useState(false);
+  /* Bumped whenever the board is reset or changed, so a reply still on its
+     way does not land on a board the pupil has moved away from. */
+  const boardGen = useRef(0);
   const [message, setMessage] = useState("");
   const [celebrate, setCelebrate] = useState(false);
-  const [studentId, setStudentId] = useState("");
-  /* Derived by the server from the days actually practised. It used to start
-     at a hard-coded 7, so a pupil with no data was shown a week they had
-     never earned. */
-  const [practice, setPractice] = useState<PracticeSummary | null>(null);
+  const data = useStudentData();
 
-  const streak = practice?.streak ?? 0;
   const puzzle = freePuzzle ?? puzzles[puzzleIndex];
-  /* Rank 8 first when the pupil is White; flipped when they are Black, so the
-     pieces they move are always the ones nearest them. */
   const flipped = puzzle?.side === "Black";
   const grid: BoardGrid = game ? toGrid(game) : Array.from({ length: 8 }, () => Array(8).fill(null));
   const view = (r: number, c: number): [number, number] => (flipped ? [7 - r, 7 - c] : [r, c]);
-  /* The profile card used to hard-code "Mochi" and "Beginner" — the cat's name
-     and a guess. This is the signed-in account. */
-  const [me, setMe] = useState<{ displayName: string; email: string } | null>(null);
-  const [record, setRecord] = useState<{
-    name?: string;
-    current_level?: string;
-    fide_rating?: number;
-  } | null>(null);
-  /* Classes the pupil has been checked in to — the same count their parent
-     sees. Null until it loads, so the tile does not claim "0" meanwhile. */
-  const [classes, setClasses] = useState<number | null>(null);
-  /* The one number in the corner, and it is real.
-     It was two invented ones — 10 stars and 32 fish, both hard-coded — sitting
-     where a child would reasonably read them as something they had earned. */
-  const [rating, setRating] = useState<{ perf: string; value: number } | null>(null);
-  /* The school's live tournament, when there is one — the banner points at the
-     public results page, the same link the hall's QR code carries. */
   const [liveTournament, setLiveTournament] = useState<LiveTournament | null>(null);
 
-  // The board's sounds, fetched once a puzzle is open rather than on the home screen.
   useEffect(() => {
     if (screen === "puzzle") preloadSounds();
   }, [screen]);
@@ -203,78 +220,26 @@ export default function StudentGame() {
     };
   }, []);
 
-  /* One rating, chosen the way a coach would introduce a child: rapid is the
-     format the academy actually plays, so it leads, and the others stand in
-     only when there is no rapid game yet. Puzzle is deliberately last — it is
-     not a measure of playing strength. */
+  /* Re-read on every visit: the server swaps yesterday's solved puzzles for
+     new ones, and a day may have turned since the page opened. */
   useEffect(() => {
+    if (section !== "puzzles") return;
     let cancelled = false;
-    getMyLichess()
-      .then((mine) => {
-        if (cancelled || !mine.linked) return;
-        const order = ["rapid", "blitz", "classical", "bullet", "puzzle"];
-        const best = [...mine.link.ratings]
-          .filter((r) => r.rating > 0)
-          .sort((a, b) => order.indexOf(a.perf) - order.indexOf(b.perf))[0];
-        if (best) setRating({ perf: best.perf, value: best.rating });
+    getPuzzleList()
+      .then((l) => {
+        if (cancelled) return;
+        setListFailed(false);
+        setList(l);
       })
-      .catch(() => {
-        /* No link, or a cold API. The corner simply stays empty. */
-      });
+      .catch(() => !cancelled && setListFailed(true));
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [section]);
 
-  useEffect(() => {
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((me) => {
-        if (me) setMe({ displayName: me.displayName, email: me.email });
-        if (me?.studentId) {
-          setStudentId(me.studentId);
-          fetch("/api/students", { cache: "no-store" })
-            .then((r) => (r.ok ? r.json() : []))
-            .then(
-              (
-                rows: {
-                  student_id: string;
-                  name?: string;
-                  current_level?: string;
-                  fide_rating?: number;
-                  streak_count?: number;
-                }[],
-              ) => {
-                // The scope on `students` means this list is only ever the
-                // caller's own row, but find by id rather than take [0].
-                const self = rows.find((row) => row.student_id === me.studentId);
-                if (self) setRecord(self);
-              },
-            );
-          // `attendance` is scoped to the pupil's own rows; the sessions are
-          // what the count checks each row against.
-          const list = <T,>(path: string): Promise<T[]> =>
-            fetch(`/api/${path}`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
-          Promise.all([
-            list<{ session_id: string; check_in_time?: string }>("attendance"),
-            list<{ session_id: string }>("class-sessions"),
-          ])
-            .then(([attendance, sessions]) =>
-              setClasses(classesAttended(attendance, new Set(sessions.map((x) => x.session_id)))),
-            )
-            .catch(() => {});
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  /* Today's puzzles and the practice record behind the flame. Both are server
-     truth: the set is chosen there and the streak is derived there. */
-  const refreshPractice = () => {
-    getPracticeSummary()
-      .then(setPractice)
-      .catch(() => {});
-  };
+  /* Today's puzzles. The set is chosen on the server, and the solves and
+     streak are worked out there — re-read after a solve, never guessed. */
+  const refreshPractice = data.refreshProgress;
 
   useEffect(() => {
     let cancelled = false;
@@ -286,9 +251,6 @@ export default function StudentGame() {
       })
       .catch(() => {})
       .finally(() => !cancelled && setLoadingPuzzles(false));
-    getPracticeSummary()
-      .then((p) => !cancelled && setPractice(p))
-      .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -300,58 +262,44 @@ export default function StudentGame() {
   const solvedCount = puzzles.filter((p) => p.solved).length;
   const isDailyDone = puzzles.length > 0 && solvedCount >= puzzles.length;
 
-  const go = (s: Screen) => {
+  const go = (s: Section) => {
     if (autoNavTimer.current) clearTimeout(autoNavTimer.current);
-    setScreen(s);
+    setBoardOpen(false);
+    if (s !== section) router.push(s === "home" ? "/student" : `/student?screen=${s}`);
   };
-
-  /* Coming back from Lichess lands on this route, but the card that sent them
-     there lives on the profile screen — and screens here are state, not routes.
-     Without this a pupil returns from granting access to the home screen and
-     sees nothing at all confirming it worked. */
-  useEffect(() => {
-    const wanted = new URLSearchParams(window.location.search).get("screen");
-    if (wanted === "puzzles" || wanted === "profile") setScreen(wanted);
-    if (new URLSearchParams(window.location.search).has("lichess")) {
-      setScreen("profile");
-    }
-  }, []);
 
   /* Board state for whichever puzzle is being opened. Both paths reset exactly
      the same things, so they share this rather than drifting apart. */
-  const openBoard = (p: DailyPuzzle | undefined) => {
-    if (p && !p.solved) void openPuzzle(p.puzzleId);
+  const openBoard = (p: DailyPuzzle | undefined, practice = false) => {
+    boardGen.current += 1;
+    setWaiting(false);
+    /* A practice puzzle opens ready to play even when it is ticked: playing
+       it again is allowed, it just earns nothing. */
+    if (p && practice) void openListPuzzle(p.puzzleId);
+    else if (p && !p.solved) void openPuzzle(p.puzzleId);
     setGame(p ? gameAt(p.fen) : null);
     setPlayed([]);
     setSelected(null);
-    setSolved(p?.solved ?? false);
+    setSolved(practice ? false : (p?.solved ?? false));
     setShowWrong(false);
     setMessage("");
-    setScreen("puzzle");
+    setBoardOpen(true);
+    if (!BOARD_PAGES.includes(section)) router.push("/student?screen=daily");
   };
 
-  /* Fetches one puzzle at the chosen difficulty and opens it. Each press is a
-     fresh request: the server may have to top the bank up from Lichess, so
-     there is no set to pre-load and nothing useful to cache. */
-  const loadFreePuzzle = (tier: FreeTier) => {
-    setFreeLoading(tier);
-    getFreePuzzle(tier)
-      .then((res) => {
-        if (!res.puzzle) {
-          setFreeExhausted(tier);
-          return;
-        }
-        setFreeExhausted(null);
-        setFreeTier(tier);
-        setFreePuzzle(res.puzzle);
-        openBoard(res.puzzle);
-      })
-      .catch(() => setFreeExhausted(tier))
-      .finally(() => setFreeLoading(null));
+  /* Opens one of the list's puzzles on the board. */
+  const loadListPuzzle = (index: number) => {
+    const p = list?.puzzles[index];
+    if (!p) return;
+    setListIndex(index);
+    setFreeTier(p.tier);
+    setFreePuzzle(p);
+    openBoard(p, true);
   };
 
   const loadPuzzle = (index: number) => {
     const p = puzzles[index];
+    setReplay(false);
     /* Opening a daily puzzle leaves Free Play, or `puzzle` would keep
        resolving to the free one and the board would not change. */
     setFreePuzzle(null);
@@ -363,6 +311,8 @@ export default function StudentGame() {
   };
 
   const resetPuzzle = () => {
+    boardGen.current += 1;
+    setWaiting(false);
     const p = freePuzzle ?? puzzles[puzzleIndex];
     setGame(p ? gameAt(p.fen) : null);
     setPlayed([]);
@@ -381,20 +331,34 @@ export default function StudentGame() {
     setSelected(null);
     let verdict;
     try {
-      verdict = await attemptMove(p.puzzleId, uci, played);
+      verdict = freePuzzle ? await attemptListMove(p.puzzleId, uci, played) : await attemptMove(p.puzzleId, uci, played);
     } catch {
       setMessage(tp("error.unreachable"));
       return;
     }
 
-    /* The server returns the position after the move and any reply, so the
-       board follows its view rather than replaying the reply here. */
+    /* The server returns the position after the move and any reply. When the
+       puzzle goes on, the pupil's own move is shown first and the reply a
+       beat later, as the robot answers — both landing at once hid what the
+       opponent did. The board still ends on the server's position. */
     const next = gameAt(verdict.fen);
-    if (next) setGame(next);
-
-    /* Sound follows what the pupil sees: their move lands with the new
-       position, and any reply a beat later, like an opponent answering. */
     const mine = moveFrom(game.fen(), uci);
+    const replyComing = verdict.correct && !verdict.solved;
+    if (replyComing && mine) {
+      const afterMine = gameAt(mine.after);
+      if (afterMine) setGame(afterMine);
+      setWaiting(true);
+      const gen = boardGen.current;
+      setTimeout(() => {
+        if (gen !== boardGen.current) return;
+        if (next) setGame(next);
+        setWaiting(false);
+      }, REPLY_PAUSE_MS);
+    } else if (next) {
+      setGame(next);
+    }
+
+    /* Sound follows what the pupil sees: their move now, the reply with it. */
     if (mine) playSound(soundForMove(mine));
 
     if (!verdict.correct) {
@@ -417,7 +381,7 @@ export default function StudentGame() {
       // A longer puzzle: the opponent has replied and it is their move again.
       setMessage(t("keepGoingMsg"));
       const reply = mine ? moveBetween(mine.after, verdict.fen) : null;
-      if (reply) setTimeout(() => playSound(soundForMove(reply)), 350);
+      if (reply) setTimeout(() => playSound(soundForMove(reply)), REPLY_PAUSE_MS);
       return;
     }
 
@@ -425,20 +389,31 @@ export default function StudentGame() {
 
     setSolved(true);
     setMessage(t("checkmateMsg"));
+    setReplay(Boolean(freePuzzle) && verdict.firstSolve !== true);
     // The practice row was just written server-side by the grader, so the
     // flame is re-read rather than guessed at. Free Play earns it too: the
     // child practised, and the streak counts days practised.
     refreshPractice();
 
-    /* A free puzzle is not part of today's set, so it neither marks a daily
-       row solved nor advances through one. The pupil chose to keep going, so
-       the next one at the same difficulty is fetched instead — and the daily
-       celebration is left for finishing the daily set. */
+    /* A list puzzle is not part of today's set: it ticks its tile, then the
+       next unticked one in the same filter opens — or, with none left, the
+       pupil is back at the list. */
     if (freePuzzle) {
-      setFreePuzzle({ ...freePuzzle, solved: true });
-      const tier = freeTier;
+      const idx = listIndex;
+      const rows = (list?.puzzles ?? []).map((row, i) => (i === idx ? { ...row, solved: true } : row));
+      if (list) setList({ ...list, puzzles: rows });
+      const open = (x: (typeof rows)[number]) => !x.solved && (!listFilter || x.tier === listFilter);
       setTimeout(() => {
-        if (tier) loadFreePuzzle(tier);
+        const next = rows.findIndex((x, i) => i > idx && open(x));
+        const wrap = next >= 0 ? next : rows.findIndex(open);
+        if (wrap >= 0) {
+          setListIndex(wrap);
+          setFreeTier(rows[wrap].tier);
+          setFreePuzzle(rows[wrap]);
+          openBoard(rows[wrap], true);
+        } else {
+          setBoardOpen(false);
+        }
       }, 1400);
       return;
     }
@@ -458,7 +433,8 @@ export default function StudentGame() {
      so the rest of the screen does not have to know the board is turned round
      for a pupil playing Black. */
   const select = (vr: number, vc: number) => {
-    if (solved || !game || !puzzle) return;
+    /* Not while the opponent's reply is still to land. */
+    if (solved || waiting || !game || !puzzle) return;
     const [r, c] = view(vr, vc);
     const square = squareName(r, c);
     const mine = game.get(square);
@@ -484,333 +460,208 @@ export default function StudentGame() {
     ? movesFrom(game, squareName(selected[0], selected[1])).map((m) => squareToRC(m.slice(2, 4)))
     : [];
 
-  const name = record?.name ?? me?.displayName ?? "";
-  const firstName = name.trim().split(/\s+/)[0] || name;
+
+  /* Home's "Start Challenge" goes straight to the next puzzle to solve rather
+     than to a list the pupil then has to choose from. */
+  const startChallenge = () => {
+    const next = puzzles.findIndex((x) => !x.solved);
+    if (next >= 0) loadPuzzle(next);
+    else go("daily");
+  };
+  const openFreePlay = () => {
+    setCelebrate(false);
+    setBoardOpen(false);
+    router.push("/student?screen=puzzles");
+  };
 
   return (
-    <div className="relative h-[844px] w-[390px] shrink-0 overflow-hidden bg-[#eef5ff] text-[#10264d] sm:rounded-[32px] sm:shadow-[0_24px_70px_rgba(30,64,175,.22)]">
-      <div className="pointer-events-none absolute -right-20 -top-20 size-[250px] rounded-full bg-[radial-gradient(circle,#dbeafe_0%,rgba(219,234,254,0)_70%)]" />
-
-      {screen !== "puzzle" && (
-        <div className="absolute inset-x-0 top-0 z-10 flex h-[48px] items-end justify-center pb-1.5 text-[11px] font-semibold tracking-[.02em] text-[#60779c]">
-          {t("brand")}
-        </div>
+    <div className="flex flex-col gap-5">
+      {screen === "home" && (
+        <HomeScreen
+          data={data}
+          daily={{ solved: solvedCount, total: puzzles.length || 3, loading: loadingPuzzles }}
+          onStartChallenge={startChallenge}
+          onFreePlay={openFreePlay}
+          liveTournament={liveTournament}
+        />
       )}
 
-      {/* ---------------- HOME ---------------- */}
-      {screen === "home" && (
-        <div className="absolute inset-x-0 bottom-[72px] top-[48px] flex flex-col gap-3 overflow-y-auto px-4 pb-5 pt-3 [scrollbar-width:none]">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="truncate font-sv-display text-[24px] font-bold leading-tight text-[#10264d]">
-                {t("greeting", { name: firstName })}
-              </h1>
-              <p className="mt-1 text-[11px] text-[#7083a3]">{t("greetingSub")}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => go("profile")}
-              aria-label={t("profile")}
-              className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-white bg-[#dbeafe] font-sv-display text-[15px] font-bold text-[#2563eb] shadow-[0_6px_16px_rgba(37,99,235,.13)]"
-            >
-              {name.trim().charAt(0).toUpperCase() || "S"}
-            </button>
+      {/* ---------------- PUZZLES: THE LIST OF TWENTY ---------------- */}
+      {/* Levels mixed, two in three from the pupil's own level. Level tags on
+          top, Today's Challenge as the first row, then each puzzle with its
+          board, name, level and rating — ticked once solved today. Tomorrow
+          the ticked ones are replaced and the rest stay. */}
+      {screen === "puzzles" && (
+        <div className="st-enter mx-auto flex w-full max-w-[640px] flex-col gap-5">
+          <h1 className="m-0 font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">{t("puzzles")}</h1>
+
+          <div className="flex gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none]" role="tablist" aria-label={t("puzzles")}>
+            {([["", t3("filterAll")], ...TIER_ROWS.map((r) => [r.tier, t3(`level.${r.tier}`)])] as [FreeTier | "", string][]).map(([k, label]) => {
+              const on = listFilter === k;
+              return (
+                <button
+                  key={k || "all"}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => setListFilter(k)}
+                  title={k ? t3(TIER_SUB[k]) : undefined}
+                  className={`shrink-0 cursor-pointer rounded-lg px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors ${
+                    on ? "bg-pp-blue text-white" : "bg-pp-line text-pp-muted hover:bg-pp-line"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="flex gap-2.5">
-            <StatTile label={t("streakLabel")} value={String(streak)} icon={<Flame className="size-[18px] text-[#f59e0b]" strokeWidth={2.4} />} />
-            <StatTile label={t("dailyChallenge")} value={`${solvedCount}/3`} icon={<Puzzle className="size-[18px]" strokeWidth={2.2} />} />
-          </div>
+          {/* Today's Challenge: the day's three, opening their own page. */}
+          <button
+            type="button"
+            onClick={() => go("daily")}
+            className="group flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] border-pp-soft bg-pp-soft p-2.5 text-left transition-colors hover:bg-pp-soft"
+          >
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-pp-amber-soft text-pp-amber" aria-hidden>
+              <Target className="size-6" strokeWidth={2} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[14px] font-bold text-pp-ink">{t3("todaysChallenge")}</span>
+              <span className="text-[12px] text-pp-muted">{t3("challengeCompleted", { n: solvedCount, total: puzzles.length || 3 })}</span>
+            </span>
+            <ChevronRight className="size-5 shrink-0 text-pp-blue transition-transform group-hover:translate-x-0.5" strokeWidth={2.4} aria-hidden />
+          </button>
 
-          {/* Daily challenge */}
-          <div className="relative overflow-hidden rounded-[20px] border border-[#f3dda9] bg-[#fff8e8] p-4 shadow-[0_8px_20px_rgba(180,120,20,.08)]">
-            <div className="pointer-events-none absolute -right-5 -top-5 size-24 rounded-full bg-[#ffebae]" />
-            <div className="relative flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-[14px] font-bold text-[#10264d]">
-                  {isDailyDone ? t("missionComplete") : t("todaysChallenge")}
-                </h2>
-                <span className="mt-1 block text-[10.5px] text-[#8a6a28]">
-                  {isDailyDone ? t("keepStreak") : t("challengeHint")}
-                </span>
-              </div>
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#ffd45c] shadow-[0_5px_14px_rgba(180,120,20,.16)]">
-                <Trophy className="size-6 text-[#9a6800]" strokeWidth={2.2} />
-              </span>
+          {listFailed && !list ? (
+            <p className="rounded-xl border-[1.5px] border-pp-line bg-pp-card px-3 py-6 text-center text-[12.5px] text-pp-muted">{t("puzzlesUnavailable")}</p>
+          ) : !list ? (
+            <p className="rounded-xl border-[1.5px] border-pp-line bg-pp-card py-6 text-center text-[12.5px] text-pp-muted">{t("puzzlesLoading")}</p>
+          ) : list.puzzles.length === 0 ? (
+            <p className="rounded-xl border-[1.5px] border-pp-line bg-pp-card px-3 py-6 text-center text-[12.5px] text-pp-muted">{t("puzzlesExhausted")}</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {list.puzzles.map((p, i) => {
+                if (listFilter && p.tier !== listFilter) return null;
+                const c = TIER_TONE[toneOf(p.tier)];
+                return (
+                  <button
+                    key={p.puzzleId}
+                    type="button"
+                    onClick={() => loadListPuzzle(i)}
+                    title={p.solved ? t3("playAgain") : undefined}
+                    className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl border bg-pp-card px-2.5 py-[12.5px] text-left transition-colors ${
+                      p.solved ? "border-pp-green-soft" : "border-pp-line hover:border-pp-faint"
+                    }`}
+                  >
+                    <MiniBoard fen={p.fen} flipped={p.side === "Black"} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] font-bold text-pp-ink">{t3(`theme.${puzzleTitleKey(p.themes)}`)}</span>
+                      <span className="text-[12px]">
+                        <span className={`font-semibold ${c.sub}`}>{t3(`level.${p.tier}`)}</span>
+                        <span className="text-pp-muted"> • {t("ratingLabel", { rating: p.rating })}</span>
+                      </span>
+                    </span>
+                    {p.solved ? (
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-pp-green text-white" aria-label={t("solvedLabel")}>
+                        <Check className="size-3.5" strokeWidth={3.2} />
+                      </span>
+                    ) : (
+                      <ChevronRight className="size-5 shrink-0 text-pp-blue transition-transform group-hover:translate-x-0.5" strokeWidth={2.4} aria-hidden />
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            <div className="relative mt-3">
-              <div className="flex items-center justify-between text-[10px] font-semibold text-[#6f7788]">
-                <span>{t("puzzlesCount", { n: solvedCount })}</span>
-                <span>{Math.round((solvedCount / 3) * 100)}%</span>
-              </div>
-              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f6e4aa]">
-                <div className="h-full rounded-full bg-[#f4be2c] transition-[width] duration-300" style={{ width: `${(solvedCount / 3) * 100}%` }} />
-              </div>
-              <button
-                onClick={() => go("puzzles")}
-                className="mt-3 flex min-h-[40px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-none bg-[#2563eb] text-[12px] font-bold text-white shadow-[0_7px_16px_rgba(37,99,235,.2)]"
-              >
-                <span>{isDailyDone ? t("freePlay") : t("startChallenge")}</span>
-                <ChevronRight className="size-4" strokeWidth={2.4} />
-              </button>
-            </div>
-          </div>
-
-          {/* The two things a pupil comes here to do, rather than a blank
-              stretch of wall where the cat used to sit. */}
-          <div className="flex gap-2.5">
-            <HomeAction
-              href="/student/play"
-              label={tp("title")}
-              body={t("practiceComputer")}
-              tone="mint"
-              icon={<Bot className="size-5 text-[#15906b]" strokeWidth={2.2} />}
-            />
-            <HomeAction
-              href="/student/challenge"
-              label={t("playFriend")}
-              body={t("playTogether")}
-              tone="lilac"
-              icon={<Swords className="size-5 text-[#7457d7]" strokeWidth={2.2} />}
-            />
-          </div>
-
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-[12px] font-bold text-[#10264d]">{t("myProgress")}</h2>
-              <button type="button" onClick={() => go("profile")} className="cursor-pointer border-none bg-transparent text-[10px] font-bold text-[#2563eb]">
-                {t("viewAll")}
-              </button>
-            </div>
-            <div className="flex gap-2.5">
-              {/* The one place the home screen shows the rating. It also sat in a
-                  chip pinned over the header, where it covered the profile
-                  button; the label names the format, as on the phone. */}
-              <StatTile label={rating ? tl(`perf.${rating.perf}`) : t("ratingTile")} value={rating ? String(rating.value) : t("unrated")} icon={<BarChart3 className="size-[18px]" strokeWidth={2.2} />} />
-              {/* Classes, not a second "Daily Challenge": the same 3/3 already
-                  sits at the top of the screen and fills the card below it. */}
-              <StatTile label={t("classesLabel")} value={classes === null ? "—" : String(classes)} icon={<GraduationCap className="size-[18px] text-[#8b5bd7]" strokeWidth={2.2} />} />
-            </div>
-          </div>
-
-          {liveTournament && (
-            <Link
-              href={`/t/${liveTournament.tournamentId}`}
-              className="flex min-h-[52px] items-center gap-3 rounded-[18px] bg-sv-mint px-4 shadow-[inset_0_0_0_1.5px_rgb(143,191,168)] transition-colors duration-150 hover:brightness-[1.03]"
-            >
-              <span className="flex min-w-0 flex-1 flex-col py-2">
-                <span className="text-[12px] font-bold uppercase tracking-wide text-sv-mint-ink">
-                  {t("liveTournament")}
-                </span>
-                <span className="truncate text-[14px] font-bold text-sv-ink">{liveTournament.name}</span>
-              </span>
-              <span className="shrink-0 text-[13px] font-bold text-sv-mint-ink">{t("seeResults")}</span>
-            </Link>
           )}
         </div>
       )}
 
-      {screen === "puzzles" && (
-        <div className="absolute inset-x-0 bottom-[72px] top-[48px] overflow-y-auto px-4 pb-5 pt-4 [scrollbar-width:none]">
-          <div className="flex items-end justify-between">
-            <div>
-              <h1 className="font-sv-display text-[27px] font-bold leading-none text-[#10264d]">{t("puzzles")}</h1>
-              <p className="mt-1.5 text-[11px] text-[#7083a3]">{t("puzzlesSub")}</p>
+      {/* ---------------- DAILY CHALLENGE ---------------- */}
+      {/* The day's three, drawn like the Puzzles list: board, name, level and
+          rating, a tick once solved. */}
+      {screen === "daily" && (
+        <div className="st-enter mx-auto flex w-full max-w-[640px] flex-col gap-5">
+          <SubPageHeader
+            onBack={() => go("home")}
+            backLabel={t("back")}
+            title={t("dailyChallenge")}
+            sub={`${ts("puzzlesOf", { n: solvedCount, total: puzzles.length || 3 })} · ${
+              isDailyDone ? t3("dailyDoneBody") : t3("dailyBody", { n: puzzles.length || 3 })
+            }`}
+          />
+          {loadingPuzzles ? (
+            <p className="rounded-xl border-[1.5px] border-pp-line bg-pp-card py-6 text-center text-[12.5px] text-pp-muted">{t("puzzlesLoading")}</p>
+          ) : puzzles.length === 0 ? (
+            <p className="rounded-xl border-[1.5px] border-pp-line bg-pp-card px-3 py-6 text-center text-[12.5px] leading-relaxed text-pp-muted">
+              {exhausted ? t("puzzlesExhausted") : t("puzzlesUnavailable")}
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {puzzles.map((p, i) => {
+                const tier = tierOfRating(p.rating);
+                return (
+                  <button
+                    key={p.puzzleId}
+                    type="button"
+                    onClick={() => loadPuzzle(i)}
+                    className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl border bg-pp-card p-2.5 text-left transition-colors ${
+                      p.solved ? "border-pp-green-soft" : "border-pp-line hover:border-pp-faint"
+                    }`}
+                  >
+                    <MiniBoard fen={p.fen} flipped={p.side === "Black"} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] font-bold text-pp-ink">{t3(`theme.${puzzleTitleKey(p.themes)}`)}</span>
+                      <span className="text-[12px]">
+                        <span className={`font-semibold ${TIER_TONE[toneOf(tier)].sub}`}>{t3(`level.${tier}`)}</span>
+                        <span className="text-pp-muted"> • {t("ratingLabel", { rating: p.rating })}</span>
+                      </span>
+                    </span>
+                    {p.solved ? (
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-pp-green text-white" aria-label={t("solvedLabel")}>
+                        <Check className="size-3.5" strokeWidth={3.2} />
+                      </span>
+                    ) : (
+                      <ChevronRight className="size-5 shrink-0 text-pp-blue transition-transform group-hover:translate-x-0.5" strokeWidth={2.4} aria-hidden />
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            <Puzzle className="mb-1 size-10 fill-[#bfe0ff] text-[#79b7ee]" strokeWidth={1.8} />
-          </div>
-
-          <div className="mt-4">
-            {/* Tabs */}
-            <div className="flex h-11 w-full gap-1.5 rounded-[14px] bg-[#dce9f8] p-1">
-              {(
-                [
-                  ["daily", t("daily")],
-                  ["free", t("freePlay")],
-                ] as const
-              ).map(([k, lbl]) => (
-                <button
-                  key={k}
-                  onClick={() => setTab(k)}
-                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-[11px] border-none text-[12px] font-bold transition-colors"
-                  style={{
-                    background: tab === k ? "#2563eb" : "rgba(255,255,255,.78)",
-                    boxShadow: tab === k ? "0 5px 12px rgba(37,99,235,.18)" : "none",
-                    color: tab === k ? "white" : "#536b91",
-                  }}
-                >
-                  {k === "daily" ? (
-                    <Flame className="size-[16px]" strokeWidth={2.4} style={{ color: tab === "daily" ? "#ffd45c" : "#536b91" }} />
-                  ) : (
-                    <PuzzlePieceIcon fill={tab === "free" ? "white" : "#536b91"} size={16} />
-                  )}
-                  <span>{lbl}</span>
-                </button>
-              ))}
-            </div>
-            {/* Cards */}
-            <div className="mt-3.5 rounded-[18px] border border-[#dce8f8] bg-white p-3 shadow-[0_8px_22px_rgba(37,99,235,.07)]">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <p className="text-[13px] font-bold text-[#10264d]">{tab === "daily" ? t("dailyChallenge") : t("freePlay")}</p>
-                  {/* The count and the bar are the daily set's progress. Free
-                      Play has no set and no end, so showing "0 of 3" there was
-                      a target that never moved. */}
-                  <p className="mt-0.5 text-[10px] text-[#7083a3]">
-                    {tab === "daily" ? t("puzzlesCount", { n: solvedCount }) : t("freePlayHint")}
-                  </p>
-                </div>
-                <span className="flex size-8 items-center justify-center rounded-xl bg-[#edf4ff] text-[#2563eb]">
-                  <Puzzle className="size-4" strokeWidth={2.2} />
-                </span>
-              </div>
-              {tab === "daily" && (
-                <div className="mb-4 h-2 overflow-hidden rounded-full bg-[#dce8f8]">
-                  <div className="h-full rounded-full bg-[#2563eb] transition-[width]" style={{ width: `${(solvedCount / 3) * 100}%` }} />
-                </div>
-              )}
-              <div className="flex flex-col gap-2.5">
-              {tab === "daily"
-                ? loadingPuzzles
-                  ? <p className="px-1 py-6 text-center text-[11px] text-[#8292ad]">{t("puzzlesLoading")}</p>
-                  : puzzles.length === 0
-                    ? (
-                      <p className="px-3 py-6 text-center text-[11px] leading-relaxed text-[#8292ad]">
-                        {exhausted ? t("puzzlesExhausted") : t("puzzlesUnavailable")}
-                      </p>
-                    )
-                    : puzzles.map((p, i) => (
-                    <button
-                      key={p.puzzleId}
-                      onClick={() => loadPuzzle(i)}
-                      className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 text-left shadow-[0_4px_12px_rgba(37,99,235,.05)] transition hover:border-[#bed5f5] hover:bg-[#f8fbff]"
-                    >
-                      <span className={`flex size-10 items-center justify-center rounded-xl ${i === 0 ? "bg-[#edf4ff]" : i === 1 ? "bg-[#ebfaf5]" : "bg-[#fff2ea]"}`}>
-                        <span className="text-[22px] text-[#10264d]">{i === 0 ? "♟" : i === 1 ? "♞" : "♜"}</span>
-                      </span>
-                      <span className="flex flex-1 flex-col">
-                        <span className="text-[13px] font-bold text-[#10264d]">{t("puzzleN", { n: i + 1 })}</span>
-                        <span className="text-[10px] text-[#8292ad]">
-                          {p.solved ? t("solvedLabel") : t("ratingLabel", { rating: p.rating })}
-                        </span>
-                      </span>
-                      {p.solved ? (
-                        <span className="flex size-7 items-center justify-center rounded-full bg-[#e4f7ef]"><Check className="size-4 text-[#15906b]" strokeWidth={3} /></span>
-                      ) : (
-                        <span className="flex items-center gap-1 rounded-full bg-[#edf4ff] px-2 py-1 text-[10px] font-bold text-[#2563eb]">+1 <Star className="size-3 fill-[#7eb6ff]" /></span>
-                      )}
-                    </button>
-                  ))
-                : (
-                    [
-                      ["beginner", t("beginnerPuzzles"), 1],
-                      ["intermediate", t("intermediatePuzzles"), 2],
-                      ["advanced", t("advancedPuzzles"), 3],
-                    ] as const
-                  ).map(([tier, title, n]) => (
-                    <button
-                      key={tier}
-                      onClick={() => loadFreePuzzle(tier)}
-                      disabled={freeLoading !== null}
-                      className="flex h-[62px] w-full cursor-pointer items-center gap-3 rounded-[14px] border border-[#e2ebf7] bg-white px-3 text-left shadow-[0_4px_12px_rgba(37,99,235,.05)] transition hover:border-[#bed5f5] hover:bg-[#f8fbff] disabled:cursor-wait disabled:opacity-60"
-                    >
-                      <span className="flex size-10 items-center justify-center rounded-xl bg-[#edf4ff] text-[22px] text-[#10264d]">
-                        ♞
-                      </span>
-                      <span className="flex flex-1 flex-col">
-                        <span className="text-[13px] font-bold text-[#10264d]">{title}</span>
-                        {freeLoading === tier ? (
-                          <span className="text-[10px] text-[#8292ad]">{t("puzzlesLoading")}</span>
-                        ) : freeExhausted === tier ? (
-                          <span className="text-[10px] text-[#8292ad]">{t("tierExhausted")}</span>
-                        ) : null}
-                      </span>
-                      <span className="flex gap-0.5">
-                        {Array.from({ length: n }, (_, i) => (
-                          <Star key={i} className="size-[18px] fill-[#f2b632] text-[#c78a1d]" strokeWidth={1.5} />
-                        ))}
-                      </span>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
       {/* ---------------- PUZZLE BOARD ---------------- */}
       {screen === "puzzle" && (
-        <>
-          <button onClick={() => go("puzzles")} aria-label={t("back")} className="absolute left-5 top-[46px] z-[2] cursor-pointer border-none bg-transparent text-[22px] font-bold text-sv-ink">
-            ←
-          </button>
-          {/* A Free Play puzzle is named by its level. It used to borrow the
-              daily heading, "Puzzle 1", from whichever daily puzzle was opened
-              last — a number that meant nothing for a puzzle from no set. A
-              level name is longer, so it is set smaller to clear the back
-              arrow and the sound switch on either side. */}
-          <h1
-            className={`absolute w-[390px] text-center font-sv-display font-bold text-[#10264d] ${
-              freeTier ? "top-[47px] text-[22px]" : "top-[44px] text-[26px]"
-            }`}
-          >
-            {freeTier ? t(TIER_TITLE[freeTier]) : t("puzzleN", { n: puzzleIndex + 1 })}
-          </h1>
-          <SoundToggle className="absolute right-5 top-[42px] z-[2]" />
-          {/* Sits on the navy wash with the heading, so it is white like the
-              heading — `sv-body` here measured 3.9 luminance spread, i.e. gone. */}
-          {/* Whose move and what to look for, from this puzzle. The line used
-              to read "White to move — mate in 1" for everything, which was true
-              of the three hard-coded positions and of little else. */}
-          <div className="absolute top-[103px] w-[390px] text-center text-[13px] font-bold text-[#60779c]">
-            {puzzle
-              ? t(puzzleGoal(puzzle).key === "mateIn" ? "toMoveGoalMate" : "toMoveGoalBest", {
-                  side: t(puzzle.side === "White" ? "sideWhite" : "sideBlack"),
-                  count: puzzleGoal(puzzle).count,
-                })
-              : ""}
-          </div>
+        <div className="st-enter flex flex-col gap-5">
+          <header className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setBoardOpen(false)}
+              aria-label={t("back")}
+              className="flex size-[38px] flex-none cursor-pointer items-center justify-center rounded-xl border-[1.5px] border-pp-line bg-pp-card text-pp-ink hover:bg-pp-soft"
+            >
+              <ArrowLeft className="size-4" strokeWidth={2.2} />
+            </button>
+            <div className="min-w-0">
+              <h1 className="m-0 font-pp-display text-2xl font-semibold leading-tight text-pp-ink">
+                {freeTier ? `${t(TIER_TITLE[freeTier])} · ${listIndex + 1}` : t("puzzleN", { n: puzzleIndex + 1 })}
+              </h1>
+              {puzzle && <p className="text-[13px] text-pp-muted">{t("ratingLabel", { rating: puzzle.rating })}</p>}
+            </div>
+            <SoundToggle className="ml-auto" />
+          </header>
 
-          {/* One slot under the heading for whatever there is to say about this
-              puzzle, and only one thing at a time: what just happened, or — on
-              reopening one already beaten — that it is finished. The board is
-              locked then, and without the card it would give no word why.
-              The feedback used to be a speech bubble hung over the board's top
-              edge; on a solve it landed on top of the Completed card, two
-              texts over each other. Plain, larger text reads at a glance, and a
-              slot of its own means nothing is drawn over anything else. */}
-          <div className="pointer-events-none absolute left-[31px] top-[136px] flex h-[58px] w-[328px] items-center justify-center">
-            {message ? (
-              <p
-                role="status"
-                className={`flex items-center justify-center gap-2 text-center text-[18px] font-bold leading-tight ${
-                  solved ? "text-[#15906b]" : showWrong ? "text-[rgb(176,63,58)]" : "text-[#10264d]"
-                }`}
-              >
-                {solved && <Check className="size-5 shrink-0" strokeWidth={3} />}
-                {showWrong && <X className="size-5 shrink-0" strokeWidth={3} />}
-                {message}
-              </p>
-            ) : solved ? (
-              <div className="flex w-full items-center gap-3 rounded-[16px] border border-[#bfe4d8] bg-[#ebfaf5] px-3.5 py-2.5">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#15906b]">
-                  <Check className="size-5 text-white" strokeWidth={3} />
-                </span>
-                <span className="flex min-w-0 flex-col">
-                  <span className="text-[14px] font-bold text-[#10264d]">{t("completedTitle")}</span>
-                  <span className="text-[11px] text-[#4a7f6d]">{t("completedBody")}</span>
-                </span>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="absolute left-[31px] top-[230px] flex w-[328px] flex-col items-center">
-            <div className="relative top-[-9px] rounded-[20px] bg-sv-gold p-2.5 shadow-[inset_0_0_0_2px_rgb(206,219,236),0_4px_10px_rgba(125,87,50,0.35)]">
-              <div className="rounded-[14px] bg-sv-cream p-2 shadow-[inset_0_0_0_1px_rgb(206,219,236)]">
-                <div className="grid grid-cols-[repeat(8,34px)] grid-rows-[repeat(8,34px)] overflow-hidden rounded-lg shadow-[0_0_0_2px_rgb(70,96,140)]">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+            <div ref={boardRef} className="mx-auto w-full max-w-[596px]">
+              {/* The board on a clean card, the frame in the console's line
+                  colour rather than a warm wood tone. */}
+              <div className="mx-auto w-fit rounded-2xl border-[1.5px] border-pp-line bg-pp-card p-3 shadow-[0_10px_30px_rgba(35,53,94,.10)]">
+                <div
+                  className="grid overflow-hidden rounded-lg ring-2 ring-[#46608c]"
+                  style={{ gridTemplateColumns: `repeat(8, ${square}px)`, gridTemplateRows: `repeat(8, ${square}px)` }}
+                >
                   {Array.from({ length: 64 }, (_, idx) => {
-                    // Drawn in view coordinates; `view` maps them back to the
-                    // board, which is turned round for a pupil playing Black.
                     const vr = Math.floor(idx / 8);
                     const vc = idx % 8;
                     const [r, c] = view(vr, vc);
@@ -819,36 +670,41 @@ export default function StudentGame() {
                     const piece = grid[r][c];
                     const isCapture = isLegal && !!piece;
                     const bg = isSelected
-                      ? "rgb(220,232,248)"
+                      ? "var(--color-sv-board-selected)"
                       : (vr + vc) % 2 === 0
                         ? "var(--color-sv-board-light)"
                         : "var(--color-sv-board-dark)";
                     return (
                       <button
                         key={idx}
+                        type="button"
                         onClick={() => select(vr, vc)}
-                        /* Named, like the squares on the shared board. Without
-                           this the puzzle board was a grid of unlabelled
-                           buttons — unreadable to a screen reader and
-                           unaddressable to anything driving it. */
                         aria-label={squareName(r, c)}
-                        className="relative flex size-[34px] cursor-pointer items-center justify-center border-none p-0"
-                        style={{ background: bg }}
+                        className="relative flex cursor-pointer items-center justify-center border-none p-0"
+                        style={{ width: square, height: square, background: bg }}
                       >
+                        {/* Coordinates on the edge squares, as on a real board. */}
+                        {vc === 0 && (
+                          <span className="pointer-events-none absolute left-0.5 top-0.5 text-[10px] font-bold leading-none text-[#46608c]/70">{squareName(r, c)[1]}</span>
+                        )}
+                        {vr === 7 && (
+                          <span className="pointer-events-none absolute bottom-0.5 right-1 text-[10px] font-bold leading-none text-[#46608c]/70">{squareName(r, c)[0]}</span>
+                        )}
                         {piece && (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={pieceSrc(piece.color, piece.type)}
                             alt=""
                             draggable={false}
-                            className="pointer-events-none size-[30px] select-none"
+                            className="pointer-events-none select-none drop-shadow-[0_1px_1px_rgba(0,0,0,.25)]"
+                            style={{ width: square * 0.9, height: square * 0.9 }}
                           />
                         )}
                         {isLegal &&
                           (isCapture ? (
-                            <span className="absolute inset-0.5 rounded-md shadow-[inset_0_0_0_3px_rgba(207,132,40,0.85)]" />
+                            <span className="absolute inset-0.5 rounded-md shadow-[inset_0_0_0_3px_rgba(46,92,184,0.75)]" />
                           ) : (
-                            <span className="absolute size-[11px] rounded-full bg-[rgba(116,84,44,0.5)]" />
+                            <span className="absolute rounded-full bg-[rgba(30,58,112,0.35)]" style={{ width: square / 3, height: square / 3 }} />
                           ))}
                       </button>
                     );
@@ -857,127 +713,65 @@ export default function StudentGame() {
               </div>
             </div>
 
-            <button onClick={resetPuzzle} className={`${actionBtn} mt-4 px-[26px] py-2.5 text-sm`}>
-              {t("reset")}
-            </button>
+            <div className="flex flex-col gap-3">
+              <Card>
+                <p className="flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[.12em] text-pp-muted">
+                  <Target className="size-4 text-pp-blue" strokeWidth={2.2} aria-hidden /> {t("yourGoal")}
+                </p>
+                <p className="mt-1.5 font-pp-display text-[17px] font-bold text-pp-ink">
+                  {puzzle
+                    ? t(puzzleGoal(puzzle).key === "mateIn" ? "toMoveGoalMate" : "toMoveGoalBest", {
+                        side: t(puzzle.side === "White" ? "sideWhite" : "sideBlack"),
+                        count: puzzleGoal(puzzle).count,
+                      })
+                    : ""}
+                </p>
+              </Card>
+
+              {/* One slot for what just happened. */}
+              <div className="relative flex min-h-[76px] items-center" aria-live="polite">
+                {solved ? (
+                  <div className="st-enter flex w-full items-center gap-3 rounded-2xl border-[1.5px] border-[#bfe4d8] bg-pp-green-soft px-4 py-3.5">
+                    <span className="st-check-pop flex size-10 shrink-0 items-center justify-center rounded-full bg-pp-green text-white" aria-hidden>
+                      <Check className="size-5" strokeWidth={3} />
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="text-[15px] font-bold text-pp-ink">{ts("puzzleComplete")}</span>
+                      {replay && <span className="text-[13px] font-semibold text-pp-green">{t3("solvedAgain")}</span>}
+                    </span>
+                  </div>
+                ) : message ? (
+                  <p
+                    role="status"
+                    className={`flex w-full items-center gap-2.5 rounded-2xl px-4 py-3.5 text-[15px] font-semibold ${
+                      showWrong ? "st-enter bg-pp-red-soft text-pp-red" : "bg-pp-soft text-pp-ink"
+                    }`}
+                  >
+                    {showWrong ? <X className="size-5 shrink-0" strokeWidth={3} aria-hidden /> : <Check className="size-5 shrink-0 text-pp-green" strokeWidth={3} aria-hidden />}
+                    {message}
+                  </p>
+                ) : null}
+              </div>
+
+              <button type="button" onClick={resetPuzzle} className={`${secondaryPill} w-full`}>
+                <RotateCcw className="size-4" aria-hidden /> {t("reset")}
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       )}
 
-      {/* ---------------- PROFILE ---------------- */}
-      {screen === "profile" && (
-        <div className="absolute inset-x-0 bottom-[72px] top-[48px] overflow-y-auto px-4 pb-5 pt-4 [scrollbar-width:none]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-sv-display text-[27px] font-bold leading-none text-[#10264d]">{t("profile")}</h1>
-              <p className="mt-1.5 text-[10.5px] text-[#7083a3]">{t("profileSub")}</p>
-            </div>
-            <span className="flex items-center gap-1.5 rounded-full border border-[#f1dda8] bg-white px-3 py-1.5 text-[11px] font-bold text-[#10264d] shadow-sm">
-              <Trophy className="size-3.5 text-[#e2a51d]" /> {rating?.value ?? "—"}
-            </span>
-          </div>
+      {screen === "profile" && <ProfileScreen data={data} />}
 
-          <div className="relative mt-4 overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#1f6ae5,#2751bd)] p-4 text-white shadow-[0_12px_28px_rgba(37,99,235,.24)]">
-            <div className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full border-[18px] border-white/5" />
-            <div className="relative flex items-center gap-3">
-              <span className="flex size-12 items-center justify-center rounded-[14px] border-2 border-[#ffd45c] bg-white/10 font-sv-display text-xl font-bold">
-                {name.trim().charAt(0).toUpperCase() || "S"}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[16px] font-bold">{name || "—"}</span>
-                <span className="mt-1 inline-flex rounded-full bg-[#55d6ad]/20 px-2 py-0.5 text-[9px] font-bold text-[#a8f3d8]">
-                  {record?.current_level || t("beginner")}
-                </span>
-                <span className="ml-2 text-[9px] text-white/65">#{studentId || "—"}</span>
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <div className="rounded-[16px] border border-[#f2dfaa] bg-[#fffaf0] px-2 py-3 text-center shadow-sm">
-              <Flame className="mx-auto size-5 text-[#f59e0b]" />
-              <strong className="mt-1 block text-[14px] text-[#10264d]">{streak}</strong>
-              <span className="text-[9px] font-semibold text-[#7083a3]">{t("streakLabel")}</span>
-            </div>
-            <div className="rounded-[16px] border border-[#dce8f8] bg-white px-2 py-3 text-center shadow-sm">
-              <Gamepad2 className="mx-auto size-5 text-[#2563eb]" />
-              <strong className="mt-1 block text-[14px] text-[#10264d]">{solvedCount}</strong>
-              <span className="text-[9px] font-semibold text-[#7083a3]">{t("puzzlesSolvedLabel")}</span>
-            </div>
-            <div className="rounded-[16px] border border-[#eadcf8] bg-[#fbf7ff] px-2 py-3 text-center shadow-sm">
-              <GraduationCap className="mx-auto size-5 text-[#8b5bd7]" />
-              <strong className="mt-1 block truncate text-[12px] text-[#10264d]">{classes ?? "—"}</strong>
-              <span className="text-[9px] font-semibold text-[#7083a3]">{t("classesLabel")}</span>
-            </div>
-          </div>
-
-          <div className="mt-3 rounded-[18px] border border-[#dce8f8] bg-white p-3.5 shadow-[0_7px_20px_rgba(37,99,235,.06)]">
-            <div className="flex items-center gap-2 text-[13px] font-bold text-[#10264d]">
-              <span className="flex size-8 items-center justify-center rounded-xl bg-[#fff2e8]"><Flame className="size-4 text-[#f97316]" /></span>
-              {t("dayStreak", { n: streak })}
-            </div>
-            <p className="ml-10 mt-0.5 text-[9.5px] text-[#8292ad]">{t("streakHint")}</p>
-            {/* The days the pupil actually practised, oldest first, each cell
-                labelled with its own weekday. It used to light the first N of
-                seven from the streak number, which drew a week nobody lived —
-                a three-day streak always showed Mon-Tue-Wed. */}
-            <div className="mt-3 grid grid-cols-7 gap-1.5">
-              {(practice?.days ?? []).map((day) => {
-                const weekday = new Date(day.date + "T00:00:00").getDay();
-                return (
-                  <span key={day.date} className="flex flex-col items-center gap-1">
-                    <span className={`flex aspect-square w-full items-center justify-center rounded-[9px] text-[10px] font-bold ${day.practised ? "bg-[#fb812a] text-white" : "border border-[#e1e9f4] bg-[#f8fbff] text-[#a0aec0]"}`}>
-                      {day.practised ? <Check className="size-3.5" strokeWidth={3} /> : Number(day.date.slice(8))}
-                    </span>
-                    <span className="text-[8px] font-semibold text-[#8b9ab1]">
-                      {t(`weekday.${(weekday + 6) % 7}`)}
-                    </span>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-3"><LichessCard /></div>
-
-          <SignOutButton className="mt-3 flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] border border-[#dce8f8] bg-white text-[12px] font-bold text-[#2563eb] shadow-sm transition active:translate-y-px">
-            <LogOut className="size-4" /> {tc("signOut")}
-          </SignOutButton>
-          </div>
-      )}
-
-      {/* All-solved celebration overlay */}
       {celebrate && (
-        <button
-          onClick={() => {
+        <DailyCompleteDialog
+          onHome={() => {
             setCelebrate(false);
-            setScreen("puzzles");
+            go("home");
           }}
-          className="absolute inset-0 z-20 flex cursor-pointer flex-col items-center justify-center border-none bg-[rgba(109,61,52,0.55)]"
-        >
-          <span className="mb-[18px] font-sv-display text-[30px] text-white">{t("allSolved")}</span>
-          <span className="flex gap-[18px]">
-            {[0, 150, 300].map((delay) => (
-              <span
-                key={delay}
-                className="flex size-[70px] items-center justify-center"
-                style={{ animation: `sv-fish-zoom 900ms ease-in-out ${delay}ms infinite alternate` }}
-              >
-                <PuzzlePieceIcon fill="#fff" size={54} />
-              </span>
-            ))}
-          </span>
-          <span className="mt-5 text-sm font-bold text-[rgba(255,255,255,0.85)]">{t("tapToContinue")}</span>
-        </button>
+          onMore={openFreePlay}
+        />
       )}
-
-      <nav className="absolute inset-x-0 bottom-0 z-10 grid h-[72px] grid-cols-5 border-t border-[#e1eaf6] bg-white px-2 pb-1 shadow-[0_-8px_24px_rgba(37,99,235,.04)]">
-        <button type="button" onClick={() => go("home")} className={`flex cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent text-[8.5px] font-semibold ${screen === "home" ? "text-[#2563eb]" : "text-[#91a2bc]"}`}><Home className="size-[18px]" strokeWidth={screen === "home" ? 2.6 : 2} />{t("home")}</button>
-        <button type="button" onClick={() => go("puzzles")} className={`flex cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent text-[8.5px] font-semibold ${screen === "puzzles" || screen === "puzzle" ? "text-[#2563eb]" : "text-[#91a2bc]"}`}><Puzzle className="size-[18px]" strokeWidth={screen === "puzzles" || screen === "puzzle" ? 2.6 : 2} />{t("puzzles")}</button>
-        <Link href="/student/challenge" className="flex flex-col items-center justify-center gap-1 text-[8.5px] font-semibold text-[#91a2bc]"><Swords className="size-[18px]" strokeWidth={2} />{tch("title")}</Link>
-        <Link href="/student/play" className="flex flex-col items-center justify-center gap-1 text-[8.5px] font-semibold text-[#91a2bc]"><Gamepad2 className="size-[18px]" strokeWidth={2} />{tp("title")}</Link>
-        <button type="button" onClick={() => go("profile")} className={`flex cursor-pointer flex-col items-center justify-center gap-1 border-none bg-transparent text-[8.5px] font-semibold ${screen === "profile" ? "text-[#2563eb]" : "text-[#91a2bc]"}`}><UserRound className="size-[18px]" strokeWidth={screen === "profile" ? 2.6 : 2} />{t("profile")}</button>
-      </nav>
     </div>
   );
 }

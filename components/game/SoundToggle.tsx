@@ -18,7 +18,7 @@ export function SoundToggle({ className = "" }: { className?: string }) {
       aria-label={label}
       title={label}
       aria-pressed={on}
-      className={`flex size-9 cursor-pointer items-center justify-center rounded-full border border-[#dce8f8] bg-white text-[#60779c] shadow-sm ${className}`}
+      className={`flex size-9 cursor-pointer items-center justify-center rounded-full border-[1.5px] border-pp-line bg-pp-card text-pp-muted transition-colors hover:bg-pp-soft ${className}`}
     >
       {on ? <Volume2 className="size-[18px]" strokeWidth={2.4} /> : <VolumeX className="size-[18px]" strokeWidth={2.4} />}
     </button>

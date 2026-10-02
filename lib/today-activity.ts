@@ -1,6 +1,9 @@
 /* Today's Activity on the parent's Children screen: minutes practised and
    Daily Challenge puzzles solved today, per child, from `practice_activity`. */
 
+/** The daily set's size — the server's `dailyCount`. */
+export const DAILY_PUZZLES = 3;
+
 /** One child's row in Today's Activity. */
 export interface TodayActivity {
   child: string;
@@ -8,7 +11,9 @@ export interface TodayActivity {
   mins: number;
   /** Daily Challenge puzzles solved today — the Challenge column. */
   puzzles: number;
-  /** Half an hour or more: the ring is full. */
+  /** Of today's daily set, how many are solved (0 to DAILY_PUZZLES): the ring. */
+  daily: number;
+  /** The whole daily set solved: the ring is full and green. */
   done: boolean;
 }
 
@@ -21,5 +26,7 @@ export interface TodayActivity {
  */
 export function todayActivityOf(child: string, row: Record<string, unknown> | undefined): TodayActivity {
   const mins = Number(row?.minutes_practiced ?? 0);
-  return { child, mins, puzzles: Number(row?.puzzles_completed ?? 0), done: mins >= 30 };
+  const puzzles = Number(row?.puzzles_completed ?? 0);
+  const daily = Math.max(0, Math.min(DAILY_PUZZLES, puzzles));
+  return { child, mins, puzzles, daily, done: daily >= DAILY_PUZZLES };
 }

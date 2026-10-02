@@ -2,6 +2,9 @@
    The shapes come from the JTrax Parent design port; the data behind them is
    real backend rows, joined in components/parent/ParentData.tsx. */
 
+import type { CourseCredit } from "./course-credits";
+import type { CreditLifetime } from "./credit-lifetime";
+
 export type ChildKey = string;
 
 export interface ChildV2 {
@@ -28,6 +31,12 @@ export interface ChildV2 {
       behind "used" ("4 / 20 credits used"), which is history rather than a
       quota; the child screen still shows the balance alone. */
   creditsBought: number;
+  /** The balance right after the latest top-up — the "of" in "18 / 20". */
+  creditsOf: number | null;
+  /** Each active course's own balance and expiry. */
+  courses: CourseCredit[];
+  /** All-time, across every course: credits bought, and credits classes used. */
+  lifetime: CreditLifetime;
   /** Latest expiry date on the ledger, formatted, or "—" when none is set. */
   valid: string;
   daysLeft: number;
@@ -44,6 +53,8 @@ export interface ChildV2 {
     figure is the academy's own, `certificate_sessions` in
     `system_configuration`, edited on the console's Settings screen. */
 export const CERT_SESSIONS = 50;
+/** The console's default low-credit line, until the academy saves its own. */
+export const LOW_CREDIT_AT = 3;
 
 export type SenderKind = "teacher" | "branch" | "admin";
 
@@ -122,6 +133,8 @@ export interface TournamentV2 {
   day: string;
   fee: string;
   closesInDays: number;
+  /** The organiser uploaded a banner; without one the card draws its own. */
+  hasBanner: boolean;
 }
 
 /** One attendance row joined to its session, for the history lists. */
@@ -134,6 +147,9 @@ export interface HistRow {
   /** The session's own class — not the child's current one, which would
       relabel every old row the day the child changes class. */
   cls: string;
+  /** Credits this visit cost (positive), from its consumption entries; 0 when
+      nothing was charged. */
+  credits: number;
 }
 
 /* ---- calendar months ----

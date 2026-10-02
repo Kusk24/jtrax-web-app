@@ -25,16 +25,26 @@ export function PublicShell({
   title,
   subtitle,
   wide = false,
+  hero,
+  titleHidden = false,
+  footer,
 }: {
   children: ReactNode;
   title: string;
   subtitle?: string;
   wide?: boolean;
+  /** A banner above the heading — the tournament's own. */
+  hero?: ReactNode;
+  /** The hero already shows the title; keep it for screen readers only. */
+  titleHidden?: boolean;
+  /** The academy's contact footer (SiteFooter), when the page has fetched it. */
+  footer?: ReactNode;
 }) {
   return (
     <div className={`${dmSans.variable} ${poppins.variable} min-h-dvh bg-pp-mist font-pp-sans text-pp-ink`}>
       <main className={`mx-auto w-full px-4 py-8 sm:px-6 sm:py-10 ${wide ? "max-w-5xl" : "max-w-3xl"}`}>
-        <header className={`mb-6 ${wide ? "text-left" : "text-center"}`}>
+        {hero && <div className="mb-4">{hero}</div>}
+        <header className={titleHidden ? "sr-only" : `mb-6 ${wide ? "text-left" : "text-center"}`}>
           {/* pp-sub, not pp-muted: this sits on the mist background, where
               pp-muted measures 4.49:1 and misses the 4.5:1 floor by a hair. */}
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-pp-sub">
@@ -47,9 +57,11 @@ export function PublicShell({
         </header>
         {children}
       </main>
-      <footer className="pb-8 text-center text-xs text-pp-sub">
-        JCA Chess Academy
-      </footer>
+      {footer ?? (
+        <footer className="pb-8 text-center text-xs text-pp-sub">
+          JCA Chess Academy
+        </footer>
+      )}
     </div>
   );
 }

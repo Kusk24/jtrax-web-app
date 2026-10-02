@@ -3,7 +3,7 @@ import { DM_Sans, Poppins } from "next/font/google";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ParentAccountChip, ParentBottomNav2, ParentSideNav } from "@/components/parent/ParentNav2";
+import { ParentBottomNav2, ParentSideNav } from "@/components/parent/ParentNav2";
 import { ParentDataProvider } from "@/components/parent/ParentData";
 import { SESSION_COOKIE, fetchMeOrDown } from "@/lib/session";
 
@@ -69,15 +69,12 @@ export default async function ParentLayout({
         <div className="mx-auto flex min-h-dvh w-full max-w-[410px] md:max-w-[760px] flex-col bg-pp-card shadow-[0_0_0_1px_rgba(35,53,94,.06),0_30px_80px_rgba(35,53,94,.18)] lg:max-w-none lg:flex-row">
           <ParentSideNav />
           <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
-            {/* One top bar on every screen, as the console has: alerts and the
-                account, right-aligned. The home screen used to carry its own
-                bell and avatar, which put a second profile button on the page
-                once this bar existed. */}
-            <div className="flex items-center justify-between gap-2 bg-pp-bg px-4 pt-4 lg:px-6">
-              <span className="text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue lg:hidden">JTrax — Parent</span>
-              <div className="flex items-center gap-2"><ParentAccountChip /></div>
+            {/* A slim label on phones only; the sidebar carries the brand on
+                wide screens. The bell lives on the home greeting's row. */}
+            <div className="bg-pp-bg px-4 pt-2.5 text-center lg:hidden">
+              <span className="text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue">JTrax — Parent</span>
             </div>
-            <main className="flex-1 bg-pp-bg px-4 pb-10 pt-4 lg:px-6 lg:pt-5">{children}</main>
+            <main className="flex-1 bg-pp-bg px-4 pb-10 pt-2.5 lg:px-6 lg:pt-6">{children}</main>
             <ParentBottomNav2 />
           </div>
         </div>

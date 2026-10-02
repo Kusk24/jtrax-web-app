@@ -1,71 +1,62 @@
 "use client";
 
-/* The phone frame the play screens share, matching StudentGame's 390×844 room.
-   Kept separate from StudentGame because that component holds its screens in
-   state, and a game deserves a URL — a player reloading mid-game should land
-   back at the board, not at the home screen. */
+/* The page frame the play screens share: the portal's title row and the
+   content under it. The navigation is the student layout's, so it is not
+   drawn here. Kept separate from StudentGame because a game deserves a URL —
+   a player reloading mid-game should land back at the board. */
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import { SoundToggle } from "./SoundToggle";
-import { StudentBottomNav } from "./StudentBottomNav";
 
 export const actionBtn =
-  "cursor-pointer rounded-[20px] border-none bg-sv-primary font-bold text-white shadow-[inset_0_0_0_1.25px_rgb(27,50,96),0_0_0_1.25px_rgb(27,50,96)] disabled:opacity-60";
+  "cursor-pointer rounded-full border-none bg-pp-blue font-semibold text-white transition-colors hover:bg-pp-deep disabled:cursor-not-allowed disabled:bg-pp-faint";
 
 export function PlayShell({
   title,
   back = "/student",
   nav = false,
+  wide = false,
   children,
 }: {
   title: string;
   back?: string;
-  /** Show the portal's bottom bar, which also means this screen *is* one of
-      its tabs. A tab is not somewhere you arrived from, so it gets no back
-      arrow — the bar is how you leave. Mid-game screens leave the bar off and
-      take the arrow instead, because a board wants the whole phone. */
+  /** This screen is one of the portal's tabs. A tab is not somewhere you
+      arrived from, so it gets no back arrow — the nav is how you leave. */
   nav?: boolean;
+  /** Let the content use the page's width (a board beside its panels);
+      otherwise it sits in a readable column. */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   const tCommon = useTranslations("common");
   return (
-    <div className="sv-frame">
-    <div className="relative flex h-[844px] w-[390px] flex-col overflow-hidden bg-[#f8fbff] text-[#10264d] sm:rounded-[32px] sm:shadow-[0_24px_70px_rgba(30,64,175,.22)]">
-      <div className="pointer-events-none absolute -right-16 -top-12 size-[220px] rounded-full bg-[radial-gradient(circle,#dbeafe_0%,rgba(219,234,254,0)_70%)]" />
-      <div className="absolute inset-x-0 top-0 flex h-[44px] items-end justify-center pb-1 text-[10px] font-semibold text-[#60779c]">JTrax — Student</div>
-
-      <header className="relative z-10 flex items-center gap-3 px-4 pt-[48px]">
-        {/* Only a pushed screen goes back. Challenge and Play are tabs on the
-            bar below, and an arrow there offered to "return" to a place the
-            child had not come from. */}
+    <div className="flex flex-col gap-4">
+      {/* The same header as every portal page: a left-aligned display title,
+          with the back arrow only on a screen that was pushed. */}
+      <header className="flex items-center gap-3">
         {!nav && (
           <Link
             href={back}
             aria-label={tCommon("back")}
-            className="flex size-9 items-center justify-center rounded-full border border-[#dce8f8] bg-white text-[#60779c] shadow-sm"
+            className="flex size-[38px] flex-none items-center justify-center rounded-xl border-[1.5px] border-pp-line bg-pp-card text-pp-ink hover:bg-pp-soft"
           >
-            <ArrowLeft className="size-[18px]" strokeWidth={2.5} />
+            <ArrowLeft className="size-[18px]" strokeWidth={2.2} />
           </Link>
         )}
-        <h1 className="font-sv-display text-[27px] font-bold text-[#10264d]">{title}</h1>
+        <h1 className="m-0 font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">{title}</h1>
         <SoundToggle className="ml-auto" />
       </header>
-
-      <div className={`relative z-10 flex flex-1 flex-col overflow-y-auto px-4 pt-4 ${nav ? "pb-[88px]" : "pb-6"}`}>
-        {children}
-      </div>
-      {nav && <StudentBottomNav />}
-    </div>
+      <div className={`flex w-full flex-col gap-4 ${wide ? "" : "max-w-[640px]"}`}>{children}</div>
     </div>
   );
 }
 
-/* A soft card on the wooden floor — used for status, results and forms. */
+/* A card, as the parent portal draws one — used for status, results and forms. */
 export function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`rounded-[18px] border border-[#dce8f8] bg-white p-4 shadow-[0_7px_20px_rgba(37,99,235,.06)] ${className}`}
+      className={`rounded-2xl border-[1.5px] border-pp-line bg-pp-card p-[18px] ${className}`}
     >
       {children}
     </div>

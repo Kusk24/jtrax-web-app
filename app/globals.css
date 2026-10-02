@@ -324,3 +324,161 @@ button:active {
   --color-pp-bd-b: #0F1729;
   }
 }
+
+/* ---- student portal on the admin console's design (jtrax-admin/DESIGN.md) ----
+   Same palette as the console: #1A2B4A text, #5C6880 secondary text, and the
+   older `sv-*` student inks folded into those two so every screen reads alike.
+   Scoped to the student shell so the parent portal is untouched. */
+.student-shell {
+  --color-sv-ink: var(--color-pp-ink);
+  --color-sv-body: var(--color-pp-muted);
+  --color-sv-primary: var(--color-pp-blue);
+}
+
+/* The console's focus ring: 2px blue, 2px clear of the control. */
+.student-shell :focus-visible {
+  outline: 2px solid var(--color-pp-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-shell * {
+    transition: none !important;
+    animation: none !important;
+  }
+  .student-shell *:hover {
+    transform: none !important;
+  }
+}
+
+/* The console has no press-shrink on buttons; neither does the student shell. */
+.student-shell a:active,
+.student-shell button:active {
+  transform: none;
+}
+
+/* ---- student portal motion ----
+   Short, one-shot and purposeful: nothing here loops. Each runs once when the
+   thing it marks happens (a page opens, points are earned, a badge unlocks),
+   and all of it is switched off under prefers-reduced-motion by the
+   `.student-shell *` rule above. */
+@keyframes st-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes st-badge-reveal {
+  0% { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+  60% { opacity: 1; transform: scale(1.08) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes st-check-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.st-enter { animation: st-enter 260ms ease-out both; }
+.st-badge-reveal { animation: st-badge-reveal 520ms cubic-bezier(.2,.9,.3,1.2) both; }
+.st-check-pop { animation: st-check-pop 380ms ease-out both; }
+
+
+/* ---- student portal accents, light and dark ----
+   The few colours the student screens use beyond the pp palette — the Daily
+   Challenge card's light blue, the friend/streak orange and the star/trophy
+   gold — as tokens with a dark value, so Appearance (Auto / Light / Dark)
+   turns them too. Dark applies from the shell's data-theme, as the pp tokens
+   do. */
+@theme {
+  --color-st-hero: #dce5f7;
+  --color-st-orange: #ea580c;
+  --color-st-orange-soft: #fff7ed;
+  --color-st-orange-line: #ffedd5;
+  --color-st-gold: #d97706;
+  --color-st-gold-soft: #fffbeb;
+}
+[data-theme="dark"] {
+  --color-st-hero: #1a2844;
+  --color-st-orange: #fb923c;
+  --color-st-orange-soft: #3f2410;
+  --color-st-orange-line: #5a3312;
+  --color-st-gold: #fbbf24;
+  --color-st-gold-soft: #3d300e;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --color-st-hero: #1a2844;
+    --color-st-orange: #fb923c;
+    --color-st-orange-soft: #3f2410;
+    --color-st-orange-line: #5a3312;
+    --color-st-gold: #fbbf24;
+    --color-st-gold-soft: #3d300e;
+  }
+}
+
+/* ---- student Home: the design's colours for the Daily Challenge card, the
+   game tiles and the practice card — light as the design has them, dark
+   values so nothing stays light blue in dark mode. ---- */
+@theme {
+  --color-st-brand: #254edb;
+  --color-st-brand-deep: #1d3fa8;
+  --color-st-brand-ink: #0f1e54;
+  --color-st-brand-soft: #eef2ff;
+  --color-st-brand-line: #e0e7ff;
+  --color-st-hero-a: #ebf2ff;
+  --color-st-hero-b: #e4eeff;
+  --color-st-hero-c: #dde9ff;
+  --color-st-hero-line: #cfdffc;
+  --color-st-ring: #c7dcfd;
+  --color-st-indigo: #4f46e5;
+  --color-st-indigo-soft: #f3f5ff;
+  --color-st-indigo-line: #e0e7ff;
+  --color-st-amber: #d97706;
+  --color-st-amber-soft: #fffcf2;
+  --color-st-amber-line: #fef3c7;
+  --color-st-emerald: #059669;
+  --color-st-emerald-soft: #f1fdf7;
+  --color-st-emerald-line: #d1fae5;
+}
+[data-theme="dark"] {
+  --color-st-brand: #5b7cf0;
+  --color-st-brand-deep: #9db2ff;
+  --color-st-brand-ink: #e7edfa;
+  --color-st-brand-soft: #1f2a4d;
+  --color-st-brand-line: #2e3a66;
+  --color-st-hero-a: #1a2844;
+  --color-st-hero-b: #1b2a48;
+  --color-st-hero-c: #1d2d4e;
+  --color-st-hero-line: #2a3a5c;
+  --color-st-ring: #2a3a5c;
+  --color-st-indigo: #a5b4fc;
+  --color-st-indigo-soft: #1f2447;
+  --color-st-indigo-line: #2e3566;
+  --color-st-amber: #fbbf24;
+  --color-st-amber-soft: #33270f;
+  --color-st-amber-line: #4e3a1b;
+  --color-st-emerald: #6ee7b7;
+  --color-st-emerald-soft: #12302a;
+  --color-st-emerald-line: #1d4a38;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --color-st-brand: #5b7cf0;
+    --color-st-brand-deep: #9db2ff;
+    --color-st-brand-ink: #e7edfa;
+    --color-st-brand-soft: #1f2a4d;
+    --color-st-brand-line: #2e3a66;
+    --color-st-hero-a: #1a2844;
+    --color-st-hero-b: #1b2a48;
+    --color-st-hero-c: #1d2d4e;
+    --color-st-hero-line: #2a3a5c;
+    --color-st-ring: #2a3a5c;
+    --color-st-indigo: #a5b4fc;
+    --color-st-indigo-soft: #1f2447;
+    --color-st-indigo-line: #2e3566;
+    --color-st-amber: #fbbf24;
+    --color-st-amber-soft: #33270f;
+    --color-st-amber-line: #4e3a1b;
+    --color-st-emerald: #6ee7b7;
+    --color-st-emerald-soft: #12302a;
+    --color-st-emerald-line: #1d4a38;
+  }
+}

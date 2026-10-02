@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { useParentData } from "@/components/parent/ParentData";
 import { useTranslations } from "next-intl";
 import { Bell, ClipboardCheck, Home, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
@@ -27,7 +26,7 @@ const tabs: Tab[] = [
   },
   {
     href: "/parent/attendance",
-    labelKey: "navChildren",
+    labelKey: "navAttendance",
     icon: ClipboardCheck,
     aliases: ["/parent/child"],
   },
@@ -120,34 +119,21 @@ export function ParentBottomNav2() {
   );
 }
 
-/** The signed-in parent, in the top-right corner — where the console puts its
-    account chip. It was at the foot of the sidebar, which is where the console
-    keeps Logout, so the two apps disagreed about what lives in that corner. */
-export function ParentAccountChip() {
+/** The notification bell. It sits on the home greeting's row; the account
+    chip that used to share the top bar with it is gone — Profile is a tab. */
+export function ParentBell() {
   const t = useTranslations("pv2");
-  const { parent, parentId, unreadNotifs } = useParentData();
+  const { unreadNotifs } = useParentData();
   return (
-    <>
-      <Link
-        href="/parent/notifications"
-        aria-label={t("notificationsTitle")}
-        className="relative flex size-[38px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-pp-card hover:bg-pp-soft"
-      >
-        <Bell className="size-[18px] text-pp-ink" strokeWidth={1.8} />
-        {unreadNotifs > 0 && (
-          <span className="absolute right-2 top-2 size-[9px] rounded-full border-2 border-pp-card bg-pp-red" />
-        )}
-      </Link>
-      <Link
-        href="/parent/profile"
-        className="flex items-center gap-2.5 rounded-full border-[1.5px] border-pp-line bg-pp-card py-1.5 pl-1.5 pr-3.5 hover:bg-pp-mist"
-      >
-        <ParentAvatar className="size-8 flex-none rounded-full text-sm" />
-        <span className="flex min-w-0 flex-col">
-          <span className="truncate text-[12.5px] font-semibold text-pp-ink">{parent.name}</span>
-          <span className="truncate text-[10px] text-pp-muted">{t("roleParent")} · {parentId}</span>
-        </span>
-      </Link>
-    </>
+    <Link
+      href="/parent/notifications"
+      aria-label={t("notificationsTitle")}
+      className="relative flex size-[38px] flex-none items-center justify-center rounded-full border-[1.5px] border-pp-line bg-pp-card hover:bg-pp-soft"
+    >
+      <Bell className="size-[18px] text-pp-ink" strokeWidth={1.8} />
+      {unreadNotifs > 0 && (
+        <span className="absolute right-2 top-2 size-[9px] rounded-full border-2 border-pp-card bg-pp-red" />
+      )}
+    </Link>
   );
 }

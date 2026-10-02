@@ -1,12 +1,13 @@
 "use client";
 
+import { CourseCard } from "@/components/parent/CourseCard";
+import { AttendanceRow } from "@/components/parent/AttendanceRow";
 import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Check, Flame, Star } from "lucide-react";
-import { PawnIcon } from "@/components/PawnIcon";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
@@ -21,19 +22,10 @@ export default function ChildProfileV2({
   const t = useTranslations("pv2");
   const router = useRouter();
   const { childId } = use(params);
-  const { children: kids, hist, certSessions } = useParentData();
+  const { children: kids, hist } = useParentData();
   const [hover, setHover] = useState<number | null>(null);
   const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
-
-  const hasExpiry = ch.valid !== "—";
-  /* Three states, not two: a date that has already passed is expired, and
-     saying "expires soon · 0 days" about it understates what happened. */
-  const expired = hasExpiry && !ch.expiresAhead;
-  const expSoon = hasExpiry && ch.expiresAhead && ch.daysLeft <= 14;
-  /* Progress toward the certificate — the milestone is the academy's own,
-     from Settings, not a number this app knows. */
-  const toCert = Math.max(0, certSessions - ch.attended);
 
   /* This-week practice line chart */
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -84,51 +76,6 @@ export default function ChildProfileV2({
             {ch.age > 0 ? ` · ${ch.age}` : ""}
           </span>
         </div>
-      </div>
-
-      {/* Credits gradient card */}
-      <div className="flex flex-col gap-3 rounded-[14px] bg-[linear-gradient(150deg,var(--color-pp-deep),#1B3A73)] p-5 text-[#fbfff1] shadow-[0_12px_30px_rgba(27,58,115,.25)]">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-[.12em] text-[#b4c5e4]">
-            {t("remainingCredits")}
-          </span>
-          {/* The balance alone. A "/ total bought" used to sit beside it, and
-              it read as a quota when it is only history: every top-up and
-              every balance moved in from another class made it grow, so the
-              figure got bigger for ever and doubled after a class change. */}
-          <span className="font-pp-display text-[34px] font-semibold leading-none">
-            {ch.credits}
-          </span>
-        </div>
-        <div
-          className="flex items-center justify-between gap-2.5 rounded-[13px] px-3.5 py-2.5"
-          style={{ background: expSoon || expired ? "var(--color-pp-danger-soft)" : "rgba(251,255,241,.12)" }}
-        >
-          <div className="flex flex-col gap-0.5">
-            <span
-              className="text-[12.5px] font-bold"
-              style={{ color: expSoon || expired ? "var(--color-pp-danger)" : "#fbfff1" }}
-            >
-              {expired ? t("expired") : expSoon ? t("expiresSoon") : t("validUntil")}
-            </span>
-            <span className="text-[11px]" style={{ color: expSoon || expired ? "var(--color-pp-amber)" : "#b4c5e4" }}>
-              {ch.valid}
-            </span>
-          </div>
-          {hasExpiry && ch.expiresAhead && (
-            <span
-              className="flex-none font-pp-display text-[19px] font-semibold"
-              style={{ color: expSoon ? "var(--color-pp-danger)" : "#fbfff1" }}
-            >
-              {t("daysLeftShort", { count: ch.daysLeft })}
-            </span>
-          )}
-        </div>
-        {hasExpiry && (
-          <span className="text-[10.5px] leading-relaxed text-[#b4c5e4]">
-            {t("creditsExpireNote", { date: ch.valid })}
-          </span>
-        )}
       </div>
 
       {/* Practice progress */}
@@ -205,67 +152,35 @@ export default function ChildProfileV2({
         </div>
       </div>
 
-      {/* Enrolled classes */}
-      <div className="flex flex-col gap-3">
-        <span className={label}>{t("enrolledClasses")}</span>
-        <div className="flex flex-col gap-4 rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 flex-none items-center justify-center rounded-xl bg-pp-mist text-pp-ink">
-              <PawnIcon className="size-[17px]" />
+      {/* Enrolled classes: one card holding a row per course, each with its
+          own credits, expiry and start date. */}
+      <div className="flex flex-col gap-3 rounded-xl bg-pp-card p-4 shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+        <div className="flex items-center justify-between px-0.5">
+          <span className="font-pp-display text-[17px] font-bold text-pp-ink">{t("enrolledClasses")}</span>
+          {ch.courses.length > 0 && (
+            <span className="text-[12.5px] font-semibold text-pp-blue">
+              {t("classesCount", { count: ch.courses.length })}
             </span>
-            <div className="flex flex-1 flex-col gap-0.5">
-              <span className="text-sm font-semibold">{ch.clsTitle}</span>
-            </div>
+          )}
+        </div>
+        {/* All time, across every course: what was bought and what classes used. */}
+        <div className="grid grid-cols-2 gap-2.5">
+          <div className="flex flex-col gap-0.5 rounded-xl bg-pp-soft px-3.5 py-3">
+            <span className="text-[10.5px] font-bold uppercase tracking-[.08em] text-pp-blue">{t("creditsBoughtTotal")}</span>
+            <span className="font-pp-display text-[20px] font-bold leading-tight text-pp-ink">{ch.lifetime.bought}</span>
           </div>
-          {/* Branch, room, a teacher's name and an upcoming-session line all
-              used to sit here. The first three were invented on the client —
-              the backend has no room or branch column and no teacher-to-class
-              link — and the schedule went too: sessions are written one at a
-              time by the desk, so "the next class" is not a plan a parent can
-              rely on. */}
-          <div className="grid grid-cols-2 gap-x-3.5 gap-y-2.5">
-            {(
-              [
-                [t("creditsExpire"), ch.valid, expSoon || expired],
-                [t("levelLabel"), ch.level || "—", false],
-                [t("enrolledSince"), ch.enrolledSince || "—", false],
-              ] as const
-            ).map(([k, v, danger]) => (
-              <div key={k} className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-[.1em] text-pp-faint">{k}</span>
-                <span className={`text-[12.5px] font-semibold ${danger ? "text-pp-danger" : "text-pp-ink"}`}>{v}</span>
-              </div>
-            ))}
-          </div>
-          {/* Progress toward the 50-class certificate — a milestone that only
-              moves forward, unlike the credit totals and session counts that
-              used to be here and grew or shrank with every purchase. */}
-          <div className="flex items-center gap-3.5 rounded-[13px] border-[1.5px] border-pp-soft bg-pp-mist px-3.5 py-3">
-            <div className="flex min-w-[78px] flex-none flex-col">
-              <span className="font-pp-display text-[32px] font-bold leading-none text-pp-blue">
-                {ch.attended}
-              </span>
-              <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
-                {t("classesAttended")}
-              </span>
-            </div>
-            <div className="flex flex-1 flex-col gap-1.5">
-              <div className="flex justify-between text-[11px] text-pp-muted">
-                <span>{t("attendedOf", { attended: ch.attended, total: certSessions })}</span>
-                <span>{t("remainingOf", { count: toCert })}</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-pp-soft">
-                <div
-                  className="h-full rounded-full bg-pp-blue"
-                  style={{ width: `${Math.min(100, Math.round((ch.attended / certSessions) * 100))}%` }}
-                />
-              </div>
-              <span className="text-[10.5px] text-pp-faint">
-                {t("certNote", { count: certSessions })}
-              </span>
-            </div>
+          <div className="flex flex-col gap-0.5 rounded-xl bg-pp-mist px-3.5 py-3">
+            <span className="text-[10.5px] font-bold uppercase tracking-[.08em] text-pp-muted">{t("creditsUsedTotal")}</span>
+            <span className="font-pp-display text-[20px] font-bold leading-tight text-pp-ink">{ch.lifetime.used}</span>
           </div>
         </div>
+        {ch.courses.length > 0 ? (
+          ch.courses.map((course, i) => <CourseCard key={course.enrollmentId} course={course} index={i} />)
+        ) : (
+          <div className="rounded-xl border-[1.5px] border-dashed border-pp-dash p-4 text-center text-[12.5px] text-pp-muted">
+            {t("noActiveCourse")}
+          </div>
+        )}
       </div>
 
       {/* Attendance history preview */}
@@ -281,21 +196,7 @@ export default function ChildProfileV2({
             <div className="px-4 py-5 text-center text-[12.5px] text-pp-muted">{t("noSessions")}</div>
           )}
           {histRows.map((h, i) => (
-            <div key={i} className="flex items-center justify-between gap-2.5 border-b border-pp-panel px-4 py-3.5 last:border-0">
-              <div className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-[12.5px] font-semibold">{h.cls}</span>
-                <span className="text-[11px] text-pp-muted">{h.date} · {h.time}</span>
-              </div>
-              <span
-                className="flex-none rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em]"
-                style={{
-                  background: h.status === "Present" ? "var(--color-pp-green-soft)" : "var(--color-pp-danger-soft)",
-                  color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
-                }}
-              >
-                {h.status === "Present" ? t("present") : t("absent")}
-              </span>
-            </div>
+            <AttendanceRow key={i} h={h} />
           ))}
         </div>
       </div>

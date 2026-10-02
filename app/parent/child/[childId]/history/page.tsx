@@ -1,10 +1,12 @@
 "use client";
 
+import { AttendanceRow } from "@/components/parent/AttendanceRow";
 import { use, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CURRENT } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
+import { CourseFilter, CreditsUsed, coursesOf, usedCredits } from "@/components/parent/CourseFilter";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
@@ -19,29 +21,38 @@ export default function ChildHistoryV2({
   const { children: kids, att: ATT, hist, months } = useParentData();
   const [month, setMonth] = useState(CURRENT);
   const [sel, setSel] = useState<{ m: number; d: number } | null>(null);
+  const [course, setCourse] = useState("");
   const ch = kids.find((c) => c.key === childId);
   if (!ch) notFound();
+
+  /* This child's rows, then the chosen course; the total is all time. */
+  const mine = hist.filter((h) => h.child === ch.key);
+  const courseList = coursesOf(mine);
+  const activeCourse = courseList.includes(course) ? course : "";
+  const shown = mine.filter((h) => !activeCourse || h.cls === activeCourse);
 
   const M = months[month];
   const rec = ATT[ch.key]?.[month] ?? { present: [], absent: [] };
   const todayDate = new Date().getDate();
+  const prefix = `${M.year}-${String(M.month + 1).padStart(2, "0")}`;
+  const courseDays = new Set(
+    shown.filter((h) => h.status === "Present" && h.iso.startsWith(prefix)).map((h) => Number(h.iso.slice(8, 10))),
+  );
 
   const cells: { d: number | null; present: boolean; today: boolean; selected: boolean }[] = [];
   for (let i = 0; i < M.offset; i++) cells.push({ d: null, present: false, today: false, selected: false });
   for (let d = 1; d <= M.days; d++) {
     cells.push({
       d,
-      present: rec.present.includes(d),
+      present: activeCourse ? courseDays.has(d) : rec.present.includes(d),
       today: month === CURRENT && d === todayDate,
       selected: sel?.m === month && sel?.d === d,
     });
   }
 
   /* The month's real attendance rows, each with its session's own times. */
-  const prefix = `${M.year}-${String(M.month + 1).padStart(2, "0")}`;
-  const rows = hist.filter((h) =>
-    h.child === ch.key
-    && h.iso.startsWith(prefix)
+  const rows = shown.filter((h) =>
+    h.iso.startsWith(prefix)
     && (!sel || Number(h.iso.slice(8, 10)) === sel.d));
 
   return (
@@ -116,30 +127,18 @@ export default function ChildHistoryV2({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 rounded-xl border-[1.5px] border-pp-soft bg-pp-mist px-4 py-4">
-          <div className="flex min-w-[64px] flex-none flex-col">
-            <span className="font-pp-display text-[30px] font-bold leading-none text-pp-blue">
-              {rec.present.length}
-            </span>
-            <span className="mt-1 text-[10px] font-bold uppercase tracking-[.08em] text-pp-blue">
-              {t("classesThisMonth")}
-            </span>
-          </div>
-          <div className="flex flex-1 justify-end gap-4">
-            <div className="flex flex-col items-center">
-              <span className="font-pp-display text-xl font-semibold text-pp-green">
-                {rec.present.length}
-              </span>
-              <span className="text-[10.5px] text-pp-muted">{t("present")}</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="flex flex-col gap-3">
-        <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
-          {t("history")}
-        </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex-none text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
+            {t("history")}
+          </span>
+          <span className="ml-auto flex min-w-0 items-center gap-2">
+            <CreditsUsed used={usedCredits(shown)} />
+            <CourseFilter courses={courseList} value={activeCourse} onChange={setCourse} align="right" />
+          </span>
+        </div>
         {rows.length === 0 && (
           <div className="rounded-xl border-[1.5px] border-dashed border-pp-dash p-5 text-center text-[12.5px] text-pp-muted">
             ♞ {t("noSessions")}
@@ -148,21 +147,7 @@ export default function ChildHistoryV2({
         {rows.length > 0 && (
           <div className="overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
             {rows.map((h, i) => (
-              <div key={i} className="flex items-center justify-between gap-2.5 border-b border-pp-panel px-4 py-3.5 last:border-0">
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="text-[13px] font-semibold">{h.cls}</span>
-                  <span className="text-[11.5px] text-pp-muted">{h.date} · {h.time}</span>
-                </div>
-                <span
-                  className="flex-none rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[.08em]"
-                  style={{
-                    background: h.status === "Present" ? "var(--color-pp-green-soft)" : "var(--color-pp-danger-soft)",
-                    color: h.status === "Present" ? "var(--color-pp-green)" : "var(--color-pp-danger)",
-                  }}
-                >
-                  {h.status === "Present" ? t("present") : t("absent")}
-                </span>
-              </div>
+              <AttendanceRow key={i} h={h} />
             ))}
           </div>
         )}

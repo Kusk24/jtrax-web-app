@@ -5,11 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
-import { ChildFace } from "@/components/parent/ChildFace";
-import { TournamentBanner } from "@/components/parent/TournamentBanner";
+import { ChildHomeCard } from "@/components/parent/ChildHomeCard";
+import { TournamentBanner } from "@/components/public/TournamentBanner";
 import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
 import type { AnnouncementV2, SenderKind } from "@/lib/parent-v2-data";
 import { useParentData } from "@/components/parent/ParentData";
+import { TapTip } from "@/components/parent/TapTip";
+import { DAILY_PUZZLES } from "@/lib/today-activity";
+import { ParentBell } from "@/components/parent/ParentNav2";
 
 const SENDER_STYLE: Record<SenderKind, { labelKey: string; c: string; bg: string }> = {
   teacher: { labelKey: "senderTeacher", c: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
@@ -23,7 +26,7 @@ export default function ParentHomeV2() {
   const {
     announcements: announcementsV2, tournament,
     parent, isAnnRead, markAnnRead,
-    children: childrenV2, todayActivity,
+    children: childrenV2, todayActivity, lowCreditAt,
   } = useParentData();
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
@@ -43,19 +46,15 @@ export default function ParentHomeV2() {
   return (
     <div className="grid content-start gap-8 md:grid-cols-2 md:gap-x-8">
       {/* The greeting reads like the console's dashboard header — left
-          aligned, no colour band. The bell and the avatar that used to sit
-          here are in the shell's top bar now; keeping them meant two profile
-          buttons in the same corner. */}
-      <div className="flex flex-col gap-1 md:col-span-2">
-        <div className="flex items-center gap-2">
+          aligned, no colour band, with the bell on the same row. */}
+      <div className="flex items-start justify-between gap-3 md:col-span-2">
+        <div className="flex min-w-0 flex-col gap-1">
           <h1 className="m-0 font-pp-display text-[23px] font-bold leading-tight tracking-[-0.01em] text-pp-ink">
             {t("hi", { name: parent.name.split(/\s+/)[0] || parent.name })}
           </h1>
-          <span className="rounded-full border-[1.5px] border-pp-blue px-2 py-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-pp-blue">
-            {t("roleParent")}
-          </span>
+          <span className="text-sm text-pp-muted">{todayLabel}</span>
         </div>
-        <span className="text-sm text-pp-muted">{todayLabel}</span>
+        <ParentBell />
       </div>
 
       {/* Announcements + tournament. One column now: announcements and
@@ -84,8 +83,8 @@ export default function ParentHomeV2() {
               <button
                 key={a.id}
                 onClick={() => open(a)}
-                style={{ background: ss.bg }}
-                className="flex w-full max-w-full flex-none snap-start cursor-pointer flex-col gap-1.5 rounded-xl p-4 text-left shadow-[0_6px_16px_rgba(35,53,94,.08)] md:max-w-[420px]"
+                style={{ background: ss.bg, borderColor: `color-mix(in srgb, ${ss.c} 30%, transparent)` }}
+                className="flex w-full max-w-full flex-none snap-start cursor-pointer flex-col gap-1.5 rounded-xl border-[1.5px] p-4 text-left shadow-[0_6px_16px_rgba(35,53,94,.08)] md:max-w-[420px]"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="min-w-0 flex-1 text-sm font-bold leading-snug text-pp-ink">
@@ -130,7 +129,13 @@ export default function ParentHomeV2() {
             </span>
             <div className="max-w-[520px] overflow-hidden rounded-2xl bg-pp-card shadow-[0_12px_32px_rgba(35,53,94,.12)]">
               <div className="relative">
-                <TournamentBanner className="h-[158px] w-full" />
+                <TournamentBanner
+                  name={tournament.name}
+                  when={tournament.date}
+                  venue={tournament.venue}
+                  imageUrl={tournament.hasBanner ? `/api/tournaments/${tournament.id}/banner` : undefined}
+                  className="h-[158px] w-full"
+                />
                 <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
                   <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
                     {t("registerCloses")}
@@ -168,33 +173,14 @@ export default function ParentHomeV2() {
           <span className="text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
             {t("myChildren", { count: childrenV2.length })}
           </span>
-          <Link href="/parent/attendance" className="text-xs font-bold text-pp-blue">
+          <Link href="/parent/profile" className="text-xs font-bold text-pp-blue">
             {t("viewAll")} →
           </Link>
         </div>
-        <div className="overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card">
+        {/* Two to a row, even on a phone: a family with two children sees both at once. */}
+        <div className="grid grid-cols-2 gap-2.5">
           {childrenV2.map((c) => (
-            <Link
-              key={c.key}
-              href={`/parent/child/${c.key}`}
-              className="flex items-center gap-3 border-b border-pp-panel px-4 py-3.5 last:border-0 hover:bg-pp-mist"
-            >
-              <ChildFace name={c.name} photo={c.photo} tint={c.avBg} className="size-[42px] flex-none rounded-full" />
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-pp-ink">
-                  {c.name}
-                  {c.level && (
-                    <span className="rounded-full bg-pp-soft px-2 py-0.5 text-[9.5px] font-bold text-pp-blue">
-                      {c.level}
-                    </span>
-                  )}
-                </span>
-                <span className="text-[11.5px] text-pp-muted">{c.clsTitle}</span>
-              </span>
-              <span className="flex-none text-[12.5px] font-bold text-pp-ink">
-                {t("creditsShort", { count: c.credits })}
-              </span>
-            </Link>
+            <ChildHomeCard key={c.key} child={c} lowCreditAt={lowCreditAt} />
           ))}
         </div>
 
@@ -212,17 +198,13 @@ export default function ParentHomeV2() {
                 i < todayActivity.length - 1 ? "border-b border-pp-panel" : ""
               }`}
             >
-              <span
-                className={`flex size-5 flex-none items-center justify-center rounded-full text-[11px] font-bold ${
-                  r.done ? "bg-pp-green text-white" : "bg-pp-panel text-pp-muted"
-                }`}
-              >
-                {r.done ? "✓" : "·"}
-              </span>
+              <TapTip tip={t("dailyPuzzlesDone", { count: r.daily })}>
+                <PuzzleRing solved={r.daily} done={r.done} />
+              </TapTip>
               <span className="flex-1 text-[13.5px] text-pp-ink">{r.child}</span>
-              <span className="text-[13px] font-semibold text-pp-muted">
-                {t("minShort", { count: r.mins })}
-              </span>
+              <TapTip tip={t("practiceTimeTip")}>
+                <span className="text-[13px] font-semibold text-pp-muted">{t("minShort", { count: r.mins })}</span>
+              </TapTip>
             </div>
           ))}
         </div>
@@ -230,5 +212,30 @@ export default function ParentHomeV2() {
 
       {modal && <AnnouncementModal a={modal} onClose={() => setModalId(null)} />}
     </div>
+  );
+}
+
+/** A tiny donut of today's daily puzzles: a third per puzzle solved, full
+    green once the whole set is done. */
+function PuzzleRing({ solved, done }: { solved: number; done: boolean }) {
+  const r = 8;
+  const c = 2 * Math.PI * r;
+  const share = solved / DAILY_PUZZLES;
+  return (
+    <svg viewBox="0 0 20 20" className="size-5 flex-none -rotate-90" aria-hidden="true">
+      <circle cx="10" cy="10" r={r} fill="none" strokeWidth="3.5" className="stroke-pp-panel" />
+      {solved > 0 && (
+        <circle
+          cx="10"
+          cy="10"
+          r={r}
+          fill="none"
+          strokeWidth="3.5"
+          strokeDasharray={`${c * share} ${c}`}
+          strokeLinecap={done ? "butt" : "round"}
+          className="stroke-pp-green"
+        />
+      )}
+    </svg>
   );
 }
