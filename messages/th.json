@@ -958,7 +958,9 @@
     "line": "LINE",
     "facebook": "Facebook",
     "website": "เว็บไซต์",
-    "rights": "© {year} {name} สงวนลิขสิทธิ์"
+    "rights": "© {year} {name} สงวนลิขสิทธิ์",
+    "needHelp": "ต้องการความช่วยเหลือ?",
+    "chatWithUs": "แชทกับเรา"
   },
   "arrival": {
     "pageTitle": "ยืนยันการเข้าร่วม",

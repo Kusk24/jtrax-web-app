@@ -958,7 +958,9 @@
     "line": "LINE",
     "facebook": "Facebook",
     "website": "Website",
-    "rights": "© {year} {name}. All rights reserved."
+    "rights": "© {year} {name}. All rights reserved.",
+    "needHelp": "Need help?",
+    "chatWithUs": "Chat with us"
   },
   "arrival": {
     "pageTitle": "Confirm attendance",
