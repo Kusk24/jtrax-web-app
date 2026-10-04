@@ -7,6 +7,7 @@ import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { resetPassword, type ResetState } from "@/app/actions/auth";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const t = useTranslations("reset");
@@ -44,9 +45,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <input type="hidden" name="token" value={token} />
       <label className="flex flex-col gap-1 text-sm font-bold text-ink">
         {t("newPassword")}
-        <input
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete="new-password"
           minLength={8}
           className="rounded-xl border-2 border-line bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-navy/50"
@@ -54,9 +54,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
       </label>
       <label className="flex flex-col gap-1 text-sm font-bold text-ink">
         {t("confirmPassword")}
-        <input
+        <PasswordInput
           name="confirm"
-          type="password"
           autoComplete="new-password"
           minLength={8}
           className="rounded-xl border-2 border-line bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-navy/50"

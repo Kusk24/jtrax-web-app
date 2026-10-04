@@ -259,6 +259,10 @@ button:active {
   --color-pp-panel: #e8edf8;
   --color-pp-bd-a: #f3efe6;
   --color-pp-bd-b: #f7f9fc;
+  /* Advanced, on the student level cards — green (Beginner) and blue
+     (Intermediate) already exist above as pp-green and pp-blue. */
+  --color-pp-purple: #6a3f9e;
+  --color-pp-purple-soft: #f1ebfa;
 }
 [data-theme="dark"] {
   color-scheme: dark;
@@ -282,6 +286,8 @@ button:active {
   --color-pp-sub: #B0BBD6;
   --color-pp-green: #7CC9A0;
   --color-pp-green-soft: #23473A;
+  --color-pp-purple: #C3A6F0;
+  --color-pp-purple-soft: #3B2F5C;
   --color-pp-red: #E58B8B;
   --color-pp-red-soft: #523232;
   --color-pp-amber: #E0A967;
@@ -314,6 +320,8 @@ button:active {
   --color-pp-sub: #B0BBD6;
   --color-pp-green: #7CC9A0;
   --color-pp-green-soft: #23473A;
+  --color-pp-purple: #C3A6F0;
+  --color-pp-purple-soft: #3B2F5C;
   --color-pp-red: #E58B8B;
   --color-pp-red-soft: #523232;
   --color-pp-amber: #E0A967;

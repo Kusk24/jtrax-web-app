@@ -14,6 +14,8 @@ describe("categoryAgeLimit", () => {
     expect(categoryAgeLimit("U8 Boys")).toBe(8);
     expect(categoryAgeLimit("Girls U12")).toBe(12);
     expect(categoryAgeLimit("u 10 mixed")).toBe(10);
+    expect(categoryAgeLimit("Under 10")).toBe(10);
+    expect(categoryAgeLimit("U08")).toBe(8);
   });
 
   it("treats a name with no age as open to everyone", () => {

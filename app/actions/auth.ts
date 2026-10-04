@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { API_BASE, SESSION_COOKIE, SESSION_MAX_AGE, homeFor, type BackendIdentity } from "@/lib/session";
 
-export type SignInState = { error?: "missing" | "invalid" | "unreachable" };
+export type SignInState = { error?: "missing" | "invalid" | "unreachable" | "staff" };
 
 export async function signIn(_prev: SignInState, formData: FormData): Promise<SignInState> {
   const email = String(formData.get("email") ?? "").trim();
@@ -26,6 +26,19 @@ export async function signIn(_prev: SignInState, formData: FormData): Promise<Si
     return { error: "unreachable" };
   }
 
+  /* A real account with no portal here — staff use the Admin Console. The
+     session the backend just issued is revoked rather than kept: setting it
+     and redirecting home used to leave the page sitting there, unexplained. */
+  const home = homeFor(user.role);
+  if (!home) {
+    await fetch(`${API_BASE}/api/v1/auth/logout`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    }).catch(() => {});
+    return { error: "staff" };
+  }
+
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     path: "/",
@@ -34,7 +47,7 @@ export async function signIn(_prev: SignInState, formData: FormData): Promise<Si
     secure: process.env.NODE_ENV === "production",
     maxAge: SESSION_MAX_AGE,
   });
-  redirect(homeFor(user.role) ?? "/");
+  redirect(home);
 }
 
 export async function signOut() {

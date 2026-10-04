@@ -107,9 +107,14 @@ export default async function RegisterPage({
   const previewQuery = preview ? `?preview=${encodeURIComponent(preview)}` : "";
   const venue = tournament.venueName || tournament.venueAddress;
 
-  const mapUrl = venue
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([tournament.venueName, tournament.venueAddress].filter(Boolean).join(", "))}`
-    : "";
+  // The link staff set at creation, when there is one — an exact pin, not a
+  // guess. A name-and-address search is the fallback for a tournament made
+  // before this existed, not the first choice once it does.
+  const mapUrl =
+    tournament.venueMapUrl ||
+    (venue
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([tournament.venueName, tournament.venueAddress].filter(Boolean).join(", "))}`
+      : "");
   const earlyBird = tournament.earlyBirdActive && tournament.earlyBirdUntil && tournament.earlyBirdFee;
   /* Whole days until the deadline, counted on the academy's calendar
      (Bangkok): entries close at the end of that day, whatever the reader's

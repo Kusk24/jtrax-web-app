@@ -14,7 +14,7 @@ import {
   CERT_SESSIONS, LOW_CREDIT_AT, CURRENT, recentMonths, streakFrom, todayISO,
   type AnnouncementV2, type ChildKey, type ChildV2, type HistRow, type MonthDef,
   type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind,
-  type TournamentEntryV2, type TournamentV2,
+  type TournamentEntryV2, type TournamentV2, mapUrlOf, regulationUrlOf,
 } from "@/lib/parent-v2-data";
 import { classesAttended } from "@/lib/classes-attended";
 import { money } from "@/lib/money";
@@ -104,8 +104,13 @@ type ParentDataValue = {
   /** Signs a child up and answers with the new registration's id, which is
       what `payCardFee` needs to collect the entry fee. */
   register: (input: {
-    tournamentId: string; studentId: string; contact: string;
-    medicalNotes: string; remarks: string;
+    tournamentId: string; studentId: string;
+    /** The ID card check for this child, and the category it allows. */
+    idCheck: string; categoryId: string;
+    /** As the public form asks: the name called in the hall, the Thai name
+        (optional), and the conditions of entry. The family's contact
+        details come from their record on the server. */
+    nickname: string; nameTh: string; acceptTerms: boolean;
   }) => Promise<string>;
   /** Opens (or reopens) the card checkout for a registration's entry fee and
       answers with the URL to send the parent to, or `null` when the academy
@@ -239,7 +244,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         creditsBought: bought,
         creditsOf: creditsSinceTopUp(myTx),
         courses: courseCredits(sid, { enrollments, classes, creditTransactions: txs }, today),
-        lifetime: creditLifetime(sid, txs),
+        lifetime: creditLifetime(sid, txs, enrollments),
         valid: fmtDate(expiry),
         daysLeft,
         expiresAhead: daysRaw >= 0,
@@ -347,6 +352,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
           cls: null,
           attachment: n(a, "has_attachment") === 1,
           time: fmtDate(s(a, "posted_at")),
+          postedAt: s(a, "posted_at"),
         };
       }));
 
@@ -370,6 +376,9 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
           ? Math.max(0, Math.ceil((new Date(deadline).getTime() - today.getTime()) / 86400_000))
           : 0,
         hasBanner: Boolean(trn.has_banner),
+        regulationUrl: regulationUrlOf(s(trn, "tournament_id"), Boolean(trn.has_regulation), s(trn, "regulations_document_url")),
+        mapUrl: mapUrlOf(s(trn, "venue_map_url"), s(trn, "venue_name"), s(trn, "venue_address")),
+        startDate: s(trn, "start_date"),
       });
       /* Which of this family's children already have a place, and whether the
          fee behind each has settled. Both lists arrive scoped to the family by
@@ -448,8 +457,9 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   }, []);
 
   const register = useCallback(async (input: {
-    tournamentId: string; studentId: string; contact: string;
-    medicalNotes: string; remarks: string;
+    tournamentId: string; studentId: string;
+    idCheck: string; categoryId: string;
+    nickname: string; nameTh: string; acceptTerms: boolean;
   }) => {
     /* No name, fee or status: the server takes the name from the academy's
        records and the price from the tournament. This used to send the fee,
@@ -459,9 +469,11 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         student_id: input.studentId,
-        participant_contact: input.contact,
-        medical_notes: input.medicalNotes,
-        remarks: input.remarks,
+        id_check: input.idCheck,
+        ...(input.categoryId ? { tournament_category_id: input.categoryId } : {}),
+        nickname: input.nickname,
+        ...(input.nameTh ? { participant_name_th: input.nameTh } : {}),
+        accept_terms: input.acceptTerms,
       }),
     });
     if (!res.ok) {

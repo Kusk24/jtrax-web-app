@@ -63,8 +63,6 @@ function Receipt({ p, onClose }: { p: PaymentRecord; onClose: () => void }) {
         {
           school: "JCA Chess School",
           title: t("receiptOfficial"),
-          receiptNoLabel: t("receiptNo"),
-          receiptNo: p.receiptNo,
           details,
           itemHeader: t("receiptItem"),
           amountHeader: t("receiptAmount"),
@@ -104,7 +102,7 @@ function Receipt({ p, onClose }: { p: PaymentRecord; onClose: () => void }) {
     };
   }, [p, t, locale, parent.name]);
 
-  const fileName = `JCA-${p.receiptNo}.png`;
+  const fileName = `JCA-${p.id}.png`;
   async function save() {
     if (!blob || !url) return;
     /* On a phone, the share sheet is where "Save Image" lives. */

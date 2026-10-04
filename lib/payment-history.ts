@@ -23,17 +23,9 @@ export type PaymentRecord = {
   credits: number;
   method: string;
   status: "Paid" | "Pending" | "Refunded";
-  /** The receipt number the academy quotes — derived from the payment id. */
-  receiptNo: string;
   /** The bank or transfer reference the office wrote down, if any. */
   reference: string;
 };
-
-/** "R-9F2C41AB": short, stable, and unique to the payment. */
-export function receiptNumber(paymentId: string): string {
-  const tail = paymentId.replace(/^pay_?/i, "").replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase();
-  return `R-${tail || paymentId.toUpperCase()}`;
-}
 
 export function toPaymentHistory(
   payments: Row[],
@@ -65,7 +57,6 @@ export function toPaymentHistory(
         credits: Math.round(credits * 100) / 100,
         method: s(p, "payment_method"),
         status,
-        receiptNo: receiptNumber(id),
         reference: s(p, "reference_number"),
       } satisfies PaymentRecord;
     })

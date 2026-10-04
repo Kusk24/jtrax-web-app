@@ -12,8 +12,10 @@
  * confirmation says so, with the dates that matter and who to call.
  *
  * The age group goes by birth year, as chess events do: U10 in 2026 is born
- * on or after 1 January 2016. Groups the player is too old for cannot be
- * picked; the backend refuses them regardless.
+ * on or after 1 January 2016, and the date of birth is the ID card's: the
+ * card is scanned (required), the server keeps what it read and not the
+ * photo, and the entry names that check. Groups the player is too old for
+ * cannot be picked; the backend refuses them regardless.
  *
  * The student box is a *claim*. Nothing here checks it, and that is
  * deliberate: if the discount only appeared for addresses the academy
@@ -92,6 +94,8 @@ export function RegisterForm({
   /* The card scan. Held so the form can say what came off the document, and
      so what it read is sent beside what was finally typed. */
   const [scan, setScan] = useState<ScannedIDCard | null>(null);
+  /** The server's record of the scan; the entry names it. */
+  const [checkId, setCheckId] = useState("");
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState("");
 
@@ -120,17 +124,21 @@ export function RegisterForm({
     setScanning(true);
     setScanNote("");
     try {
-      const card = await scanIDCard(tournamentId, file);
+      const { fields: card, checkId: check } = await scanIDCard(tournamentId, file);
       setScan(card);
+      setCheckId(check);
+      /* The date of birth is the card's, always: it decides the category. */
+      setDateOfBirth(card.dateOfBirth.value);
       /* Only fill a field that is empty: somebody who typed a name and then
          attached a card has told us twice, and the one they typed is meant. */
       const full = [card.firstName.value, card.lastName.value].filter(Boolean).join(" ");
       if (full && !name) setName(full);
       if (card.thaiName?.value && !nameTh) setNameTh(card.thaiName.value);
-      if (card.dateOfBirth.value && !dateOfBirth) setDateOfBirth(card.dateOfBirth.value);
       if (card.documentType === "thai-id" || card.documentType === "passport") setDocType(card.documentType);
-      if (!full && !card.dateOfBirth.value) setScanNote(t("scanNothingRead"));
     } catch (err) {
+      setScan(null);
+      setCheckId("");
+      setDateOfBirth("");
       setScanNote(err instanceof Error ? err.message : t("scanFailed"));
     } finally {
       setScanning(false);
@@ -141,6 +149,7 @@ export function RegisterForm({
      can name what is missing; the server checks the rest. */
   function missing(): string {
     if (!acceptTerms) return t("needTerms");
+    if (!checkId) return t("needIdCard");
     if (name.trim().length < 2) return t("needName");
     if (!dateOfBirth) return t("needDob");
     if (!nickname.trim()) return t("needNickname");
@@ -171,6 +180,7 @@ export function RegisterForm({
         categoryId,
         isStudent,
         studentId: isStudent ? studentId : undefined,
+        idCheck: checkId,
         nickname,
         age: age || undefined,
         acceptTerms,
@@ -316,15 +326,18 @@ export function RegisterForm({
           </span>
           <span className="min-w-[180px] flex-1">
             <span className="block text-[13.5px] font-semibold text-pp-ink">
-              {t("idCardTitle")} <span className="font-normal text-pp-muted">{t("optional")}</span>
+              {t("idCardTitle")}
+              <span className="ml-0.5 text-pp-danger" aria-hidden>*</span>
             </span>
-            <span className="block text-[12.5px] text-pp-sub">{t("idCardHint")}</span>
+            <span className="mt-0.5 flex items-center gap-1 text-[12.5px] text-pp-sub">
+              <Lock className="size-3.5 shrink-0" aria-hidden /> {t("idCardHint")}
+            </span>
           </span>
           <label
             className={`inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-pp-line bg-white px-4 text-[13.5px] font-semibold text-pp-blue sm:w-auto transition-colors duration-150 hover:border-pp-blue ${preview ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
           >
             <Upload className="size-4" aria-hidden />
-            {scanning ? t("scanning") : t("idCardChoose")}
+            {scanning ? t("scanning") : checkId ? t("idCardAgain") : t("idCardChoose")}
             <input
               type="file"
               accept="image/*"
@@ -343,7 +356,8 @@ export function RegisterForm({
               {scanNote ||
                 t("scanRead", {
                   name: [scan!.firstName.value, scan!.lastName.value].filter(Boolean).join(" ") || "—",
-                  dob: scan!.dateOfBirth.value || "—",
+                  dob: longDate(scan!.dateOfBirth.value),
+                  age,
                 })}
               {scan?.dateOfBirth.value && scan.dateOfBirth.confidence < 0.5 && (
                 <span className="block font-semibold text-pp-amber">{t("scanCheckDate")}</span>
@@ -369,10 +383,11 @@ export function RegisterForm({
           ) : (
             <div className="hidden sm:block" />
           )}
-          <Labelled label={t("dateOfBirth")} htmlFor="reg-dob" required>
+          <Labelled label={t("dateOfBirth")} htmlFor="reg-dob" required hint={t("dateOfBirthHint")}>
+            {/* Read off the ID card, not typed: it decides the category. */}
             <input
-              id="reg-dob" className={field} value={dateOfBirth} type="date"
-              onChange={(e) => setDateOfBirth(e.target.value)}
+              id="reg-dob" className={`${field} bg-pp-wash`} readOnly tabIndex={-1}
+              value={dateOfBirth ? longDate(dateOfBirth) : ""} placeholder={t("dobFromCard")}
             />
           </Labelled>
           <Labelled label={t("age")} htmlFor="reg-age">
@@ -392,7 +407,7 @@ export function RegisterForm({
           {/* The two ways to reach the family, side by side. */}
           <Labelled label={t("phone")} htmlFor="reg-phone" required>
             <input
-              id="reg-phone" className={field} value={phone} type="tel" inputMode="tel"
+              id="reg-phone" className={field} value={phone} required type="tel" inputMode="tel"
               autoComplete="tel" maxLength={32} onChange={(e) => setPhone(e.target.value)}
               placeholder={t("phonePlaceholder")}
             />

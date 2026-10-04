@@ -11,6 +11,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { KeyRound } from "lucide-react";
 import { checkNewPassword } from "@/lib/password-rules";
+import { PasswordInput } from "@/components/PasswordInput";
 
 type Tone = "parent" | "student";
 
@@ -114,9 +115,8 @@ export function ChangePasswordForm({ tone }: { tone: Tone }) {
   const field = (id: string, label: string, value: string, set: (v: string) => void, autoComplete: string) => (
     <label htmlFor={id} className="flex flex-col gap-1">
       <span className={s.label}>{label}</span>
-      <input
+      <PasswordInput
         id={id}
-        type="password"
         value={value}
         onChange={(e) => set(e.target.value)}
         autoComplete={autoComplete}
