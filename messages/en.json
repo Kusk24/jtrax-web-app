@@ -253,7 +253,7 @@
     "payStatus": {
       "Paid": "Paid",
       "Pending": "Pending",
-      "Refunded": "Refunded"
+      "Expired": "Expired"
     },
     "payMethodName": {
       "Cash": "Cash",

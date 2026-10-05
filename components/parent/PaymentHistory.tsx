@@ -28,7 +28,7 @@ function StatusChip({ status }: { status: PaymentRecord["status"] }) {
   const t = useTranslations("pv2");
   const tone =
     status === "Paid" ? "bg-pp-green-soft text-pp-green"
-    : status === "Refunded" ? "bg-pp-danger-soft text-pp-danger"
+    : status === "Expired" ? "bg-pp-danger-soft text-pp-danger"
     : "bg-pp-amber-soft text-pp-amber";
   return <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tone}`}>{t(`payStatus.${status}`)}</span>;
 }
@@ -82,7 +82,7 @@ function Receipt({ p, onClose }: { p: PaymentRecord; onClose: () => void }) {
           totalLabel: t("payAmountPaid"),
           total: money(p.paid, locale),
           status: t(`payStatus.${p.status}`),
-          statusTone: p.status === "Paid" ? "paid" : p.status === "Refunded" ? "refunded" : "pending",
+          statusTone: p.status === "Paid" ? "paid" : p.status === "Expired" ? "expired" : "pending",
           thanks: t("receiptThanks"),
           footnote: t("receiptFootnote"),
         },
