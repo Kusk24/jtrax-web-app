@@ -32,7 +32,7 @@ import {
   ageFromDOB, categoryAllows, payForPublicEntry, registerForTournament, scanIDCard,
   type PublicCategory, type ScannedIDCard,
 } from "@/lib/registration";
-import { ACADEMY_CONTACT } from "@/lib/academy-contact";
+import { ACADEMY_CONTACT, type AcademyContact } from "@/lib/academy-contact";
 import { PublicCard } from "@/components/public/PublicShell";
 import { PayNow } from "./PayNow";
 
@@ -59,6 +59,7 @@ export function RegisterForm({
   earlyBirdUntil,
   registrationDeadline,
   preview = false,
+  contact = ACADEMY_CONTACT,
 }: {
   tournamentId: string;
   categories: PublicCategory[];
@@ -76,6 +77,8 @@ export function RegisterForm({
   registrationDeadline?: string;
   /** The organiser's review of a draft: everything shows, nothing sends. */
   preview?: boolean;
+  /** How to reach the academy, as the office saved it in Settings. */
+  contact?: AcademyContact;
 }) {
   const t = useTranslations("register");
 
@@ -235,7 +238,7 @@ export function RegisterForm({
             <UnpaidRules earlyBirdUntil={earlyBird} closes={registrationDeadline} />
           )}
           {done.emailed && <p className="max-w-md text-[13px] text-pp-muted">{t("doneEmailed", { email })}</p>}
-          <Contacts />
+          <Contacts contact={contact} />
         </div>
       </PublicCard>
     );
@@ -574,27 +577,27 @@ function UnpaidRules({ earlyBirdUntil, closes }: { earlyBirdUntil?: string; clos
   );
 }
 
-function Contacts() {
+function Contacts({ contact }: { contact: AcademyContact }) {
   const t = useTranslations("register");
   return (
     <div className="w-full max-w-md rounded-xl bg-[#edf4ff] px-4 py-3 text-left text-[12.5px] text-pp-ink">
       <p className="font-semibold">{t("contactTitle")}</p>
       <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5">
         <Phone className="size-3.5 text-pp-blue" aria-hidden />
-        {ACADEMY_CONTACT.phones.map((p, i) => (
+        {contact.phones.map((p, i) => (
           <span key={p}>
             {i > 0 && " · "}
-            <a className="font-semibold text-pp-blue" href={`tel:${p.replace(/-/g, "")}`}>{p}</a>
+            <a className="font-semibold text-pp-blue" href={`tel:${p.replace(/[^\d+]/g, "")}`}>{p}</a>
           </span>
         ))}
       </p>
       <p className="mt-1 flex items-center gap-1.5">
         <Mail className="size-3.5 text-pp-blue" aria-hidden />
-        <a className="font-semibold text-pp-blue" href={`mailto:${ACADEMY_CONTACT.email}`}>{ACADEMY_CONTACT.email}</a>
+        <a className="font-semibold text-pp-blue" href={`mailto:${contact.email}`}>{contact.email}</a>
       </p>
       <p className="mt-1 flex items-center gap-1.5">
         <MessageCircle className="size-3.5 text-pp-blue" aria-hidden />
-        <a className="font-semibold text-pp-blue" href={ACADEMY_CONTACT.line} target="_blank" rel="noopener noreferrer">LINE</a>
+        <a className="font-semibold text-pp-blue" href={contact.line} target="_blank" rel="noopener noreferrer">LINE</a>
       </p>
     </div>
   );

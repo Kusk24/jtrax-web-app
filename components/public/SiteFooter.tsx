@@ -11,6 +11,7 @@
  */
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { lineHref } from "@/lib/academy-contact";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
@@ -20,6 +21,7 @@ type Contact = {
   email?: string;
   lineId?: string;
   facebook?: string;
+  instagram?: string;
   website?: string;
   address?: string;
   hours?: string;
@@ -54,14 +56,16 @@ export async function SiteFooter() {
   const c = await fetchContact();
   const t = await getTranslations("footer");
   const name = c.name || "JCA Chess Academy";
-  const line = c.lineId?.replace(/^@?/, "@");
+  const line = c.lineId ? lineHref(c.lineId) : "";
   const link =
     "rounded underline-offset-4 transition-colors hover:text-pp-navy hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue";
   const web = [
     c.website && { label: bare(c.website), href: href(c.website) },
     c.facebook && { label: t("facebook"), href: href(c.facebook) },
+    c.instagram && { label: t("instagram"), href: href(c.instagram) },
   ].filter(Boolean) as Array<{ label: string; href: string }>;
-  const visit = [c.address, c.hours].filter(Boolean).join(" · ");
+  /* One address per line — a branch each — then the opening hours. */
+  const visit = [c.address, c.hours].filter(Boolean).join("\n");
   const hasContact = Boolean(c.phone || c.email || line || web.length);
 
   return (
@@ -96,7 +100,7 @@ export async function SiteFooter() {
               <p>
                 {t("line")}:{" "}
                 <a
-                  href={`https://line.me/R/ti/p/${encodeURIComponent(line)}`}
+                  href={line}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`font-medium text-pp-blue ${link}`}
