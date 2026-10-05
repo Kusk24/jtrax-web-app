@@ -42,7 +42,9 @@ const TERMS = ["termsRegistration", "termsRefund", "termsChanges", "termsConduct
 
 const field =
   "w-full min-h-[44px] rounded-xl border border-pp-line bg-white px-3 py-2.5 text-[15px] text-pp-ink " +
-  "outline-none transition-colors duration-150 placeholder:text-pp-muted " +
+  /* The examples are hints, not answers: light enough that nobody takes one
+     for a value already filled in. */
+  "outline-none transition-colors duration-150 placeholder:font-normal placeholder:text-[#a3adc2] " +
   "focus:border-pp-blue focus:ring-2 focus:ring-pp-soft disabled:cursor-not-allowed";
 
 type DocType = "thai-id" | "passport";
@@ -93,6 +95,9 @@ export function RegisterForm({
   const [categoryId, setCategoryId] = useState("");
   const [isStudent, setIsStudent] = useState(false);
   const [studentId, setStudentId] = useState("");
+  /* Registration and payment are separate: "later" takes the place now and
+     emails the pay link; "now" goes straight on to Stripe. */
+  const [payChoice, setPayChoice] = useState<"now" | "later">("now");
 
   /* The card scan. Held so the form can say what came off the document, and
      so what it read is sent beside what was finally typed. */
@@ -116,6 +121,7 @@ export function RegisterForm({
   const payable = isStudent && discountPct > 0 ? studentFee : fee;
   const age = ageFromDOB(dateOfBirth);
   const paysOnline = cardPayments && payable > 0;
+  const paysNow = paysOnline && payChoice === "now";
 
   const eligibility = categories.map((c) => ({ ...c, ...categoryAllows(c.name, dateOfBirth, startDate) }));
   const chosen = eligibility.find((c) => c.id === categoryId);
@@ -191,8 +197,9 @@ export function RegisterForm({
         documentType: docType,
         scannedName: scan ? [scan.firstName.value, scan.lastName.value].filter(Boolean).join(" ") : undefined,
         scannedDateOfBirth: scan?.dateOfBirth.value || undefined,
+        payChoice: paysOnline ? payChoice : undefined,
       });
-      const canPay = Boolean(out.cardPayments && out.registrationId && out.payCode);
+      const canPay = Boolean(out.cardPayments && out.registrationId && out.payCode && out.payChoice === "now");
       if (canPay) {
         /* The place is theirs now; the fee is the second step. If Stripe
            cannot be opened, the confirmation below offers it again. */
@@ -512,21 +519,23 @@ export function RegisterForm({
           </div>
           <div className="flex flex-col justify-center gap-2 rounded-xl border border-pp-line px-4 py-3">
             <span className="text-[12px] font-semibold text-pp-muted">{t("paymentMethod")}</span>
-            {paysOnline || preview ? (
-              <>
-                <span className="flex flex-wrap items-center gap-2 text-[13.5px] font-semibold text-pp-ink">
-                  <CreditCard className="size-4 text-pp-blue" aria-hidden /> {t("methodCard")}
-                  <span className="rounded bg-[#1a1f71] px-1.5 py-0.5 text-[9.5px] font-bold italic text-white">VISA</span>
-                  <span className="rounded bg-[#eb001b] px-1.5 py-0.5 text-[9.5px] font-bold text-white">Mastercard</span>
-                  <span className="rounded bg-[#2e77bc] px-1.5 py-0.5 text-[9.5px] font-bold text-white">AMEX</span>
-                </span>
-                <span className="flex items-center gap-2 text-[13.5px] font-semibold text-pp-ink">
-                  <QrCode className="size-4 text-pp-blue" aria-hidden /> {t("methodPromptPay")}
-                </span>
+            {paysOnline || (preview && payable > 0) ? (
+              <div role="radiogroup" aria-label={t("paymentMethod")} className="flex flex-col gap-2">
+                <PayOption checked={payChoice === "now"} onSelect={() => setPayChoice("now")} title={t("payChoiceNow")}>
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <CreditCard className="size-3.5 text-pp-blue" aria-hidden /> {t("payChoiceNowHint")}
+                    <span className="rounded bg-[#1a1f71] px-1.5 py-0.5 text-[9px] font-bold italic text-white">VISA</span>
+                    <span className="rounded bg-[#eb001b] px-1.5 py-0.5 text-[9px] font-bold text-white">Mastercard</span>
+                    <QrCode className="size-3.5 text-pp-blue" aria-hidden />
+                  </span>
+                </PayOption>
+                <PayOption checked={payChoice === "later"} onSelect={() => setPayChoice("later")} title={t("payChoiceLater")}>
+                  {t("payChoiceLaterHint")}
+                </PayOption>
                 <span className="flex items-center gap-1.5 text-[11.5px] text-pp-muted">
                   <Lock className="size-3.5" aria-hidden /> {t("stripeSecure")}
                 </span>
-              </>
+              </div>
             ) : (
               <span className="text-[13px] text-pp-ink">{payable > 0 ? t("payAtDesk") : t("noFee")}</span>
             )}
@@ -549,15 +558,35 @@ export function RegisterForm({
           disabled={preview || busy}
           className="mt-4 flex min-h-[52px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-pp-blue px-6 text-[15px] font-semibold text-white shadow-[0_8px_18px_rgba(46,92,184,.22)] transition-colors duration-150 hover:bg-pp-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pp-blue disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {paysOnline || (preview && payable > 0) ? <Lock className="size-4" aria-hidden /> : <Check className="size-4" aria-hidden />}
+          {paysNow || (preview && payable > 0 && payChoice === "now") ? <Lock className="size-4" aria-hidden /> : <Check className="size-4" aria-hidden />}
           {busy
-            ? paysOnline ? t("openingPayment") : t("sending")
-            : paysOnline || (preview && payable > 0)
+            ? paysNow ? t("openingPayment") : t("sending")
+            : paysNow || (preview && payable > 0 && payChoice === "now")
               ? t("payAndRegister", { fee: money(payable) })
               : t("submit")}
         </button>
       </Section>
     </form>
+  );
+}
+
+/** One of the two payment choices: a radio drawn as a card, so the whole row
+    is the target on a phone. */
+function PayOption({
+  checked, onSelect, title, children,
+}: { checked: boolean; onSelect: () => void; title: string; children: React.ReactNode }) {
+  return (
+    <label
+      className={`flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 transition-colors duration-150 ${
+        checked ? "border-pp-blue bg-[#f4f8ff]" : "border-pp-line hover:border-[#cbdcf6]"
+      }`}
+    >
+      <input type="radio" name="pay-choice" checked={checked} onChange={onSelect} className="mt-0.5 size-4 shrink-0 cursor-pointer accent-pp-blue" />
+      <span className="min-w-0">
+        <span className="block text-[13.5px] font-semibold text-pp-ink">{title}</span>
+        <span className="block text-[12px] text-pp-sub">{children}</span>
+      </span>
+    </label>
   );
 }
 
