@@ -17,6 +17,9 @@ export type PublicTournament = {
   endDate: string;
   venueName: string;
   venueAddress: string;
+  /** A Google Maps link for the venue, set by staff at creation. Absent for
+      tournaments created before this existed. */
+  venueMapUrl?: string;
   registrationDeadline: string;
   /** What an outside participant pays right now: the early-bird price while
       its window is open, the regular price after. */
@@ -49,13 +52,17 @@ export type PublicCategory = { id: string; name: string };
 export type RegisterInput = {
   name: string;
   email: string;
-  phone?: string;
+  phone: string;
   dateOfBirth?: string;
   categoryId?: string;
   isStudent?: boolean;
   /** Required when isStudent: the discount is only given against an ID the
       academy can find. */
   studentId?: string;
+  /** The ID card check the scan returned. Required: the server takes the
+      date of birth, and so the age group, from it. The card itself is not
+      sent or kept. */
+  idCheck: string;
   /** Printed on the pairing card and called across the hall. */
   nickname?: string;
   /** As claimed. The backend prefers the date of birth where there is one —
@@ -74,12 +81,13 @@ export type RegisterInput = {
   scannedDateOfBirth?: string;
 };
 
-/** The age a category name implies — "U8 Boys" is under 8. Mirrors the
+/** The age a category name implies — "U8 Boys", "U08" and "Under 8" are
+    under 8. Mirrors the
     backend's rule, which is the one that actually decides; this exists so the
     form can grey out what it would refuse rather than take an entry and then
     reject it. */
 export function categoryAgeLimit(name: string): number {
-  const m = /\bU\s?(\d{1,2})\b/i.exec(name);
+  const m = /\bU(?:nder)?[\s-]?(\d{1,2})\b/i.exec(name);
   return m ? Number(m[1]) : 0;
 }
 
@@ -146,10 +154,28 @@ export async function registerForTournament(
   tournamentId: string,
   input: RegisterInput,
 ): Promise<RegisterResult> {
+  // multipart/form-data, as the server reads it. Leave Content-Type unset —
+  // the browser fills in the multipart boundary itself.
+  const body = new FormData();
+  body.set("name", input.name);
+  body.set("email", input.email);
+  body.set("phone", input.phone);
+  if (input.dateOfBirth) body.set("dateOfBirth", input.dateOfBirth);
+  if (input.categoryId) body.set("categoryId", input.categoryId);
+  if (input.isStudent) body.set("isStudent", "true");
+  if (input.studentId) body.set("studentId", input.studentId);
+  if (input.nickname) body.set("nickname", input.nickname);
+  if (input.age) body.set("age", String(input.age));
+  body.set("acceptTerms", input.acceptTerms ? "true" : "false");
+  if (input.nameTh) body.set("nameTh", input.nameTh);
+  if (input.documentType) body.set("documentType", input.documentType);
+  if (input.scannedName) body.set("scannedName", input.scannedName);
+  if (input.scannedDateOfBirth) body.set("scannedDateOfBirth", input.scannedDateOfBirth);
+  body.set("idCheck", input.idCheck);
+
   const res = await fetch(`/api/public/tournaments/${tournamentId}/register`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
+    body,
     cache: "no-store",
   });
   const data = await res.json().catch(() => ({}));
@@ -235,29 +261,31 @@ export type ScannedIDCard = {
   documentType: string;
 };
 
-/**
- * Read a Thai ID card or passport, to fill in the name and age.
- *
- * A convenience, never a requirement: the image is not stored, nothing is
- * submitted by this call, and an entrant who skips it or whose photo cannot be
- * read types their details exactly as before. So every failure here is
- * recoverable by ignoring it, which is why the form treats an error as a hint
- * rather than a blocked path.
- */
-export async function scanIDCard(tournamentId: string, image: File): Promise<ScannedIDCard> {
+/** What a scan answers: what the card said, and the check an entry names. */
+export type IDCardScan = { fields: ScannedIDCard; checkId: string };
+
+async function postCard(url: string, image: File): Promise<IDCardScan> {
   const body = new FormData();
   body.append("image", image);
-  const res = await fetch(`/api/public/tournaments/${tournamentId}/scan-id`, {
-    method: "POST",
-    body,
-    cache: "no-store",
-  });
+  const res = await fetch(url, { method: "POST", body, cache: "no-store" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error((data as { error?: string }).error ?? "could not read the card");
   }
-  return (data as { fields: ScannedIDCard }).fields;
+  return data as IDCardScan;
 }
+
+/**
+ * Read a Thai ID card or passport for the player's date of birth — the step
+ * every entry takes. The server keeps what it read, not the photo, and the
+ * entry's age group goes by that date.
+ */
+export const scanIDCard = (tournamentId: string, image: File) =>
+  postCard(`/api/public/tournaments/${tournamentId}/scan-id`, image);
+
+/** The same, from the parent portal, for one of the parent's children. */
+export const scanChildIDCard = (tournamentId: string, studentId: string, image: File) =>
+  postCard(`/api/tournaments/${tournamentId}/scan-id?student_id=${encodeURIComponent(studentId)}`, image);
 
 /** Whole years old on `on`, from a YYYY-MM-DD date of birth. 0 when unknown. */
 export function ageFromDOB(dob: string, on = new Date()): number {

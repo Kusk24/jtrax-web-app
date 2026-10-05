@@ -1,7 +1,7 @@
 "use client";
 
 /* Who the signed-in pupil is and where they stand — the header, the rating,
-   the points, the classes and certificates — loaded once per screen.
+   the points, the classes and hours — loaded once per screen.
 
    Home, Profile and History all show some of this. Each used to fetch its own
    pieces in its own way; one hook means the three cannot disagree about the
@@ -9,10 +9,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { getMyLichess } from "@/lib/lichess";
 import { classesAttended } from "@/lib/classes-attended";
+import { hoursAttended } from "@/lib/hours-attended";
 import { getProgress, type Progress } from "@/lib/progress";
 
 /** The academy's certificate milestone until its setting loads. */
-const DEFAULT_CERT_SESSIONS = 50;
+const DEFAULT_CERT_HOURS = 50;
 
 export type StudentData = {
   name: string;
@@ -22,9 +23,11 @@ export type StudentData = {
   /** The pupil's Lichess rating, rapid first — null when not linked or unrated. */
   rating: { perf: string; value: number } | null;
   classes: number | null;
-  certSessions: number;
-  /** Certificates earned: every `certSessions` classes attended. */
-  certificates: number | null;
+  /** Hours of class attended — what the certificate milestone counts. */
+  hours: number | null;
+  /** The academy's hours in a course before the certificate assessment.
+      JTrax does not award certificates; this is for showing progress. */
+  certHours: number;
   progress: Progress | null;
   refreshProgress: () => void;
   /** Saves a new display name — what the student panel calls the pupil. The
@@ -37,7 +40,8 @@ export function useStudentData(): StudentData {
   const [record, setRecord] = useState<{ name?: string; current_level?: string } | null>(null);
   const [rating, setRating] = useState<StudentData["rating"]>(null);
   const [classes, setClasses] = useState<number | null>(null);
-  const [certSessions, setCertSessions] = useState(DEFAULT_CERT_SESSIONS);
+  const [hours, setHours] = useState<number | null>(null);
+  const [certHours, setCertHours] = useState(DEFAULT_CERT_HOURS);
   const [progress, setProgress] = useState<Progress | null>(null);
 
   const rename = useCallback(async (name: string): Promise<boolean> => {
@@ -83,18 +87,22 @@ export function useStudentData(): StudentData {
           .then((rows) => alive && setRecord(rows.find((row) => row.student_id === m.studentId) ?? null))
           .catch(() => {});
         Promise.all([
-          list<{ session_id: string; check_in_time?: string }>("attendance"),
-          list<{ session_id: string }>("class-sessions"),
+          list<{ session_id: string; check_in_time?: string; check_out_time?: string }>("attendance"),
+          list<{ session_id: string; session_date?: string; start_time?: string; end_time?: string }>("class-sessions"),
         ])
-          .then(([attendance, sessions]) => alive && setClasses(classesAttended(attendance, new Set(sessions.map((x) => x.session_id)))))
+          .then(([attendance, sessions]) => {
+            if (!alive) return;
+            setClasses(classesAttended(attendance, new Set(sessions.map((x) => x.session_id))));
+            setHours(hoursAttended(attendance, sessions));
+          })
           .catch(() => {});
       })
       .catch(() => {});
 
     list<{ config_key: string; config_value: string }>("system-configuration")
       .then((rows) => {
-        const n = Number(rows.find((r) => r.config_key === "certificate_sessions")?.config_value);
-        if (alive && Number.isFinite(n) && n > 0) setCertSessions(n);
+        const n = Number(rows.find((r) => r.config_key === "certificate_hours")?.config_value);
+        if (alive && Number.isFinite(n) && n > 0) setCertHours(n);
       })
       .catch(() => {});
 
@@ -124,8 +132,8 @@ export function useStudentData(): StudentData {
     level: record?.current_level ?? "",
     rating,
     classes,
-    certSessions,
-    certificates: classes === null ? null : Math.floor(classes / certSessions),
+    certHours,
+    hours,
     progress,
     refreshProgress,
     rename,

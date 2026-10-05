@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -16,11 +16,16 @@ import {
 } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
 import { TournamentBanner } from "@/components/public/TournamentBanner";
+import { TournamentIdCheck, type IdCardRead } from "@/components/parent/TournamentIdCheck";
+import { ageFromDOB, categoryAllows, type PublicCategory } from "@/lib/registration";
 
 /* "done" is a fee that has been settled; "held" is a place taken with the fee
    still owed — the screen used to show the first for both, and for the card
    path it showed it without charging anything at all. */
 type Step = "detail" | "register" | "payment" | "done" | "held";
+
+/* The public form's conditions of entry, by message key. */
+const TERMS = ["termsRegistration", "termsRefund", "termsChanges", "termsConduct", "termsLiability"] as const;
 
 const inputCls =
   "w-full rounded-[13px] border-[1.5px] border-pp-line bg-pp-card px-3.5 py-3 text-[13px] text-pp-ink outline-none focus:border-pp-blue/60";
@@ -59,9 +64,10 @@ const cta =
 
 export default function TournamentFlow() {
   const t = useTranslations("pv2");
+  const tReg = useTranslations("register");
   const router = useRouter();
   const {
-    children: childrenV2, tournament: tournamentV2, tournamentEntries, parent,
+    children: childrenV2, tournament: tournamentV2, tournamentEntries,
     register, payCardFee,
   } = useParentData();
   const [submitting, setSubmitting] = useState(false);
@@ -75,20 +81,50 @@ export default function TournamentFlow() {
   const [step, setStep] = useState<Step>("detail");
   const [child, setChild] = useState(childrenV2[0]?.key ?? "");
   const [pay, setPay] = useState<"card" | "promptpay" | "bank">("card");
-  /* Prefilled with the signed-in parent — it used to arrive filled in with a
-     sample parent's details, and a family who did not notice registered their
-     child under her email. Still editable: the contact for the day is not
-     always the account holder. */
-  /* Controlled, and sent. Both boxes used to be uncontrolled and read by
-     nobody: a parent typing an allergy into them was telling the browser. */
-  const [notes, setNotes] = useState({ medical: "", remarks: "" });
-  const [contact, setContact] = useState({
-    name: parent.name,
-    phone: parent.phone,
-    email: parent.email,
-  });
+  /* What the public form asks too. The family's contact details are on
+     file, so they are not asked for again. */
+  const [nickname, setNickname] = useState("");
+  const [nameTh, setNameTh] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+
+  /* The ID card step: what the card said, for the child it was read for,
+     and the category that birth year allows. */
+  const [idRead, setIdRead] = useState<IdCardRead | null>(null);
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState<PublicCategory[]>([]);
+  const tournamentId = tournamentV2?.id ?? "";
+  useEffect(() => {
+    if (!tournamentId) return;
+    let live = true;
+    fetch("/api/tournament-categories", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows: Array<Record<string, string>>) => {
+        if (!live) return;
+        setCategories(rows
+          .filter((r) => r.tournament_id === tournamentId)
+          .map((r) => ({ id: r.tournament_category_id, name: r.name })));
+      })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [tournamentId]);
 
   const participant = childrenV2.find((c) => c.key === child) ?? childrenV2[0];
+  const verified = idRead && idRead.studentId === participant?.id ? idRead : null;
+  const chosenCategory = categories.find((c) => c.id === categoryId);
+  const categoryOk = categories.length === 0 || Boolean(
+    chosenCategory && verified &&
+    categoryAllows(chosenCategory.name, verified.dateOfBirth, tournamentV2?.startDate ?? "").allowed,
+  );
+  const missing = !verified
+    ? t("verifyIdFirst")
+    : !categoryOk
+      ? t("chooseCategoryFirst")
+      : !nickname.trim()
+        ? tReg("needNickname")
+        : !acceptTerms
+          ? tReg("needTerms")
+          : "";
+  const readyToPay = missing === "";
   /* A child with a place cannot be registered again — the second attempt is
      refused by a unique index, which is what a family who had a card declined
      used to hit. They get the fee button instead. */
@@ -149,7 +185,14 @@ export default function TournamentFlow() {
             {available.map((c) => (
               <button
                 key={c.key}
-                onClick={() => setChild(c.key)}
+                onClick={() => {
+                  setChild(c.key);
+                  /* The card and the category belong to the child they were for. */
+                  if (c.key !== child) {
+                    setIdRead(null);
+                    setCategoryId("");
+                  }
+                }}
                 className="flex w-full cursor-pointer items-center gap-3 rounded-xl border-[1.5px] bg-pp-card p-4 text-left"
                 style={{ borderColor: child === c.key ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
               >
@@ -164,54 +207,111 @@ export default function TournamentFlow() {
             ))}
           </div>
         </div>
-        <label className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-[.1em] text-pp-sub">
-            {t("medicalNotes")}
-          </span>
-          <textarea
-            rows={2}
-            value={notes.medical}
-            onChange={(e) => setNotes({ ...notes, medical: e.target.value })}
-            maxLength={2000}
-            placeholder={t("none")}
-            className={`${inputCls} resize-none`}
-          />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-[.1em] text-pp-sub">
-            {t("remarks")}
-          </span>
-          <textarea
-            rows={2}
-            value={notes.remarks}
-            onChange={(e) => setNotes({ ...notes, remarks: e.target.value })}
-            maxLength={2000}
-            placeholder={t("remarksPh")}
-            className={`${inputCls} resize-none`}
-          />
-        </label>
-        <div className="flex flex-col gap-2.5">
-          <span className={label}>{t("contactInfo")}</span>
-          <input
-            value={contact.name}
-            onChange={(e) => setContact({ ...contact, name: e.target.value })}
-            placeholder={t("fullName")}
-            className={inputCls}
-          />
-          <input
-            value={contact.phone}
-            onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-            placeholder={t("phoneNumber")}
-            className={inputCls}
-          />
-          <input
-            value={contact.email}
-            onChange={(e) => setContact({ ...contact, email: e.target.value })}
-            placeholder={t("emailAddress")}
-            className={inputCls}
-          />
+        {participant && (
+          <TournamentIdCheck
+            tournamentId={tournamentV2.id}
+            studentId={participant.id}
+            startDate={tournamentV2.startDate}
+            categories={categories}
+            read={verified}
+            onRead={(r) => {
+              setIdRead(r);
+              /* The Thai name off the card, unless one was typed. */
+              if (r?.thaiName && !nameTh) setNameTh(r.thaiName);
+            }}
+            categoryId={categoryId}
+            onCategory={setCategoryId}
+          >
+            {/* The player's names, side by side, before the category. */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {(!verified || verified.documentType !== "passport") && (
+                <label className="flex min-w-0 flex-col gap-1.5">
+                  <span className={label}>{tReg("nameThai")}</span>
+                  <input
+                    value={nameTh}
+                    onChange={(e) => setNameTh(e.target.value)}
+                    maxLength={80}
+                    lang="th"
+                    placeholder={tReg("nameThaiPlaceholder")}
+                    className={inputCls}
+                  />
+                </label>
+              )}
+              <label className="flex min-w-0 flex-col gap-1.5">
+                <span className={label}>
+                  {tReg("nickname")}
+                  <span className="ml-0.5 text-pp-danger" aria-hidden>*</span>
+                </span>
+                <input
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  maxLength={80}
+                  placeholder={tReg("nicknamePlaceholder")}
+                  className={inputCls}
+                />
+              </label>
+            </div>
+            {/* Read off the ID card, not typed: it decides the category. */}
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex min-w-0 flex-col gap-1.5">
+                <span className={label}>{tReg("dateOfBirth")}</span>
+                <input
+                  readOnly
+                  tabIndex={-1}
+                  value={verified ? longDate(verified.dateOfBirth) : ""}
+                  placeholder={tReg("dobFromCard")}
+                  className={inputCls.replace("bg-pp-card", "bg-pp-panel")}
+                />
+              </label>
+              <label className="flex min-w-0 flex-col gap-1.5">
+                <span className={label}>{tReg("age")}</span>
+                <input
+                  readOnly
+                  tabIndex={-1}
+                  value={verified ? String(ageFromDOB(verified.dateOfBirth)) : ""}
+                  placeholder="—"
+                  className={inputCls.replace("bg-pp-card", "bg-pp-panel")}
+                />
+              </label>
+            </div>
+          </TournamentIdCheck>
+        )}
+        <div className="flex flex-col gap-2">
+          <span className={label}>{tReg("termsTitle")}</span>
+          <div className="flex flex-col gap-2.5 rounded-xl border-[1.5px] border-pp-line bg-pp-card p-4">
+            <ol className="flex list-decimal flex-col gap-2 pl-4 text-[12.5px] leading-relaxed text-pp-sub">
+              {TERMS.map((k) => (
+                <li key={k}>
+                  <span className="font-semibold text-pp-ink">{tReg(`${k}Title`)}</span>
+                  {" — "}
+                  {tReg(`${k}Body`)}
+                </li>
+              ))}
+            </ol>
+            <label className="flex cursor-pointer items-start gap-2.5 border-t border-pp-line pt-3 text-[13px] font-semibold text-pp-ink">
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-0.5 size-4 accent-pp-blue"
+              />
+              <span>
+                {tReg("termsAccept")}
+                <span className="ml-0.5 text-pp-danger" aria-hidden>*</span>
+              </span>
+            </label>
+          </div>
         </div>
-        <button onClick={() => setStep("payment")} className={cta}>
+        {!readyToPay && (
+          <p className="text-center text-[12px] text-pp-muted">
+            {missing}
+          </p>
+        )}
+        <button
+          onClick={() => setStep("payment")}
+          disabled={!readyToPay}
+          className={`${cta} disabled:cursor-not-allowed disabled:opacity-50`}
+        >
           {t("continuePayment")}
         </button>
       </div>
@@ -236,6 +336,17 @@ export default function TournamentFlow() {
             </span>
             <span className="text-sm font-semibold text-pp-ink">{participant.name}</span>
           </div>
+          {chosenCategory && (
+            <>
+              <div className="border-t border-pp-line" />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10.5px] font-bold uppercase tracking-[.1em] text-pp-faint">
+                  {t("category")}
+                </span>
+                <span className="text-sm font-semibold text-pp-ink">{chosenCategory.name}</span>
+              </div>
+            </>
+          )}
           <div className="border-t border-pp-line" />
           <div className="flex items-center justify-between">
             <span className="text-[12.5px] text-pp-muted">{t("tournamentFee")}</span>
@@ -291,9 +402,11 @@ export default function TournamentFlow() {
               registrationId = await register({
                 tournamentId: tournamentV2.id,
                 studentId: participant.id,
-                contact: contact.phone,
-                medicalNotes: notes.medical.trim(),
-                remarks: notes.remarks.trim(),
+                idCheck: verified?.checkId ?? "",
+                categoryId,
+                nickname: nickname.trim(),
+                nameTh: nameTh.trim(),
+                acceptTerms,
               });
             } catch {
               setRegisterFailed(true);
@@ -411,21 +524,40 @@ export default function TournamentFlow() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <span className={label}>{t("viewDetailsOn")}</span>
-        <div className="overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
-          <a href="#" className="flex items-center gap-3 border-b border-pp-line px-4 py-3.5">
-            <FileText className="size-[17px] flex-none text-pp-blue" strokeWidth={1.8} />
-            <span className="flex-1 text-[13px] text-pp-ink">{t("regulationsPdf")}</span>
-            <span className="text-pp-line">→</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3.5">
-            <MapPin className="size-[17px] flex-none text-pp-blue" strokeWidth={1.8} />
-            <span className="flex-1 text-[13px] text-pp-ink">{t("venueMap")}</span>
-            <span className="text-pp-line">→</span>
-          </a>
+      {/* Only what there is to open: the regulation the organiser uploaded
+          (or linked), and the venue on a map. A row with nothing behind it is
+          left out rather than drawn as a link that goes nowhere. */}
+      {(tournamentV2.regulationUrl || tournamentV2.mapUrl) && (
+        <div className="flex flex-col gap-2">
+          <span className={label}>{t("viewDetailsOn")}</span>
+          <div className="divide-y divide-pp-line overflow-hidden rounded-xl bg-pp-card shadow-[0_8px_24px_rgba(35,53,94,.10)]">
+            {tournamentV2.regulationUrl && (
+              <a
+                href={tournamentV2.regulationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-pp-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-pp-blue"
+              >
+                <FileText className="size-[17px] flex-none text-pp-blue" strokeWidth={1.8} />
+                <span className="flex-1 text-[13px] text-pp-ink">{t("regulationsPdf")}</span>
+                <span className="text-pp-muted" aria-hidden>→</span>
+              </a>
+            )}
+            {tournamentV2.mapUrl && (
+              <a
+                href={tournamentV2.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-pp-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-pp-blue"
+              >
+                <MapPin className="size-[17px] flex-none text-pp-blue" strokeWidth={1.8} />
+                <span className="flex-1 text-[13px] text-pp-ink">{t("venueMap")}</span>
+                <span className="text-pp-muted" aria-hidden>→</span>
+              </a>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       {tournamentEntries.length > 0 && (
         <div className="flex flex-col gap-2">
           <span className={label}>{t("yourEntries")}</span>
@@ -481,7 +613,13 @@ export default function TournamentFlow() {
           )}
         </div>
       )}
-      {available.length > 0 ? (
+      {tournamentV2.registration !== "open" ? (
+        /* Closed by the academy or past its closing date: the server would
+           refuse the entry, so there is no button to start one. */
+        <p role="status" className="rounded-xl bg-pp-panel px-4 py-3 text-center text-[13px] font-semibold text-pp-sub">
+          {tournamentV2.registration === "closed" ? t("registrationClosed") : t("registrationDeadlinePassed")}
+        </p>
+      ) : available.length > 0 ? (
         <button
           onClick={() => {
             setChild(available[0].key);
@@ -496,4 +634,10 @@ export default function TournamentFlow() {
       )}
     </div>
   );
+}
+
+function longDate(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(d);
 }

@@ -44,15 +44,17 @@ export interface ChildV2 {
   expiresAhead: boolean;
   /** Classes this child was checked in to — see `classesAttended`. */
   attended: number;
+  /** Hours of class attended, toward the certificate — see `hoursAttended`. */
+  hoursAttended: number;
   streak: number;
   practiceWeek: number[];
 }
 
-/** The academy awards a certificate after this many classes attended — the
+/** The academy awards a certificate after this many hours of class — the
     milestone the child screen counts toward. This is the fallback: the real
-    figure is the academy's own, `certificate_sessions` in
+    figure is the academy's own, `certificate_hours` in
     `system_configuration`, edited on the console's Settings screen. */
-export const CERT_SESSIONS = 50;
+export const CERT_HOURS = 50;
 /** The console's default low-credit line, until the academy saves its own. */
 export const LOW_CREDIT_AT = 3;
 
@@ -69,6 +71,8 @@ export interface AnnouncementV2 {
   attachment: boolean;
   attachmentImg?: string;
   time: string;
+  /** When it was posted, as the server sent it — for the home's recent-only rule. */
+  postedAt: string;
 }
 
 /** The notification catalogue the backend sends, in the order Settings lists
@@ -133,8 +137,39 @@ export interface TournamentV2 {
   day: string;
   fee: string;
   closesInDays: number;
+  /** Whether it is taking entries: "closed" by the organiser, or past its "deadline". */
+  registration: "open" | "closed" | "deadline";
   /** The organiser uploaded a banner; without one the card draws its own. */
   hasBanner: boolean;
+  /** Where the regulation opens, or "" when there is none — the row is then
+      not shown rather than drawn as a link that goes nowhere. */
+  regulationUrl: string;
+  /** Where the venue opens on a map, or "" with no venue to find. */
+  mapUrl: string;
+  /** YYYY-MM-DD, unformatted: the age groups go by the event's year. */
+  startDate: string;
+}
+
+/** A web address the office typed, only if it is one: http(s), nothing else. */
+function webUrl(raw: string): string {
+  const v = raw.trim();
+  return /^https?:\/\//i.test(v) ? v : "";
+}
+
+/** The regulation: the uploaded file when there is one (served through this
+    app's proxy, which signs the request in), else a link the office pasted. */
+export function regulationUrlOf(id: string, hasUpload: boolean, pastedUrl: string): string {
+  if (hasUpload && id) return `/api/tournaments/${encodeURIComponent(id)}/regulation`;
+  return webUrl(pastedUrl);
+}
+
+/** The venue on a map: the exact link the office set when there is one, else
+    a map search for the venue's name and address. */
+export function mapUrlOf(mapLink: string, venueName: string, venueAddress: string): string {
+  const exact = webUrl(mapLink);
+  if (exact) return exact;
+  const where = [venueName.trim(), venueAddress.trim()].filter(Boolean).join(", ");
+  return where ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(where)}` : "";
 }
 
 /** One attendance row joined to its session, for the history lists. */

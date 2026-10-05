@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { receiptNumber, toPaymentHistory, visitCredits } from "./payment-history";
+import { toPaymentHistory, visitCredits } from "./payment-history";
 
 const data = {
   students: [{ student_id: "stu_penny", name: "Penny" }],
@@ -29,13 +29,6 @@ describe("toPaymentHistory", () => {
     expect(rows[0]).toMatchObject({ kind: "tournament", forWhat: "Wellington Open", credits: 0, reference: "PP-778" });
     expect(rows[1]).toMatchObject({ childName: "Penny", forWhat: "Beginner", paid: 10800, discount: 1200, credits: 20 });
     expect(rows[2].credits).toBe(7);
-  });
-});
-
-describe("receiptNumber", () => {
-  it("is short and stable", () => {
-    expect(receiptNumber("pay_a1b2c3d4")).toBe("R-A1B2C3D4");
-    expect(receiptNumber("pay_0123456789abcdef")).toBe("R-89ABCDEF");
   });
 });
 

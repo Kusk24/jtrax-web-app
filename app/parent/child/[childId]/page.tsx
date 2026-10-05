@@ -11,6 +11,8 @@ import { Check, Flame, Star } from "lucide-react";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
+import { ChildAccount } from "@/components/parent/ChildAccount";
+import { CopyId } from "@/components/parent/CopyId";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 
@@ -70,7 +72,10 @@ export default function ChildProfileV2({
         />
         <div className="flex flex-col gap-0.5">
           <span className="font-pp-display text-[22px] font-semibold">{ch.name}</span>
-          <span className="text-xs text-pp-muted">{t("idLabel", { id: ch.id })}</span>
+          <span className="flex items-center gap-1.5 text-xs text-pp-muted">
+            {t("studentIdLabel")}
+            <CopyId id={ch.id} />
+          </span>
           <span className="text-[12.5px] font-semibold text-pp-ink">
             {ch.level || "—"}
             {ch.age > 0 ? ` · ${ch.age}` : ""}
@@ -205,6 +210,9 @@ export default function ChildProfileV2({
           linked, so a family that does not use Lichess never sees an empty
           card asking them to. */}
       <ChildLichess studentId={ch.key} />
+
+      {/* How the child signs in, and a new password for one without email. */}
+      <ChildAccount studentId={ch.id} name={ch.name} />
     </div>
   );
 }

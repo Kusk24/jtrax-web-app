@@ -9,11 +9,20 @@ const round = (v: number) => Math.round(v * 100) / 100;
 
 export type CreditLifetime = { bought: number; used: number };
 
-export function creditLifetime(studentId: string, creditTransactions: Row[]): CreditLifetime {
+/**
+ * A row is the child's when it names them, or when it names one of their
+ * enrolments — class charges used to carry only the enrolment, so "used" read
+ * 0 while the course balance had dropped.
+ */
+export function creditLifetime(studentId: string, creditTransactions: Row[], enrollments: Row[] = []): CreditLifetime {
+  const mine = new Set(
+    enrollments.filter((e) => s(e, "student_id") === studentId).map((e) => s(e, "enrollment_id")),
+  );
   let bought = 0;
   let used = 0;
   for (const t of creditTransactions) {
-    if (s(t, "student_id") !== studentId) continue;
+    const forChild = s(t, "student_id") === studentId || (!s(t, "student_id") && mine.has(s(t, "enrollment_id")));
+    if (!forChild) continue;
     const amount = Number(t.amount ?? 0);
     if (s(t, "transaction_type") === "purchase") bought += amount;
     else if (s(t, "transaction_type") === "consumption") used -= amount;

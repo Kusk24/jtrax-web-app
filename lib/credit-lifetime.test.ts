@@ -22,4 +22,14 @@ describe("a child's lifetime credits", () => {
   it("is zero, not minus zero, with nothing on file", () => {
     expect(Object.is(creditLifetime("S1", []).used, 0)).toBe(true);
   });
+
+  it("counts a class charge that names only the enrolment", () => {
+    const rows = [
+      { student_id: "S1", enrollment_id: "E1", transaction_type: "purchase", amount: 20 },
+      { student_id: null, enrollment_id: "E1", transaction_type: "consumption", amount: -2 },
+      { student_id: null, enrollment_id: "E9", transaction_type: "consumption", amount: -5 },
+    ];
+    const enrollments = [{ enrollment_id: "E1", student_id: "S1" }, { enrollment_id: "E9", student_id: "S2" }];
+    expect(creditLifetime("S1", rows, enrollments)).toEqual({ bought: 20, used: 2 });
+  });
 });

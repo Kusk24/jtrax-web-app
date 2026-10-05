@@ -28,7 +28,7 @@ function StatusChip({ status }: { status: PaymentRecord["status"] }) {
   const t = useTranslations("pv2");
   const tone =
     status === "Paid" ? "bg-pp-green-soft text-pp-green"
-    : status === "Refunded" ? "bg-pp-danger-soft text-pp-danger"
+    : status === "Cancelled" ? "bg-pp-danger-soft text-pp-danger"
     : "bg-pp-amber-soft text-pp-amber";
   return <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tone}`}>{t(`payStatus.${status}`)}</span>;
 }
@@ -63,8 +63,6 @@ function Receipt({ p, onClose }: { p: PaymentRecord; onClose: () => void }) {
         {
           school: "JCA Chess School",
           title: t("receiptOfficial"),
-          receiptNoLabel: t("receiptNo"),
-          receiptNo: p.receiptNo,
           details,
           itemHeader: t("receiptItem"),
           amountHeader: t("receiptAmount"),
@@ -84,7 +82,7 @@ function Receipt({ p, onClose }: { p: PaymentRecord; onClose: () => void }) {
           totalLabel: t("payAmountPaid"),
           total: money(p.paid, locale),
           status: t(`payStatus.${p.status}`),
-          statusTone: p.status === "Paid" ? "paid" : p.status === "Refunded" ? "refunded" : "pending",
+          statusTone: p.status === "Paid" ? "paid" : p.status === "Cancelled" ? "cancelled" : "pending",
           thanks: t("receiptThanks"),
           footnote: t("receiptFootnote"),
         },
@@ -104,7 +102,7 @@ function Receipt({ p, onClose }: { p: PaymentRecord; onClose: () => void }) {
     };
   }, [p, t, locale, parent.name]);
 
-  const fileName = `JCA-${p.receiptNo}.png`;
+  const fileName = `JCA-${p.id}.png`;
   async function save() {
     if (!blob || !url) return;
     /* On a phone, the share sheet is where "Save Image" lives. */

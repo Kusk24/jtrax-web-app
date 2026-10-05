@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { signIn, type SignInState } from "@/app/actions/auth";
+import { PasswordInput } from "@/components/PasswordInput";
 
 export function LoginForm() {
   const t = useTranslations("landing");
@@ -32,18 +33,24 @@ export function LoginForm() {
           spellCheck={false}
           className="rounded-xl border-2 border-line bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-navy/50"
         />
+        <span className="text-xs font-normal text-muted">{t("signInIdHint")}</span>
       </label>
       <label className="flex flex-col gap-1 text-sm font-bold text-ink">
         {t("password")}
-        <input
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete="current-password"
           className="rounded-xl border-2 border-line bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-navy/50"
         />
       </label>
-      {state.error && (
-        <p className="text-xs font-bold text-brick">
+      {state.error === "staff" ? (
+        /* A real account, for the other app: say which one to use. */
+        <p role="alert" className="text-xs text-brick">
+          <strong className="block font-bold">{t("errorStaffTitle")}</strong>
+          {t("errorStaff")}
+        </p>
+      ) : state.error && (
+        <p role="alert" className="text-xs font-bold text-brick">
           {t(state.error === "missing" ? "errorMissing" : state.error === "unreachable" ? "errorUnreachable" : "errorInvalid")}
         </p>
       )}

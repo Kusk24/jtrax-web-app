@@ -2,17 +2,8 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Clock3, Paperclip, UserRound, X } from "lucide-react";
-import type { AnnouncementV2, SenderKind } from "@/lib/parent-v2-data";
-
-export const SENDER_STYLE: Record<
-  SenderKind,
-  { labelKey: string; c: string; bg: string }
-> = {
-  teacher: { labelKey: "senderTeacher", c: "var(--color-pp-blue)", bg: "var(--color-pp-soft)" },
-  branch: { labelKey: "senderBranch", c: "var(--color-pp-green)", bg: "var(--color-pp-green-soft)" },
-  admin: { labelKey: "senderAdmin", c: "var(--color-pp-deep)", bg: "var(--color-pp-plum-soft)" },
-};
+import { Clock3, Megaphone, Paperclip, UserRound, X } from "lucide-react";
+import type { AnnouncementV2 } from "@/lib/parent-v2-data";
 
 export function AnnouncementModal({
   a,
@@ -22,7 +13,6 @@ export function AnnouncementModal({
   onClose: () => void;
 }) {
   const t = useTranslations("pv2");
-  const ss = SENDER_STYLE[a.sender];
   return (
     <div
       onClick={onClose}
@@ -32,9 +22,10 @@ export function AnnouncementModal({
         onClick={(e) => e.stopPropagation()}
         className="flex max-h-[80vh] w-full max-w-[420px] flex-col gap-3 overflow-y-auto rounded-xl bg-pp-card p-6 shadow-[0_30px_70px_rgba(28,25,40,.3)]"
       >
-        <div className="flex items-center justify-between gap-2.5">
-          <span className="min-w-0 flex-1 font-pp-display text-xl font-semibold leading-snug text-pp-ink">
-            {a.title}
+        <div className="flex items-start justify-between gap-2.5">
+          <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[.14em] text-pp-blue">
+            <Megaphone className="size-3.5" strokeWidth={2} aria-hidden />
+            {t("announcementLabel")}
           </span>
           <button
             onClick={onClose}
@@ -44,7 +35,17 @@ export function AnnouncementModal({
             <X className="size-3.5" />
           </button>
         </div>
-        <span className="text-[13.5px] leading-relaxed text-pp-sub">{a.msg}</span>
+        <span className="font-pp-display text-xl font-semibold leading-snug text-pp-ink">{a.title}</span>
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-pp-muted">
+          <span>{t("fromSender", { name: a.senderName })}</span>
+          <span aria-hidden>·</span>
+          <span className="inline-flex items-center gap-1">
+            <Clock3 className="size-3" strokeWidth={2} aria-hidden />
+            {a.time}
+          </span>
+        </span>
+        <div className="border-t border-pp-line" />
+        <span className="whitespace-pre-line text-[13.5px] leading-relaxed text-pp-ink">{a.msg}</span>
         {a.attachmentImg && (
           <Image
             src={a.attachmentImg}
@@ -54,39 +55,23 @@ export function AnnouncementModal({
             className="w-full rounded-[14px]"
           />
         )}
-        <div className="flex items-center gap-2 border-t border-pp-line pt-2">
-          <span
-            className="flex size-8 flex-none items-center justify-center rounded-full"
-            style={{ background: ss.bg, color: ss.c }}
-          >
-            <UserRound className="size-[15px]" strokeWidth={2} />
-          </span>
-          <div className="flex min-w-0 flex-col">
-            <span className="text-[13px] font-semibold text-pp-ink">{a.senderName}</span>
-            <span className="text-[11px] text-pp-muted">
-              {t(ss.labelKey)}
-              {a.cls ? ` · ${a.cls}` : ""}
-            </span>
+        {(a.child || a.cls || a.attachment) && (
+          <div className="flex flex-wrap gap-x-3 gap-y-1 border-t border-pp-line pt-2 text-[11.5px] text-pp-muted">
+            {a.child && (
+              <span className="inline-flex items-center gap-1">
+                <UserRound className="size-3" strokeWidth={2} aria-hidden />
+                {t("forChild", { name: a.child })}
+              </span>
+            )}
+            {a.cls && <span>{a.cls}</span>}
+            {a.attachment && (
+              <span className="inline-flex items-center gap-1 text-pp-blue">
+                <Paperclip className="size-3" strokeWidth={2} aria-hidden />
+                {t("oneAttachment")}
+              </span>
+            )}
           </div>
-        </div>
-        {a.child && (
-          <span className="flex items-center gap-1.5 text-xs text-pp-muted">
-            <UserRound className="size-[13px]" strokeWidth={2} />
-            {t("forChild", { name: a.child })}
-          </span>
         )}
-        <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5 text-[11px] text-pp-faint">
-            <Clock3 className="size-3" strokeWidth={2} />
-            {a.time}
-          </span>
-          {a.attachment && (
-            <span className="flex items-center gap-1.5 text-[11px] text-pp-blue">
-              <Paperclip className="size-3" strokeWidth={2} />
-              {t("oneAttachment")}
-            </span>
-          )}
-        </div>
       </div>
     </div>
   );

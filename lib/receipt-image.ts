@@ -11,8 +11,6 @@ export type ReceiptLine = { label: string; value: string };
 export type ReceiptDrawing = {
   school: string;
   title: string;
-  receiptNoLabel: string;
-  receiptNo: string;
   /** Two-up details under the header: date, received from, student, method… */
   details: ReceiptLine[];
   itemHeader: string;
@@ -25,7 +23,7 @@ export type ReceiptDrawing = {
   totalLabel: string;
   total: string;
   status: string;
-  statusTone: "paid" | "pending" | "refunded";
+  statusTone: "paid" | "pending" | "cancelled";
   thanks: string;
   footnote: string;
 };
@@ -47,7 +45,7 @@ const C = {
   band: "#F5F7FB",
 };
 
-const STAMP = { paid: "#17924A", pending: "#C98A0B", refunded: "#C8322B" };
+const STAMP = { paid: "#17924A", pending: "#C98A0B", cancelled: "#C8322B" };
 
 /** Cut text to fit a width, with an ellipsis. */
 function fit(ctx: CanvasRenderingContext2D, text: string, max: number): string {
@@ -160,16 +158,7 @@ export function drawReceipt(d: ReceiptDrawing, logo: HTMLImageElement | null, fo
   ctx.fillText(fit(ctx, d.school, rightX - tx - 150), tx, top + 76);
   ctx.fillStyle = "rgba(255,255,255,.85)";
   ctx.font = f(500, 15);
-  ctx.fillText(fit(ctx, d.title, rightX - tx - 150), tx, top + 102);
-
-  ctx.textAlign = "right";
-  ctx.fillStyle = "rgba(255,255,255,.75)";
-  ctx.font = f(700, 11);
-  ctx.fillText(d.receiptNoLabel.toUpperCase(), rightX, top + 70);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = f(700, 18);
-  ctx.fillText(d.receiptNo, rightX, top + 96);
-  ctx.textAlign = "left";
+  ctx.fillText(fit(ctx, d.title, rightX - tx), tx, top + 102);
 
   /* Details, two to a row. */
   let y = top + headerH + 28;

@@ -9,8 +9,10 @@ export function creditTone(credits: number, lowAt: number): CreditTone {
   return "ok";
 }
 
-/** The bar's share of the last top-up, 0–100; full when there is no top-up to compare with. */
+/** The bar's share of the last top-up, 0–100. Nothing left is an empty bar,
+    always; a balance with no top-up to compare with is a full one. */
 export function creditShare(credits: number, of: number | null): number {
+  if (credits <= 0) return 0;
   if (!of || of <= 0) return 100;
   return Math.max(0, Math.min(100, (credits / of) * 100));
 }

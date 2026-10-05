@@ -43,7 +43,7 @@ export function CourseCard({ course, index = 0 }: { course: CourseCredit; index?
   const pct = creditShare(course.credits, course.creditsOf);
 
   return (
-    <div className={`flex flex-col gap-3 rounded-xl border-[1.5px] ${low ? "border-pp-danger" : "border-pp-line"} bg-pp-card p-3.5 sm:flex-row sm:items-center sm:gap-4`}>
+    <div className={`flex flex-col gap-3 rounded-xl border-[1.5px] border-pp-line bg-pp-card p-3.5 sm:flex-row sm:items-center sm:gap-4`}>
       <div className="flex min-w-0 flex-1 items-center gap-3.5">
         <span className={`flex size-14 flex-none items-center justify-center rounded-xl ${tile}`}>
           <Icon className="size-6" strokeWidth={2} />

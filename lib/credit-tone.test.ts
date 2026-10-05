@@ -20,5 +20,8 @@ describe("credit share", () => {
   });
   it("is full when there is no top-up to compare with", () => {
     expect(creditShare(4, null)).toBe(100);
+    // Never topped up and nothing left: empty, not full.
+    expect(creditShare(0, null)).toBe(0);
+    expect(creditShare(-1, null)).toBe(0);
   });
 });

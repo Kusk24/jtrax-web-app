@@ -18,8 +18,19 @@ import { TournamentBanner } from "@/components/public/TournamentBanner";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
 import { RegisterForm } from "./RegisterForm";
+import { contactFrom, type AcademyContact } from "@/lib/academy-contact";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
+
+/* The academy's contact details, as the office saved them in Settings. */
+async function fetchContact(): Promise<AcademyContact> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/public/academy`, { next: { revalidate: 300 } });
+    return contactFrom(res.ok ? await res.json() : {});
+  } catch {
+    return contactFrom({});
+  }
+}
 
 /* Short, because the two facts most likely to change while a poster is up are
    how many places are left and whether registration is still open. */
@@ -85,7 +96,7 @@ export default async function RegisterPage({
 }) {
   const { id } = await params;
   const { preview } = await searchParams;
-  const data = await fetchTournament(id, preview);
+  const [data, contact] = await Promise.all([fetchTournament(id, preview), fetchContact()]);
   // Closed and non-existent are the same 404 here, exactly as the API treats
   // them — the page must not be a way to discover which ids are real.
   if (!data) notFound();
@@ -107,9 +118,14 @@ export default async function RegisterPage({
   const previewQuery = preview ? `?preview=${encodeURIComponent(preview)}` : "";
   const venue = tournament.venueName || tournament.venueAddress;
 
-  const mapUrl = venue
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([tournament.venueName, tournament.venueAddress].filter(Boolean).join(", "))}`
-    : "";
+  // The link staff set at creation, when there is one — an exact pin, not a
+  // guess. A name-and-address search is the fallback for a tournament made
+  // before this existed, not the first choice once it does.
+  const mapUrl =
+    tournament.venueMapUrl ||
+    (venue
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([tournament.venueName, tournament.venueAddress].filter(Boolean).join(", "))}`
+      : "");
   const earlyBird = tournament.earlyBirdActive && tournament.earlyBirdUntil && tournament.earlyBirdFee;
   /* Whole days until the deadline, counted on the academy's calendar
      (Bangkok): entries close at the end of that day, whatever the reader's
@@ -246,6 +262,7 @@ export default async function RegisterPage({
             earlyBirdUntil={tournament.earlyBirdActive ? tournament.earlyBirdUntil : undefined}
             registrationDeadline={tournament.registrationDeadline || undefined}
             preview={Boolean(preview)}
+            contact={contact}
           />
         ) : (
           <PublicCard>
