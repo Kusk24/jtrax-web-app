@@ -294,7 +294,19 @@
     "fromSender": "จาก {name}",
     "verifyIdFirst": "อัปโหลดบัตรเพื่อดำเนินการต่อ",
     "chooseCategoryFirst": "เลือกรุ่นเพื่อดำเนินการต่อ",
-    "category": "รุ่น"
+    "category": "รุ่น",
+    "accountSecurity": "บัญชีและความปลอดภัย",
+    "loginUsername": "ชื่อผู้ใช้สำหรับเข้าสู่ระบบ",
+    "signsInWithEmail": "เข้าสู่ระบบด้วยอีเมลของตนเอง",
+    "copyUsername": "คัดลอกชื่อผู้ใช้",
+    "ownEmailResetHint": "{name} สามารถรีเซ็ตได้เองด้วย ลืมรหัสผ่าน",
+    "childPasswordChanged": "เปลี่ยนรหัสผ่านของ {name} แล้ว {name} เข้าสู่ระบบด้วยรหัสผ่านใหม่ได้ทันที",
+    "resetPassword": "รีเซ็ตรหัสผ่าน",
+    "resetChildPasswordTitle": "รีเซ็ตรหัสผ่านของ {name}",
+    "resetChildPasswordBody": "ตั้งรหัสผ่านใหม่สำหรับบัญชีนักเรียนของ {name}",
+    "newPassword": "รหัสผ่านใหม่",
+    "confirmNewPassword": "ยืนยันรหัสผ่านใหม่",
+    "passwordRuleHint": "อย่างน้อย 8 ตัวอักษร มีทั้งตัวอักษรและตัวเลข"
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",

@@ -11,6 +11,7 @@ import { Check, Flame, Star } from "lucide-react";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
+import { ChildAccount } from "@/components/parent/ChildAccount";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 
@@ -205,6 +206,9 @@ export default function ChildProfileV2({
           linked, so a family that does not use Lichess never sees an empty
           card asking them to. */}
       <ChildLichess studentId={ch.key} />
+
+      {/* How the child signs in, and a new password for one without email. */}
+      <ChildAccount studentId={ch.id} name={ch.name} />
     </div>
   );
 }

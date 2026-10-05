@@ -294,7 +294,19 @@
     "fromSender": "From {name}",
     "verifyIdFirst": "Upload the ID card to continue.",
     "chooseCategoryFirst": "Choose a category to continue.",
-    "category": "Category"
+    "category": "Category",
+    "accountSecurity": "Account & Security",
+    "loginUsername": "Login username",
+    "signsInWithEmail": "Signs in with their email",
+    "copyUsername": "Copy username",
+    "ownEmailResetHint": "{name} can reset it with Forgot password.",
+    "childPasswordChanged": "{name}'s password has been changed. {name} can sign in with it now.",
+    "resetPassword": "Reset Password",
+    "resetChildPasswordTitle": "Reset {name}'s Password",
+    "resetChildPasswordBody": "Set a new password for {name}'s student account.",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "passwordRuleHint": "At least 8 characters, with a letter and a number."
   },
   "sv2": {
     "brand": "JTrax — Student",
