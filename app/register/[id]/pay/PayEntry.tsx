@@ -43,7 +43,7 @@ function longDate(iso: string, locale: string): string {
 const STATUS_TONE: Record<string, string> = {
   Paid: "bg-pp-green-soft text-pp-green-dot",
   Pending: "bg-pp-amber-soft text-pp-amber",
-  Expired: "bg-pp-red-soft text-pp-red",
+  Cancelled: "bg-pp-red-soft text-pp-red",
   Refunded: "bg-pp-soft text-pp-sub",
 };
 
@@ -157,11 +157,11 @@ export function PayEntry() {
         {entry.state === "paid" && (
           <p className="rounded-xl bg-pp-green-soft px-3 py-2 text-[13.5px] font-semibold text-pp-ink">{t("payAlreadyDone")}</p>
         )}
-        {entry.state === "expired" && (
+        {entry.state === "cancelled" && (
           <p className="rounded-xl bg-pp-red-soft px-3 py-2 text-[13.5px] font-semibold text-pp-ink">
             {entry.registrationDeadline
-              ? t("entryExpired", { date: date(entry.registrationDeadline) })
-              : t("entryExpiredNoDate")}
+              ? t("entryCancelled", { date: date(entry.registrationDeadline) })
+              : t("entryCancelledNoDate")}
           </p>
         )}
         {entry.state === "free" && <p className="max-w-sm text-[13px] text-pp-muted">{t("payNothingDue")}</p>}

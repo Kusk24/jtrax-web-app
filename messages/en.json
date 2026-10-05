@@ -799,8 +799,7 @@
     "entryStatus": {
       "Pending": "Pending",
       "Paid": "Paid",
-      "Expired": "Expired",
-      "Refunded": "Refunded"
+      "Cancelled": "Cancelled"
     },
     "entryAmountPaid": "Amount paid",
     "entryFeeNow": "Entry fee",
@@ -810,8 +809,8 @@
     "entryAfter": "{fee} after {date}",
     "entryPaymentDeadline": "Payment deadline",
     "entryReleaseWarning": "If payment has not been received by {date}, when registration closes, the reserved place will be released.",
-    "entryExpired": "Registration closed on {date} without payment, so this place was released.",
-    "entryExpiredNoDate": "Registration closed without payment, so this place was released."
+    "entryCancelled": "Registration closed on {date} without payment, so this place was released.",
+    "entryCancelledNoDate": "Registration closed without payment, so this place was released."
   },
   "results": {
     "categories": "Categories",

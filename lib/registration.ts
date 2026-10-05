@@ -201,9 +201,9 @@ export type PublicEntry = {
   category?: string;
   /** What it costs today: the early-bird price while that holds, the regular after. */
   fee: number;
-  /** "unpaid", "paid", "free" (nothing to pay), "expired" (registration closed
+  /** "unpaid", "paid", "free" (nothing to pay), "cancelled" (registration closed
       unpaid, so the place was released) or "closed" (withdrawn or refunded). */
-  state: "unpaid" | "paid" | "free" | "expired" | "closed";
+  state: "unpaid" | "paid" | "free" | "cancelled" | "closed";
   cardPayments: boolean;
   startDate?: string;
   endDate?: string;
@@ -211,7 +211,7 @@ export type PublicEntry = {
   /** When registration closes: the last day to pay. */
   registrationDeadline?: string;
   /** The payment's own word. */
-  paymentStatus?: "Pending" | "Paid" | "Expired" | "Refunded";
+  paymentStatus?: "Pending" | "Paid" | "Cancelled";
   amountPaid?: number;
   /** While the early-bird price holds: until when, and the price after. */
   earlyBirdUntil?: string;
