@@ -44,15 +44,17 @@ export interface ChildV2 {
   expiresAhead: boolean;
   /** Classes this child was checked in to — see `classesAttended`. */
   attended: number;
+  /** Hours of class attended, toward the certificate — see `hoursAttended`. */
+  hoursAttended: number;
   streak: number;
   practiceWeek: number[];
 }
 
-/** The academy awards a certificate after this many classes attended — the
+/** The academy awards a certificate after this many hours of class — the
     milestone the child screen counts toward. This is the fallback: the real
-    figure is the academy's own, `certificate_sessions` in
+    figure is the academy's own, `certificate_hours` in
     `system_configuration`, edited on the console's Settings screen. */
-export const CERT_SESSIONS = 50;
+export const CERT_HOURS = 50;
 /** The console's default low-credit line, until the academy saves its own. */
 export const LOW_CREDIT_AT = 3;
 

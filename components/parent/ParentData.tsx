@@ -11,12 +11,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
-  CERT_SESSIONS, LOW_CREDIT_AT, CURRENT, recentMonths, streakFrom, todayISO,
+  CERT_HOURS, LOW_CREDIT_AT, CURRENT, recentMonths, streakFrom, todayISO,
   type AnnouncementV2, type ChildKey, type ChildV2, type HistRow, type MonthDef,
   type InboxNotif, NOTIF_DEFAULTS, type NotifType, type SenderKind,
   type TournamentEntryV2, type TournamentV2, mapUrlOf, regulationUrlOf,
 } from "@/lib/parent-v2-data";
 import { classesAttended } from "@/lib/classes-attended";
+import { hoursAttended } from "@/lib/hours-attended";
 import { money } from "@/lib/money";
 import { todayActivityOf, type TodayActivity } from "@/lib/today-activity";
 import { toPaymentHistory, visitCredits, type PaymentRecord } from "@/lib/payment-history";
@@ -91,7 +92,7 @@ type ParentDataValue = {
   todayActivity: TodayActivity[];
   /** Classes attended before a certificate is awarded — the academy's own
       figure from system_configuration, or the 50 default until it saves one. */
-  certSessions: number;
+  certHours: number;
   /** The academy's low-credit line from Settings: at or below it is low. */
   lowCreditAt: number;
   prefs: Prefs;
@@ -157,7 +158,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [hist, setHist] = useState<HistRow[]>([]);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
   const [todayActivity, setTodayActivity] = useState<ParentDataValue["todayActivity"]>([]);
-  const [certSessions, setCertSessions] = useState(CERT_SESSIONS);
+  const [certHours, setCertHours] = useState(CERT_HOURS);
   const [lowCreditAt, setLowCreditAt] = useState(LOW_CREDIT_AT);
   const [prefs, setPrefs] = useState<Prefs>(NOTIF_DEFAULTS);
   const [schoolAllows, setSchoolAllows] = useState<Prefs>(NOTIF_DEFAULTS);
@@ -184,10 +185,10 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
 
     /* The academy's certificate milestone, or the default until it saves one. */
     const certRaw = Number(s(
-      config.find((r) => s(r, "config_key") === "certificate_sessions") ?? {},
+      config.find((r) => s(r, "config_key") === "certificate_hours") ?? {},
       "config_value",
     ));
-    setCertSessions(Number.isFinite(certRaw) && certRaw > 0 ? certRaw : CERT_SESSIONS);
+    setCertHours(Number.isFinite(certRaw) && certRaw > 0 ? certRaw : CERT_HOURS);
     /* The same low-credit line the console's Settings edits, 3 until saved. */
     const lowRaw = config.find((r) => s(r, "config_key") === "credit_rule_low_credit");
     const low = lowRaw ? Number(s(lowRaw, "config_value")) : NaN;
@@ -224,6 +225,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       const daysLeft = Math.max(0, daysRaw);
 
       const attended = classesAttended(attendance.filter((a) => s(a, "student_id") === sid), sessionIds);
+      const hours = hoursAttended(attendance.filter((a) => s(a, "student_id") === sid), sessions);
       const acts = activities.filter((a) => s(a, "student_id") === sid);
       const week = Array.from({ length: 7 }, (_, d) => {
         const day = todayISO(new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6 - d)));
@@ -249,6 +251,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         daysLeft,
         expiresAhead: daysRaw >= 0,
         attended,
+        hoursAttended: hours,
         /* Counted from the days this child actually practised, not read off
            `student.streak_count` — a number the browser used to post and
            nothing ever recomputed, so a child who stopped in May still showed
@@ -529,10 +532,10 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     },
     isAnnRead: (id) => annRead.has(id),
     markAnnRead,
-    tournament: tour, tournamentEntries: entries, months, att, hist, payments: paymentHistory, todayActivity, certSessions, lowCreditAt,
+    tournament: tour, tournamentEntries: entries, months, att, hist, payments: paymentHistory, todayActivity, certHours, lowCreditAt,
     prefs, schoolAllows, parentId, savePref, register, payCardFee,
   }), [childList, parent, anns, allNotifs, annRead, markNotifRead, markAnnRead,
-    tour, entries, months, att, hist, paymentHistory, todayActivity, certSessions, lowCreditAt, prefs, schoolAllows, parentId, savePref, register,
+    tour, entries, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref, register,
     payCardFee]);
 
   /* No screen renders until the data is real. The old behaviour — sample

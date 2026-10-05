@@ -221,7 +221,7 @@
     "notifCreditsTitle": "{name} — Credits expiring soon",
     "notifCreditsBody": "Credits expire on {date} — {days} days left.",
     "classesAttended": "Classes attended",
-    "certNote": "A certificate is awarded after {count} classes.",
+    "certNote": "A certificate is awarded after {count} hours of class.",
     "navSettings": "Settings",
     "settingsTitle": "Settings",
     "brandSub": "Chess School",
