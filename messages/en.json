@@ -306,7 +306,10 @@
     "resetChildPasswordBody": "Set a new password for {name}'s student account.",
     "newPassword": "New password",
     "confirmNewPassword": "Confirm new password",
-    "passwordRuleHint": "At least 8 characters, with a letter and a number."
+    "passwordRuleHint": "At least 8 characters, with a letter and a number.",
+    "registrationClosed": "Registration for this tournament is closed.",
+    "registrationDeadlinePassed": "Registration closed on the closing date.",
+    "registrationClosedShort": "Closed"
   },
   "sv2": {
     "brand": "JTrax — Student",

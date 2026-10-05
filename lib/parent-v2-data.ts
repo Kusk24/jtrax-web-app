@@ -137,6 +137,8 @@ export interface TournamentV2 {
   day: string;
   fee: string;
   closesInDays: number;
+  /** Whether it is taking entries: "closed" by the organiser, or past its "deadline". */
+  registration: "open" | "closed" | "deadline";
   /** The organiser uploaded a banner; without one the card draws its own. */
   hasBanner: boolean;
   /** Where the regulation opens, or "" when there is none — the row is then

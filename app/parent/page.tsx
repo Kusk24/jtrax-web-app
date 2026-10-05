@@ -122,15 +122,23 @@ export default function ParentHomeV2() {
                   className="h-[158px] w-full"
                 />
                 <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
-                  <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
-                    {t("registerCloses")}
-                  </span>
-                  <span className="font-pp-display text-xl font-bold leading-none">
-                    {tournament.closesInDays}
-                  </span>
-                  <span className="text-[8px] font-bold uppercase leading-none tracking-[.06em]">
-                    {t("days")}
-                  </span>
+                  {tournament.registration === "open" ? (
+                    <>
+                      <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
+                        {t("registerCloses")}
+                      </span>
+                      <span className="font-pp-display text-xl font-bold leading-none">
+                        {tournament.closesInDays}
+                      </span>
+                      <span className="text-[8px] font-bold uppercase leading-none tracking-[.06em]">
+                        {t("days")}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-[9px] font-bold uppercase leading-tight tracking-[.04em]">
+                      {t("registrationClosedShort")}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col gap-2 px-4 pb-4 pt-4">

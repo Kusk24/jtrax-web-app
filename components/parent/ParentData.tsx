@@ -18,6 +18,7 @@ import {
 } from "@/lib/parent-v2-data";
 import { classesAttended } from "@/lib/classes-attended";
 import { hoursAttended } from "@/lib/hours-attended";
+import { registrationState } from "@/lib/registration-open";
 import { money } from "@/lib/money";
 import { todayActivityOf, type TodayActivity } from "@/lib/today-activity";
 import { toPaymentHistory, visitCredits, type PaymentRecord } from "@/lib/payment-history";
@@ -379,6 +380,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
           ? Math.max(0, Math.ceil((new Date(deadline).getTime() - today.getTime()) / 86400_000))
           : 0,
         hasBanner: Boolean(trn.has_banner),
+        registration: registrationState(trn, todayISO(today)),
         regulationUrl: regulationUrlOf(s(trn, "tournament_id"), Boolean(trn.has_regulation), s(trn, "regulations_document_url")),
         mapUrl: mapUrlOf(s(trn, "venue_map_url"), s(trn, "venue_name"), s(trn, "venue_address")),
         startDate: s(trn, "start_date"),

@@ -613,7 +613,13 @@ export default function TournamentFlow() {
           )}
         </div>
       )}
-      {available.length > 0 ? (
+      {tournamentV2.registration !== "open" ? (
+        /* Closed by the academy or past its closing date: the server would
+           refuse the entry, so there is no button to start one. */
+        <p role="status" className="rounded-xl bg-pp-panel px-4 py-3 text-center text-[13px] font-semibold text-pp-sub">
+          {tournamentV2.registration === "closed" ? t("registrationClosed") : t("registrationDeadlinePassed")}
+        </p>
+      ) : available.length > 0 ? (
         <button
           onClick={() => {
             setChild(available[0].key);
