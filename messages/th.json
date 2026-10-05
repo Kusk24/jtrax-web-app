@@ -253,7 +253,7 @@
     "payStatus": {
       "Paid": "ชำระแล้ว",
       "Pending": "รอชำระ",
-      "Expired": "หมดอายุ"
+      "Cancelled": "ยกเลิก"
     },
     "payMethodName": {
       "Cash": "เงินสด",

@@ -23,7 +23,7 @@ export type ReceiptDrawing = {
   totalLabel: string;
   total: string;
   status: string;
-  statusTone: "paid" | "pending" | "expired";
+  statusTone: "paid" | "pending" | "cancelled";
   thanks: string;
   footnote: string;
 };
@@ -45,7 +45,7 @@ const C = {
   band: "#F5F7FB",
 };
 
-const STAMP = { paid: "#17924A", pending: "#C98A0B", expired: "#C8322B" };
+const STAMP = { paid: "#17924A", pending: "#C98A0B", cancelled: "#C8322B" };
 
 /** Cut text to fit a width, with an ellipsis. */
 function fit(ctx: CanvasRenderingContext2D, text: string, max: number): string {

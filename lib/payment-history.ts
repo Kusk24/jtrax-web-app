@@ -22,7 +22,7 @@ export type PaymentRecord = {
   /** Credits the payment bought; 0 for a tournament fee. */
   credits: number;
   method: string;
-  status: "Paid" | "Pending" | "Expired";
+  status: "Paid" | "Pending" | "Cancelled";
   /** The bank or transfer reference the office wrote down, if any. */
   reference: string;
 };
