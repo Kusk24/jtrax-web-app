@@ -79,6 +79,9 @@ export type RegisterInput = {
       check an age group against the document. */
   scannedName?: string;
   scannedDateOfBirth?: string;
+  /** "now" goes on to Stripe and is emailed once the payment settles or
+      fails; "later" is emailed the pay link at once. Left out, it is "later". */
+  payChoice?: "now" | "later";
 };
 
 /** The age a category name implies — "U8 Boys", "U08" and "Under 8" are
@@ -143,6 +146,8 @@ export type RegisterResult = {
   payCode?: string;
   /** Whether "Pay now" can be offered: card payments are on and there is a fee. */
   cardPayments?: boolean;
+  /** What the server recorded: "now", "later", or "" when there is nothing to pay. */
+  payChoice?: string;
   /** Whether the server can send email, so the screen only says "we've
       emailed you" when it could have. */
   emailed?: boolean;
@@ -172,6 +177,7 @@ export async function registerForTournament(
   if (input.scannedName) body.set("scannedName", input.scannedName);
   if (input.scannedDateOfBirth) body.set("scannedDateOfBirth", input.scannedDateOfBirth);
   body.set("idCheck", input.idCheck);
+  if (input.payChoice) body.set("payChoice", input.payChoice);
 
   const res = await fetch(`/api/public/tournaments/${tournamentId}/register`, {
     method: "POST",
@@ -193,10 +199,23 @@ export type PublicEntry = {
   tournamentName: string;
   participantName: string;
   category?: string;
+  /** What it costs today: the early-bird price while that holds, the regular after. */
   fee: number;
-  /** "unpaid", "paid", "free" (nothing to pay) or "closed" (withdrawn or refunded). */
-  state: "unpaid" | "paid" | "free" | "closed";
+  /** "unpaid", "paid", "free" (nothing to pay), "expired" (registration closed
+      unpaid, so the place was released) or "closed" (withdrawn or refunded). */
+  state: "unpaid" | "paid" | "free" | "expired" | "closed";
   cardPayments: boolean;
+  startDate?: string;
+  endDate?: string;
+  venue?: string;
+  /** When registration closes: the last day to pay. */
+  registrationDeadline?: string;
+  /** The payment's own word. */
+  paymentStatus?: "Pending" | "Paid" | "Expired" | "Refunded";
+  amountPaid?: number;
+  /** While the early-bird price holds: until when, and the price after. */
+  earlyBirdUntil?: string;
+  regularFee?: number;
 };
 
 /**
