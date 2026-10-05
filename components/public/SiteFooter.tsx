@@ -24,7 +24,6 @@ type Contact = {
   instagram?: string;
   website?: string;
   address?: string;
-  hours?: string;
 };
 
 async function fetchContact(): Promise<Contact> {
@@ -64,8 +63,8 @@ export async function SiteFooter() {
     c.facebook && { label: t("facebook"), href: href(c.facebook) },
     c.instagram && { label: t("instagram"), href: href(c.instagram) },
   ].filter(Boolean) as Array<{ label: string; href: string }>;
-  /* One address per line — a branch each — then the opening hours. */
-  const visit = [c.address, c.hours].filter(Boolean).join("\n");
+  /* One address per line — a branch each. */
+  const visit = c.address ?? "";
   const hasContact = Boolean(c.phone || c.email || line || web.length);
 
   return (
