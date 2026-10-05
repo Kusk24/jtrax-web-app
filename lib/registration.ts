@@ -186,7 +186,8 @@ export async function registerForTournament(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error((data as { error?: string }).error ?? "registration failed");
+    /* With its status, so the form can put a refusal in the family's words. */
+    throw new EntryError(res.status, (data as { error?: string }).error ?? "registration failed");
   }
   return data as RegisterResult;
 }
@@ -339,6 +340,26 @@ export function readArrivalLink(pathname: string, hash: string): { entry: string
   const code = new URLSearchParams(hash.replace(/^#/, "")).get("code") ?? "";
   if (!entry || entry === "arrival" || !/^[0-9a-f]{64}$/.test(code)) return null;
   return { entry, code };
+}
+
+/**
+ * Every entry a family's link answers for: the one in the path, then each
+ * `also=<entry>.<code>` after the # — one email for a parent with two
+ * children in a tournament. A malformed extra is skipped; an empty list means
+ * the link does not work.
+ */
+export function readArrivalLinks(pathname: string, hash: string): Array<{ entry: string; code: string }> {
+  const first = readArrivalLink(pathname, hash);
+  if (!first) return [];
+  const also = new URLSearchParams(hash.replace(/^#/, "")).get("also") ?? "";
+  const more = also
+    .split(",")
+    .map((pair) => {
+      const dot = pair.lastIndexOf(".");
+      return { entry: decodeURIComponent(pair.slice(0, dot)), code: pair.slice(dot + 1) };
+    })
+    .filter((x) => x.entry && /^[0-9a-f]{64}$/.test(x.code) && x.entry !== first.entry);
+  return [first, ...more];
 }
 
 async function postArrival(entry: string, suffix: string, body: Record<string, string>): Promise<ArrivalEntry> {

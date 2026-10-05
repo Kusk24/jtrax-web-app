@@ -810,7 +810,8 @@
     "entryPaymentDeadline": "Payment deadline",
     "entryReleaseWarning": "If payment has not been received by {date}, when registration closes, the reserved place will be released.",
     "entryCancelled": "Registration closed on {date} without payment, so this place was released.",
-    "entryCancelledNoDate": "Registration closed without payment, so this place was released."
+    "entryCancelledNoDate": "Registration closed without payment, so this place was released.",
+    "alreadyEntered": "This player is already registered for this tournament. To enter another child, use their own name and date of birth."
   },
   "results": {
     "categories": "Categories",
