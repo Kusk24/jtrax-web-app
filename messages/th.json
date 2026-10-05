@@ -309,7 +309,9 @@
     "passwordRuleHint": "อย่างน้อย 8 ตัวอักษร มีทั้งตัวอักษรและตัวเลข",
     "registrationClosed": "ปิดรับสมัครการแข่งขันนี้แล้ว",
     "registrationDeadlinePassed": "ปิดรับสมัครตามวันปิดรับสมัครแล้ว",
-    "registrationClosedShort": "ปิดรับ"
+    "registrationClosedShort": "ปิดรับ",
+    "studentIdLabel": "รหัสนักเรียน",
+    "copyStudentId": "คัดลอกรหัสนักเรียน"
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",

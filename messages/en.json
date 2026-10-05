@@ -309,7 +309,9 @@
     "passwordRuleHint": "At least 8 characters, with a letter and a number.",
     "registrationClosed": "Registration for this tournament is closed.",
     "registrationDeadlinePassed": "Registration closed on the closing date.",
-    "registrationClosedShort": "Closed"
+    "registrationClosedShort": "Closed",
+    "studentIdLabel": "Student ID",
+    "copyStudentId": "Copy Student ID"
   },
   "sv2": {
     "brand": "JTrax — Student",
