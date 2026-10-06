@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import { AnnouncementCard } from "@/components/parent/AnnouncementCard";
 import { ChildHomeCard } from "@/components/parent/ChildHomeCard";
+import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
 import { TournamentHomeCard } from "@/components/parent/TournamentHomeCard";
 import type { AnnouncementV2 } from "@/lib/parent-v2-data";
 import { homeAnnouncements } from "@/lib/home-announcements";
@@ -24,6 +25,7 @@ export default function ParentHomeV2() {
     parent, isAnnRead, markAnnRead,
     children: childrenV2, todayActivity, lowCreditAt,
   } = useParentData();
+  const upcoming = tournamentCards.filter((c) => c.status === "Upcoming");
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
 
@@ -102,15 +104,19 @@ export default function ParentHomeV2() {
           </>
         )}
 
-        {/* One card per tournament, for its whole life: register, then the
-            day itself, then its results — never a second card for the same
-            event (lib/tournament-card). Nothing when there is nothing on. */}
-        {tournamentCards.length > 0 && (
+        {/* What is on now, with its results — the same card the student
+            portal shows. */}
+        <LiveTournamentCard />
+
+        {/* Only while one is coming up: registration, then the registered
+            child's entry (lib/tournament-card). Gone once it starts, when the
+            card above takes over. */}
+        {upcoming.length > 0 && (
           <>
             <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
-              {t("tournamentsHeading")}
+              {t("upcomingTournament")}
             </span>
-            {tournamentCards.map((card) => (
+            {upcoming.map((card) => (
               <TournamentHomeCard key={card.id} card={card} />
             ))}
           </>

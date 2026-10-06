@@ -70,6 +70,8 @@ type Status = "loading" | "live" | "error";
 /** One tournament's home card: what it is, and what its card says now. */
 export type TournamentCardV2 = {
   id: string;
+  /** Upcoming, Ongoing or Completed. */
+  status: string;
   name: string;
   venue: string;
   date: string;
@@ -402,6 +404,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
           .filter(Boolean);
         return {
           id,
+          status,
           name: s(x, "name"),
           venue: s(x, "venue_name"),
           date: fmtDate(s(x, "start_date")),
