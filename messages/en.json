@@ -1034,7 +1034,11 @@
     "confirmedNote": "Confirmed — see you there.",
     "notAttendingNote": "Noted: not attending.",
     "saveFailed": "Could not save. Please try again.",
-    "closed": "The tournament has started, so this can no longer be changed."
+    "closed": "The tournament has started, so this can no longer be changed.",
+    "confirmAttending": "Confirm that {name} is attending?",
+    "confirmNotAttending": "Confirm that {name} is not attending?",
+    "confirm": "Confirm",
+    "change": "Change answer"
   },
   "sv3": {
     "ratingPill": "Rating",

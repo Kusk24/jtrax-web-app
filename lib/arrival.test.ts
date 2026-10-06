@@ -1,7 +1,7 @@
 /* The arrival reminder's link: the entry in the path, the code after the #,
    and the code always sent in a body. */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { answerArrival, EntryError, getArrival, readArrivalLink, readArrivalLinks } from "./registration";
+import { answerArrival, EntryError, getArrival, readArrivalLink, readArrivalLinks, readArrivalPick } from "./registration";
 
 const CODE = "b".repeat(64);
 
@@ -58,5 +58,16 @@ describe("readArrivalLinks", () => {
       { entry: "treg_1", code: CODE },
     ]);
     expect(readArrivalLinks("/arrival/treg_1", "#code=nope")).toEqual([]);
+  });
+});
+
+describe("readArrivalPick", () => {
+  it("reads the answer an email button chose", () => {
+    expect(readArrivalPick(`#code=${CODE}&pick=treg_2.NotAttending`)).toEqual({ entry: "treg_2", answer: "NotAttending" });
+    expect(readArrivalPick(`#code=${CODE}&also=treg_2.${CODE}&pick=treg_1.Confirmed`)).toEqual({ entry: "treg_1", answer: "Confirmed" });
+  });
+  it("ignores a link with no pick, or an answer it does not know", () => {
+    expect(readArrivalPick(`#code=${CODE}`)).toBeNull();
+    expect(readArrivalPick(`#code=${CODE}&pick=treg_1.Maybe`)).toBeNull();
   });
 });

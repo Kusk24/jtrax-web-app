@@ -372,6 +372,20 @@ export function readArrivalLinks(pathname: string, hash: string): Array<{ entry:
   return [first, ...more];
 }
 
+/**
+ * The answer a button in the email chose: `pick=<entry>.<Confirmed|NotAttending>`
+ * after the #. The page asks the parent to confirm it; nothing is recorded by
+ * opening the link, so a mail scanner cannot answer for them.
+ */
+export function readArrivalPick(hash: string): { entry: string; answer: "Confirmed" | "NotAttending" } | null {
+  const raw = new URLSearchParams(hash.replace(/^#/, "")).get("pick") ?? "";
+  const dot = raw.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const answer = raw.slice(dot + 1);
+  if (answer !== "Confirmed" && answer !== "NotAttending") return null;
+  return { entry: decodeURIComponent(raw.slice(0, dot)), answer };
+}
+
 async function postArrival(entry: string, suffix: string, body: Record<string, string>): Promise<ArrivalEntry> {
   const res = await fetch(`/api/public/arrival/${encodeURIComponent(entry)}${suffix}`, {
     method: "POST",
