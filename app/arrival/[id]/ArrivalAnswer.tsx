@@ -13,15 +13,16 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { PublicCard } from "@/components/public/PublicShell";
-import { answerArrival, EntryError, getArrival, readArrivalLinks, type ArrivalEntry } from "@/lib/registration";
+import { answerArrival, EntryError, getArrival, readArrivalLinks, readArrivalPick, type ArrivalEntry } from "@/lib/registration";
 
 type Child = { entry: ArrivalEntry; id: string; code: string };
+type Answer = "Confirmed" | "NotAttending";
 
 type View =
   | { kind: "loading" }
   | { kind: "broken" }
   | { kind: "failed" }
-  | { kind: "entries"; children: Child[] };
+  | { kind: "entries"; children: Child[]; pick: { entry: string; answer: Answer } | null };
 
 export function ArrivalAnswer() {
   const t = useTranslations("arrival");
@@ -30,6 +31,8 @@ export function ArrivalAnswer() {
   useEffect(() => {
     let cancelled = false;
     const links = readArrivalLinks(window.location.pathname, window.location.hash);
+    /* The answer the email's button chose, to confirm rather than record. */
+    const pick = readArrivalPick(window.location.hash);
     (async () => {
       if (links.length === 0) {
         if (!cancelled) setView({ kind: "broken" });
@@ -41,7 +44,7 @@ export function ArrivalAnswer() {
         r.status === "fulfilled" ? [{ entry: r.value, id: links[i].entry, code: links[i].code }] : [],
       );
       if (children.length > 0) {
-        setView({ kind: "entries", children });
+        setView({ kind: "entries", children, pick });
         return;
       }
       const first = results[0];
@@ -84,7 +87,7 @@ export function ArrivalAnswer() {
       </div>
       <div className="flex flex-col divide-y divide-pp-line">
         {view.children.map((c) => (
-          <ChildAnswer key={c.id} initial={c} />
+          <ChildAnswer key={c.id} initial={c} picked={view.pick?.entry === c.id ? view.pick.answer : null} />
         ))}
       </div>
     </PublicCard>
@@ -92,17 +95,22 @@ export function ArrivalAnswer() {
 }
 
 /** One child: their name, their answer so far, and the two buttons. */
-function ChildAnswer({ initial }: { initial: Child }) {
+function ChildAnswer({ initial, picked }: { initial: Child; picked: Answer | null }) {
   const t = useTranslations("arrival");
   const [entry, setEntry] = useState(initial.entry);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(false);
+  /* Chosen in the email, waiting for Confirm — unless it is already the answer. */
+  const [pending, setPending] = useState<Answer | null>(
+    picked && initial.entry.open && initial.entry.status !== picked ? picked : null,
+  );
 
-  async function answer(value: "Confirmed" | "NotAttending") {
+  async function answer(value: Answer) {
     setSaving(true);
     setError(false);
     try {
       setEntry(await answerArrival(initial.id, initial.code, value));
+      setPending(null);
     } catch {
       setError(true);
     } finally {
@@ -126,7 +134,30 @@ function ChildAnswer({ initial }: { initial: Child }) {
         </p>
       )}
 
-      {entry.open ? (
+      {entry.open && pending ? (
+        <div className="flex w-full max-w-xs flex-col gap-2 rounded-xl bg-pp-soft p-3">
+          <p className="text-sm font-semibold text-pp-ink">
+            {t(pending === "Confirmed" ? "confirmAttending" : "confirmNotAttending", { name: entry.participantName })}
+          </p>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => answer(pending)}
+            className="rounded-xl bg-pp-navy px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+          >
+            {t("confirm")}
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setPending(null)}
+            className="rounded-xl border border-pp-line px-4 py-2.5 text-sm font-bold text-pp-ink disabled:opacity-50"
+          >
+            {t("change")}
+          </button>
+          {error && <p className="text-[13px] font-semibold text-pp-danger">{t("saveFailed")}</p>}
+        </div>
+      ) : entry.open ? (
         <>
           <p className="text-sm font-semibold text-pp-ink">{answered ? t("changeQuestion") : t("question")}</p>
           <div className="flex w-full max-w-xs flex-col gap-2">
