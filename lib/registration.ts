@@ -308,6 +308,16 @@ export const scanChildIDCard = (tournamentId: string, studentId: string, image: 
   postCard(`/api/tournaments/${tournamentId}/scan-id?student_id=${encodeURIComponent(studentId)}`, image);
 
 /** Whole years old on `on`, from a YYYY-MM-DD date of birth. 0 when unknown. */
+/** A date of birth less than a year before `on`, or in the future: a misread
+    card or a typo, refused here and by the server alike. */
+export function dobTooYoung(dob: string, on = new Date()): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dob);
+  if (!m) return false;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const latest = `${on.getFullYear() - 1}-${pad(on.getMonth() + 1)}-${pad(on.getDate())}`;
+  return dob.slice(0, 10) > latest;
+}
+
 export function ageFromDOB(dob: string, on = new Date()): number {
   if (!dob) return 0;
   const d = new Date(dob);

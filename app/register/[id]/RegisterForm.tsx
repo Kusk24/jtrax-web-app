@@ -29,7 +29,7 @@ import {
   Phone, QrCode, ScrollText, Trophy, Upload, UserRound,
 } from "lucide-react";
 import {
-  ageFromDOB, categoryAllows, EntryError, payForPublicEntry, registerForTournament, scanIDCard,
+  ageFromDOB, categoryAllows, dobTooYoung, EntryError, payForPublicEntry, registerForTournament, scanIDCard,
   type PublicCategory, type ScannedIDCard,
 } from "@/lib/registration";
 import { ACADEMY_CONTACT, type AcademyContact } from "@/lib/academy-contact";
@@ -161,6 +161,7 @@ export function RegisterForm({
     if (!checkId) return t("needIdCard");
     if (name.trim().length < 2) return t("needName");
     if (!dateOfBirth) return t("needDob");
+    if (dobTooYoung(dateOfBirth)) return t("dobTooYoung");
     if (!nickname.trim()) return t("needNickname");
     if (!phone.trim()) return t("needPhone");
     if (!email.trim()) return t("needEmail");
