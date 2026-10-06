@@ -1,7 +1,7 @@
 /* The arrival reminder's link: the entry in the path, the code after the #,
    and the code always sent in a body. */
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { answerArrival, EntryError, getArrival, readArrivalLink } from "./registration";
+import { answerArrival, EntryError, getArrival, readArrivalLink, readArrivalLinks } from "./registration";
 
 const CODE = "b".repeat(64);
 
@@ -39,5 +39,24 @@ describe("the arrival calls", () => {
     const err = await getArrival("treg_1", CODE).catch((e) => e);
     expect(err).toBeInstanceOf(EntryError);
     expect((err as EntryError).status).toBe(404);
+  });
+});
+
+describe("readArrivalLinks", () => {
+  const C2 = "c".repeat(64);
+  it("reads every child a family's link answers for", () => {
+    expect(readArrivalLinks("/arrival/treg_1", `#code=${CODE}&also=treg_2.${C2}`)).toEqual([
+      { entry: "treg_1", code: CODE },
+      { entry: "treg_2", code: C2 },
+    ]);
+  });
+  it("is one child for an older link", () => {
+    expect(readArrivalLinks("/arrival/treg_1", `#code=${CODE}`)).toEqual([{ entry: "treg_1", code: CODE }]);
+  });
+  it("skips a malformed or repeated extra, and is empty for a broken link", () => {
+    expect(readArrivalLinks("/arrival/treg_1", `#code=${CODE}&also=treg_2.short,treg_1.${C2}`)).toEqual([
+      { entry: "treg_1", code: CODE },
+    ]);
+    expect(readArrivalLinks("/arrival/treg_1", "#code=nope")).toEqual([]);
   });
 });

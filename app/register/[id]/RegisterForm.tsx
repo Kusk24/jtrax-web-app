@@ -29,7 +29,7 @@ import {
   Phone, QrCode, ScrollText, Trophy, Upload, UserRound,
 } from "lucide-react";
 import {
-  ageFromDOB, categoryAllows, payForPublicEntry, registerForTournament, scanIDCard,
+  ageFromDOB, categoryAllows, EntryError, payForPublicEntry, registerForTournament, scanIDCard,
   type PublicCategory, type ScannedIDCard,
 } from "@/lib/registration";
 import { ACADEMY_CONTACT, type AcademyContact } from "@/lib/academy-contact";
@@ -219,8 +219,14 @@ export function RegisterForm({
       });
       setBusy(false);
     } catch (err) {
-      // The server's message is written for whoever is at the form.
-      setError(err instanceof Error ? err.message : t("failed"));
+      /* The same player twice: one email may enter several children, but not
+         the same one again (0070). Otherwise the server's message is written
+         for whoever is at the form. */
+      if (err instanceof EntryError && err.status === 409 && /already registered/.test(err.message)) {
+        setError(t("alreadyEntered"));
+      } else {
+        setError(err instanceof Error ? err.message : t("failed"));
+      }
       setBusy(false);
     }
   }
