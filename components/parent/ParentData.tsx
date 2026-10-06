@@ -19,6 +19,7 @@ import {
 import { classesAttended } from "@/lib/classes-attended";
 import { hoursAttended } from "@/lib/hours-attended";
 import { registrationState } from "@/lib/registration-open";
+import { cardStateOf, shownOnHome, type CardState } from "@/lib/tournament-card";
 import { money } from "@/lib/money";
 import { todayActivityOf, type TodayActivity } from "@/lib/today-activity";
 import { toPaymentHistory, visitCredits, type PaymentRecord } from "@/lib/payment-history";
@@ -66,6 +67,18 @@ function ageOf(dobISO: string, now: Date): number {
 type Prefs = Record<NotifType, boolean>;
 type Status = "loading" | "live" | "error";
 
+/** One tournament's home card: what it is, and what its card says now. */
+export type TournamentCardV2 = {
+  id: string;
+  name: string;
+  venue: string;
+  date: string;
+  hasBanner: boolean;
+  state: CardState;
+  /** This family's children with a place in it. */
+  registeredNames: string[];
+};
+
 type ParentDataValue = {
   children: ChildV2[];
   parent: { name: string; phone: string; email: string };
@@ -85,6 +98,9 @@ type ParentDataValue = {
       place — the second attempt fails on a unique index, which used to be the
       only way back after a card was declined. */
   tournamentEntries: TournamentEntryV2[];
+  /** One card per tournament worth showing on the home screen, through its
+      whole life: registration, the day itself, and its results. */
+  tournamentCards: TournamentCardV2[];
   months: MonthDef[];
   att: Record<ChildKey, Record<number, { present: number[]; absent: number[] }>>;
   hist: HistRow[];
@@ -154,6 +170,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [allNotifs, setAllNotifs] = useState<InboxNotif[]>([]);
   const [tour, setTour] = useState<TournamentV2 | null>(null);
   const [entries, setEntries] = useState<TournamentEntryV2[]>([]);
+  const [cards, setCards] = useState<TournamentCardV2[]>([]);
   const [months] = useState<MonthDef[]>(() => recentMonths());
   const [att, setAtt] = useState<ParentDataValue["att"]>({});
   const [hist, setHist] = useState<HistRow[]>([]);
@@ -360,6 +377,49 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         };
       }));
 
+    /* Every tournament the home shows a card for, each with which of this
+       family's children hold a place in it (entered or awaiting approval —
+       not a released or rejected one). */
+    const todayStr0 = todayISO(today);
+    setCards(
+      shownOnHome(
+        tournaments
+          .filter((x) => !n(x, "draft"))
+          .map((x) => ({
+            raw: x,
+            status: s(x, "tournament_status"),
+            resultsPublic: Boolean(n(x, "results_public")),
+            startISO: s(x, "start_date"),
+            endISO: s(x, "end_date"),
+          })),
+        todayStr0,
+      ).map(({ raw: x, status, resultsPublic }) => {
+        const id = s(x, "tournament_id");
+        const deadline = s(x, "registration_deadline");
+        const names = regs
+          .filter((r) => s(r, "tournament_id") === id && ["Approved", "Pending"].includes(s(r, "status") || "Approved"))
+          .map((r) => s(r, "participant_name"))
+          .filter(Boolean);
+        return {
+          id,
+          name: s(x, "name"),
+          venue: s(x, "venue_name"),
+          date: fmtDate(s(x, "start_date")),
+          hasBanner: Boolean(x.has_banner),
+          state: cardStateOf({
+            status,
+            registration: registrationState(x, todayStr0),
+            closesInDays: deadline
+              ? Math.max(0, Math.ceil((new Date(deadline).getTime() - today.getTime()) / 86400_000))
+              : 0,
+            resultsPublic,
+            registered: names.length > 0,
+          }),
+          registeredNames: names,
+        };
+      }),
+    );
+
     /* The next tournament, or nothing. The card only exists when an event
        does — the mock used to keep advertising Wellington 2026 forever. */
     const trn = tournaments.find((x) => s(x, "tournament_status") === "Upcoming");
@@ -534,10 +594,10 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     },
     isAnnRead: (id) => annRead.has(id),
     markAnnRead,
-    tournament: tour, tournamentEntries: entries, months, att, hist, payments: paymentHistory, todayActivity, certHours, lowCreditAt,
+    tournament: tour, tournamentEntries: entries, tournamentCards: cards, months, att, hist, payments: paymentHistory, todayActivity, certHours, lowCreditAt,
     prefs, schoolAllows, parentId, savePref, register, payCardFee,
   }), [childList, parent, anns, allNotifs, annRead, markNotifRead, markAnnRead,
-    tour, entries, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref, register,
+    tour, entries, cards, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref, register,
     payCardFee]);
 
   /* No screen renders until the data is real. The old behaviour — sample

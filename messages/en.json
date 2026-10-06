@@ -311,7 +311,17 @@
     "registrationDeadlinePassed": "Registration closed on the closing date.",
     "registrationClosedShort": "Closed",
     "studentIdLabel": "Student ID",
-    "copyStudentId": "Copy Student ID"
+    "copyStudentId": "Copy Student ID",
+    "tournamentsHeading": "Tournaments",
+    "tagOngoing": "Ongoing",
+    "tagResults": "Results Available",
+    "tagCompleted": "Completed",
+    "tagRegistrationClosed": "Registration Closed",
+    "registeredNames": "Registered · {names}",
+    "registeredShort": "Registered",
+    "viewRegistration": "View Registration",
+    "viewResults": "View Results",
+    "notRegisteredNote": "Your child was not registered for this tournament."
   },
   "sv2": {
     "brand": "JTrax — Student",
