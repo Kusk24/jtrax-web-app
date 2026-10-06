@@ -321,7 +321,10 @@
     "registeredShort": "ลงทะเบียนแล้ว",
     "viewRegistration": "ดูการลงทะเบียน",
     "viewResults": "ดูผลการแข่งขัน",
-    "notRegisteredNote": "บุตรของคุณไม่ได้ลงทะเบียนรายการนี้"
+    "notRegisteredNote": "บุตรของคุณไม่ได้ลงทะเบียนรายการนี้",
+    "payLater": "ชำระภายหลัง",
+    "payLaterHint": "ด้วยบัตรที่นี่ หรือที่เคาน์เตอร์",
+    "placeHeldLaterBody": "{name} ได้ที่นั่งใน {event} แล้ว ชำระค่าสมัคร {fee} ที่นี่หรือที่เคาน์เตอร์ก่อนวันปิดรับสมัคร"
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",

@@ -76,7 +76,7 @@ export default function TournamentFlow() {
   const [payFailed, setPayFailed] = useState(false);
   const [step, setStep] = useState<Step>("detail");
   const [child, setChild] = useState(childrenV2[0]?.key ?? "");
-  const [pay, setPay] = useState<"card" | "promptpay" | "bank">("card");
+  const [pay, setPay] = useState<"card" | "promptpay" | "bank" | "later">("card");
   /* What the public form asks too. The family's contact details are on
      file, so they are not asked for again. */
   const [nickname, setNickname] = useState("");
@@ -142,6 +142,7 @@ export default function TournamentFlow() {
 
   if (step === "done" || step === "held") {
     const settled = step === "done";
+    const paidLater = pay === "later";
     return (
       <div className="mx-auto flex min-h-[70dvh] w-full max-w-[620px] flex-col items-center justify-center gap-4 px-5 text-center">
         <span
@@ -158,7 +159,7 @@ export default function TournamentFlow() {
         <span className="text-[13.5px] leading-relaxed text-pp-sub">
           {settled
             ? t("regConfirmedBody", { name: participant.name, event: tournamentV2.name })
-            : t("placeHeldBody", {
+            : t(paidLater ? "placeHeldLaterBody" : "placeHeldBody", {
               name: participant.name,
               event: tournamentV2.name,
               fee: tournamentV2.fee,
@@ -357,6 +358,7 @@ export default function TournamentFlow() {
                 ["card", t("creditCard")],
                 ["promptpay", t("promptpay")],
                 ["bank", t("bankTransfer")],
+                ["later", t("payLater")],
               ] as const
             ).map(([k, lbl]) => (
               <button
@@ -366,7 +368,10 @@ export default function TournamentFlow() {
                 style={{ borderColor: pay === k ? "var(--color-pp-blue)" : "var(--color-pp-line)" }}
               >
                 <Radio selected={pay === k} />
-                <span className="text-[13.5px] font-semibold text-pp-ink">{lbl}</span>
+                <span className="flex flex-col">
+                  <span className="text-[13.5px] font-semibold text-pp-ink">{lbl}</span>
+                  {k === "later" && <span className="text-[12px] text-pp-muted">{t("payLaterHint")}</span>}
+                </span>
               </button>
             ))}
           </div>
@@ -439,7 +444,7 @@ export default function TournamentFlow() {
           }}
           className={`${cta} ${submitting ? "opacity-70" : ""}`}
         >
-          {submitting && pay === "card" ? t("openingPayment") : t("payNow")}
+          {submitting && pay === "card" ? t("openingPayment") : pay === "later" ? t("registerNow") : t("payNow")}
         </button>
       </div>
     );
