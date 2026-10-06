@@ -321,7 +321,10 @@
     "registeredShort": "Registered",
     "viewRegistration": "View Registration",
     "viewResults": "View Results",
-    "notRegisteredNote": "Your child was not registered for this tournament."
+    "notRegisteredNote": "Your child was not registered for this tournament.",
+    "payLater": "Pay later",
+    "payLaterHint": "By card here or at the front desk",
+    "placeHeldLaterBody": "{name} has a place in the {event}. Pay the {fee} entry fee here or at the front desk before the registration deadline."
   },
   "sv2": {
     "brand": "JTrax — Student",
