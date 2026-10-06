@@ -311,7 +311,17 @@
     "registrationDeadlinePassed": "ปิดรับสมัครตามวันปิดรับสมัครแล้ว",
     "registrationClosedShort": "ปิดรับ",
     "studentIdLabel": "รหัสนักเรียน",
-    "copyStudentId": "คัดลอกรหัสนักเรียน"
+    "copyStudentId": "คัดลอกรหัสนักเรียน",
+    "tournamentsHeading": "รายการแข่งขัน",
+    "tagOngoing": "กำลังแข่งขัน",
+    "tagResults": "ผลการแข่งขัน",
+    "tagCompleted": "จบแล้ว",
+    "tagRegistrationClosed": "ปิดรับสมัคร",
+    "registeredNames": "ลงทะเบียนแล้ว · {names}",
+    "registeredShort": "ลงทะเบียนแล้ว",
+    "viewRegistration": "ดูการลงทะเบียน",
+    "viewResults": "ดูผลการแข่งขัน",
+    "notRegisteredNote": "บุตรของคุณไม่ได้ลงทะเบียนรายการนี้"
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",

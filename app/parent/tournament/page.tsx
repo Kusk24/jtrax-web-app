@@ -7,12 +7,8 @@ import {
   CalendarClock,
   CalendarDays,
   Check,
-  CircleDollarSign,
   FileText,
-  Layers,
   MapPin,
-  Trophy,
-  UserRound,
 } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
 import { TournamentBanner } from "@/components/public/TournamentBanner";
@@ -481,31 +477,6 @@ export default function TournamentFlow() {
           <span className="text-[12.5px] font-bold text-pp-amber">
             {tournamentV2.regDeadline}
           </span>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <span className={label}>{t("eventInfo")}</span>
-        <div className={`${card} grid grid-cols-2 gap-3.5`}>
-          <div className="flex flex-col gap-1">
-            <Layers className="size-[18px] text-pp-blue" strokeWidth={1.8} />
-            <span className="text-[12.5px] text-pp-ink">{t("swiss")}</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Trophy className="size-[18px] text-pp-blue" strokeWidth={1.8} />
-            <span className="text-[12.5px] text-pp-ink">{t("trophyMedal")}</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <UserRound className="size-[18px] text-pp-blue" strokeWidth={1.8} />
-            <span className="text-[12.5px] text-pp-ink">{t("openTo")}</span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <CircleDollarSign className="size-[18px] text-pp-blue" strokeWidth={1.8} />
-            <span className="text-[12.5px] text-pp-ink">
-              {t("entryFee")}
-              <br />
-              <span className="font-bold">{tournamentV2.fee}</span>
-            </span>
-          </div>
         </div>
       </div>
       <div className="flex flex-col gap-2">

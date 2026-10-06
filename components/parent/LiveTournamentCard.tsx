@@ -1,8 +1,9 @@
 "use client";
 
 /* "There is a tournament on right now" — the parent portal's pointer to the
-   public results page. Renders nothing when there is nothing live, so the
-   home screen carries no dead card between events. */
+   public results page, the same card the student portal shows. Ongoing
+   events only: an upcoming one has its own card above, with registration.
+   Renders nothing when nothing is on, so the home carries no dead card. */
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -17,7 +18,7 @@ export function LiveTournamentCard() {
   useEffect(() => {
     let cancelled = false;
     fetchLiveTournaments().then((list) => {
-      if (!cancelled) setLive(list);
+      if (!cancelled) setLive(list.filter((e) => e.status === "Ongoing"));
     });
     return () => {
       cancelled = true;
