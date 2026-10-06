@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Bot, Check, ChessKnight, Clock, Flame, ChevronRight, DoorOpen, Play, Puzzle as PuzzleIcon, Star, Trophy } from "lucide-react";
 import { MyGames } from "@/components/game/MyGames";
+import { IncomingChallenges } from "@/app/student/challenge/IncomingChallenges";
 import type { LiveTournament } from "@/lib/live-tournaments";
 import type { StudentData } from "./useStudentData";
 import { FriendPawns } from "./FriendPawns";
@@ -249,6 +250,10 @@ export function HomeScreen({
 
       {/* A robot game left unfinished — draws nothing when there is none. */}
       <ResumeGameCard />
+
+      {/* A friend's invitation to play, here as well as in Games, so it is
+          seen without going looking — draws nothing when there is none. */}
+      <IncomingChallenges />
 
       {/* Games somebody is waiting on — draws nothing when there are none. */}
       {data.userAccountId && <MyGames myAccountId={data.userAccountId} />}
