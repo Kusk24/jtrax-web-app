@@ -7,8 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { AnnouncementModal } from "@/components/parent/AnnouncementModal";
 import { AnnouncementCard } from "@/components/parent/AnnouncementCard";
 import { ChildHomeCard } from "@/components/parent/ChildHomeCard";
-import { TournamentBanner } from "@/components/public/TournamentBanner";
 import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
+import { TournamentHomeCard } from "@/components/parent/TournamentHomeCard";
 import type { AnnouncementV2 } from "@/lib/parent-v2-data";
 import { homeAnnouncements } from "@/lib/home-announcements";
 import { useParentData } from "@/components/parent/ParentData";
@@ -21,10 +21,11 @@ export default function ParentHomeV2() {
   const t = useTranslations("pv2");
   const locale = useLocale();
   const {
-    announcements: announcementsV2, tournament,
+    announcements: announcementsV2, tournamentCards,
     parent, isAnnRead, markAnnRead,
     children: childrenV2, todayActivity, lowCreditAt,
   } = useParentData();
+  const upcoming = tournamentCards.filter((c) => c.status === "Upcoming");
   const [modalId, setModalId] = useState<string | null>(null);
   const [idx, setIdx] = useState(0);
 
@@ -103,56 +104,21 @@ export default function ParentHomeV2() {
           </>
         )}
 
+        {/* What is on now, with its results — the same card the student
+            portal shows. */}
         <LiveTournamentCard />
 
-        {/* Only when an event is actually open — the mock card advertised the
-            same tournament forever, whatever the academy was running. */}
-        {tournament && (
+        {/* Only while one is coming up: registration, then the registered
+            child's entry (lib/tournament-card). Gone once it starts, when the
+            card above takes over. */}
+        {upcoming.length > 0 && (
           <>
             <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
               {t("upcomingTournament")}
             </span>
-            <div className="max-w-[520px] overflow-hidden rounded-2xl bg-pp-card shadow-[0_12px_32px_rgba(35,53,94,.12)]">
-              <div className="relative">
-                <TournamentBanner
-                  name={tournament.name}
-                  when={tournament.date}
-                  venue={tournament.venue}
-                  imageUrl={tournament.hasBanner ? `/api/tournaments/${tournament.id}/banner` : undefined}
-                  className="h-[158px] w-full"
-                />
-                <div className="absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white bg-pp-danger text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]">
-                  {tournament.registration === "open" ? (
-                    <>
-                      <span className="text-[7.5px] font-bold uppercase leading-tight tracking-[.03em]">
-                        {t("registerCloses")}
-                      </span>
-                      <span className="font-pp-display text-xl font-bold leading-none">
-                        {tournament.closesInDays}
-                      </span>
-                      <span className="text-[8px] font-bold uppercase leading-none tracking-[.06em]">
-                        {t("days")}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-[9px] font-bold uppercase leading-tight tracking-[.04em]">
-                      {t("registrationClosedShort")}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 px-4 pb-4 pt-4">
-                <span className="font-pp-display text-lg font-semibold leading-tight text-pp-ink">
-                  {tournament.name}
-                </span>
-                <Link
-                  href="/parent/tournament"
-                  className="mt-1 rounded-xl bg-pp-navy py-3 text-center text-sm font-bold text-white"
-                >
-                  {t("registerNow")}
-                </Link>
-              </div>
-            </div>
+            {upcoming.map((card) => (
+              <TournamentHomeCard key={card.id} card={card} />
+            ))}
           </>
         )}
       </div>
