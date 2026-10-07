@@ -3,10 +3,17 @@
 /* Sign-out control for the three portals. The signOut action clears the session
    cookie and revokes the backend token, so this has to be a real form post — the
    three portals look nothing alike, so only the pending behaviour lives here and
-   the shape comes from className. */
+   the shape comes from className. Before it, while the session still exists,
+   this browser stops getting the account's notifications. */
 import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import { signOut } from "@/app/actions/auth";
+import { forgetBrowserPush } from "@/lib/browser-push";
+
+async function leave() {
+  await forgetBrowserPush();
+  await signOut();
+}
 
 function Submit({ className, children }: { className?: string; children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -27,7 +34,7 @@ export function SignOutButton({
   const t = useTranslations("common");
   /* `contents` keeps the wrapper out of the way of the portal's own layout. */
   return (
-    <form action={signOut} className="contents">
+    <form action={leave} className="contents">
       <Submit className={className}>{children ?? t("signOut")}</Submit>
     </form>
   );

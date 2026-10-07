@@ -21,6 +21,7 @@ import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ChangePasswordForm } from "@/components/ChangePasswordForm";
+import { BrowserPushSwitch } from "@/components/parent/BrowserPushSwitch";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card";
@@ -93,6 +94,9 @@ export default function ParentSettings() {
       <div className="contents min-w-0 flex-col gap-5 md:flex">
         <div className="flex flex-col gap-3">
           <span className={label}>{t("notifPrefs")}</span>
+          {/* Whether alerts reach this browser at all; the switches below
+              are which ones. */}
+          <BrowserPushSwitch className={panel} />
           <div className={panel}>
             {prefDefs.length === 0 && (
               <p className="px-4 py-3.5 text-[13px] text-pp-muted">{t("notifNoneFromSchool")}</p>
