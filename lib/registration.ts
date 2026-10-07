@@ -8,6 +8,7 @@
  * Nothing here carries a session. These are the only calls in this app that
  * deliberately have no identity behind them.
  */
+import { shrinkImage } from "./shrink-image";
 
 export type PublicTournament = {
   id: string;
@@ -286,7 +287,9 @@ export type IDCardScan = { fields: ScannedIDCard; checkId: string };
 
 async function postCard(url: string, image: File): Promise<IDCardScan> {
   const body = new FormData();
-  body.append("image", image);
+  // A phone photo is shrunk first: sent whole it is several megabytes, too
+  // large for the server to take (lib/shrink-image).
+  body.append("image", await shrinkImage(image));
   const res = await fetch(url, { method: "POST", body, cache: "no-store" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
