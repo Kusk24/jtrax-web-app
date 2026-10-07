@@ -324,7 +324,12 @@
     "notRegisteredNote": "Your child was not registered for this tournament.",
     "payLater": "Pay later",
     "payLaterHint": "By card here or at the front desk",
-    "placeHeldLaterBody": "{name} has a place in the {event}. Pay the {fee} entry fee here or at the front desk before the registration deadline."
+    "placeHeldLaterBody": "{name} has a place in the {event}. Pay the {fee} entry fee here or at the front desk before the registration deadline.",
+    "browserNotif": "Notifications on this browser",
+    "browserNotifHint": "Shows each alert here, even when JTrax is closed.",
+    "browserNotifBlocked": "Notifications are blocked for this site. Allow them in your browser's settings, then come back.",
+    "browserNotifUnsupported": "This browser can't show notifications.",
+    "browserNotifFailed": "Couldn't switch notifications on. Please try again."
   },
   "sv2": {
     "brand": "JTrax — Student",
