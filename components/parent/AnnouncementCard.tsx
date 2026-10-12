@@ -24,7 +24,7 @@ export function AnnouncementCard({
     <button
       type="button"
       onClick={onOpen}
-      className={`flex cursor-pointer flex-col gap-2 rounded-xl border border-l-[3px] border-pp-line border-l-pp-blue bg-pp-card px-4 py-3.5 text-left shadow-[0_4px_14px_rgba(35,53,94,.06)] transition-shadow hover:shadow-[0_8px_20px_rgba(35,53,94,.10)] ${className}`}
+      className={`flex cursor-pointer flex-col gap-2 rounded-xl border border-pp-blue/30 bg-pp-card px-4 py-3.5 text-left shadow-[0_4px_14px_rgba(35,53,94,.06)] transition-shadow hover:shadow-[0_8px_20px_rgba(35,53,94,.10)] ${className}`}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.14em] text-pp-blue">
