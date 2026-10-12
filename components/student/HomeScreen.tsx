@@ -88,17 +88,6 @@ function Sparkle({ className }: { className: string }) {
   );
 }
 
-/** Three short rays above a star. */
-function Rays({ className }: { className: string }) {
-  return (
-    <span className={`pointer-events-none absolute flex items-end gap-2 ${className}`} aria-hidden>
-      <span className="h-2 w-[3px] -rotate-[35deg] rounded-full bg-amber-300/80" />
-      <span className="h-3 w-[3px] rounded-full bg-amber-300/80" />
-      <span className="h-2 w-[3px] rotate-[35deg] rounded-full bg-amber-300/80" />
-    </span>
-  );
-}
-
 /** The day's puzzles on Home, to the student design: a soft blue card with
     the label, "x of 3 completed" and a line under it on the left, the ring on
     the right, and the button for the next puzzle. */
@@ -139,15 +128,13 @@ export function DailyProgressCard({
             {done ? t3("dailyDoneBody") : t3("dailyBody", { n })}
           </span>
         </span>
-        {/* One star per puzzle, the middle one raised, with sparkles and rays. */}
+        {/* One star per puzzle, the middle one raised, with sparkles. */}
         <span
           className="relative flex shrink-0 items-end gap-1.5 px-2 py-3 sm:gap-2.5"
           role="img"
           aria-label={t3("starsEarned", { n: earned, total: n })}
         >
           <span className="pointer-events-none absolute inset-0 rounded-full bg-amber-100/50 blur-2xl" aria-hidden />
-          <Rays className="left-[14%] -top-1" />
-          <Rays className="right-[10%] -top-1" />
           <Sparkle className="-left-1 top-1 size-3.5" />
           <Sparkle className="-bottom-1 left-0 size-3" />
           <Sparkle className="-bottom-1 -right-1 size-3.5" />
