@@ -697,6 +697,8 @@
     "closedFull": "This tournament is full.",
     "closedDeadline": "Registration for this tournament has closed.",
     "closedHint": "Contact the academy if you think this is a mistake.",
+    "notOpenTitle": "Registration not open",
+    "notOpenBody": "This registration isn't open. It may have closed.",
     "regulation": "Tournament Regulation",
     "earlyBirdUntil": "Early bird until {date}",
     "studentId": "JCA student ID",
