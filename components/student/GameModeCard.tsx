@@ -7,7 +7,7 @@
  * panel, the code form — so nothing moved to another page. A link to
  * `/student/play#<id>` (Home's tiles) opens that card on arrival.
  */
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
 /* Flat colours, one per way to play: a tinted icon tile on the parent's
@@ -17,6 +17,14 @@ const TONE = {
   friend: { card: "hover:bg-st-orange-soft/60", tile: "bg-st-orange-soft", arrow: "bg-st-orange-soft text-st-orange", hover: "group-hover:scale-110" },
   room: { card: "hover:bg-pp-green-soft", tile: "bg-pp-green-soft", arrow: "bg-pp-green-soft text-pp-green", hover: "origin-left group-hover:[transform:perspective(120px)_rotateY(-28deg)]" },
 } as const;
+
+/* Cards in one group open one at a time: opening a card closes the others. */
+const Group = createContext<{ openId: string | null; setOpenId: (id: string | null) => void } | null>(null);
+
+export function GameModeGroup({ children }: { children: React.ReactNode }) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  return <Group.Provider value={{ openId, setOpenId }}>{children}</Group.Provider>;
+}
 
 export function GameModeCard({
   id,
@@ -31,21 +39,26 @@ export function GameModeCard({
   title: string;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const group = useContext(Group);
+  const [ownOpen, setOwnOpen] = useState(false);
+  const open = group ? group.openId === id : ownOpen;
+  const setOpen = (next: boolean) => (group ? group.setOpenId(next ? id : null) : setOwnOpen(next));
   const ref = useRef<HTMLElement>(null);
   const c = TONE[tone];
 
+  const setGroupOpen = group?.setOpenId;
   useEffect(() => {
     const fromHash = () => {
       if (window.location.hash === `#${id}`) {
-        setOpen(true);
+        if (setGroupOpen) setGroupOpen(id);
+        else setOwnOpen(true);
         ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     };
     fromHash();
     window.addEventListener("hashchange", fromHash);
     return () => window.removeEventListener("hashchange", fromHash);
-  }, [id]);
+  }, [id, setGroupOpen]);
 
   return (
     <section
@@ -55,7 +68,7 @@ export function GameModeCard({
     >
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-controls={`${id}-panel`}
         className="group flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left"
