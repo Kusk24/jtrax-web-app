@@ -9,6 +9,7 @@ import { AnnouncementCard } from "@/components/parent/AnnouncementCard";
 import { ChildHomeCard } from "@/components/parent/ChildHomeCard";
 import { LiveTournamentCard } from "@/components/parent/LiveTournamentCard";
 import { TournamentHomeCard } from "@/components/parent/TournamentHomeCard";
+import { SwipeCards } from "@/components/parent/SwipeCards";
 import type { AnnouncementV2 } from "@/lib/parent-v2-data";
 import { homeAnnouncements } from "@/lib/home-announcements";
 import { useParentData } from "@/components/parent/ParentData";
@@ -114,11 +115,15 @@ export default function ParentHomeV2() {
         {upcoming.length > 0 && (
           <>
             <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
-              {t("upcomingTournament")}
+              {t("upcomingTournament")} ({upcoming.length})
             </span>
-            {upcoming.map((card) => (
-              <TournamentHomeCard key={card.id} card={card} />
-            ))}
+            {/* One at a time, soonest first, so several do not push the
+                children down the page. */}
+            <SwipeCards label={t("upcomingTournament")}>
+              {upcoming.map((card) => (
+                <TournamentHomeCard key={card.id} card={card} />
+              ))}
+            </SwipeCards>
           </>
         )}
       </div>

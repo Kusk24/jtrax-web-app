@@ -331,7 +331,10 @@
     "browserNotifUnsupported": "เบราว์เซอร์นี้แสดงการแจ้งเตือนไม่ได้",
     "browserNotifFailed": "เปิดการแจ้งเตือนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
     "hoursAttended": "เรียนแล้ว {hours} ชั่วโมง",
-    "hoursShort": "{hours} ชม."
+    "hoursShort": "{hours} ชม.",
+    "slideOf": "{n} จาก {total}",
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป"
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",
