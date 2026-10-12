@@ -15,7 +15,8 @@
     "passwordChanged": "Password changed. Sign in with your new one.",
     "signInIdHint": "Parents and students can sign in with their email address. Students without an email use their username.",
     "errorStaffTitle": "Staff account — use the Admin Console",
-    "errorStaff": "This account cannot sign in to the Parent / Student Portal. Please sign in through the Admin Console."
+    "errorStaff": "This account cannot sign in to the Parent / Student Portal. Please sign in through the Admin Console.",
+    "errorArchived": "This account is archived. Please contact the academy."
   },
   "reset": {
     "requestTitle": "We'll email you a link to set a new password",
