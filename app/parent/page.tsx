@@ -115,7 +115,7 @@ export default function ParentHomeV2() {
         {upcoming.length > 0 && (
           <>
             <span className="mt-2 text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub">
-              {t("upcomingTournament")}
+              {t("upcomingTournament")} ({upcoming.length})
             </span>
             {/* One at a time, soonest first, so several do not push the
                 children down the page. */}
