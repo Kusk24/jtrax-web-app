@@ -149,7 +149,11 @@ export function RegisterForm({
       setScan(null);
       setCheckId("");
       setDateOfBirth("");
-      setScanNote(err instanceof Error ? err.message : t("scanFailed"));
+      setScanNote(
+        err instanceof EntryError && err.status === 404
+          ? t("notOpenBody")
+          : err instanceof Error ? err.message : t("scanFailed"),
+      );
     } finally {
       setScanning(false);
     }
@@ -226,6 +230,9 @@ export function RegisterForm({
          for whoever is at the form. */
       if (err instanceof EntryError && err.status === 409 && /already registered/.test(err.message)) {
         setError(t("alreadyEntered"));
+      } else if (err instanceof EntryError && err.status === 404) {
+        /* Registration was closed in the console while this form was open. */
+        setError(t("notOpenBody"));
       } else {
         setError(err instanceof Error ? err.message : t("failed"));
       }
