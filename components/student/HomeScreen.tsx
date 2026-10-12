@@ -59,8 +59,8 @@ export function SummaryPills({ data }: { data: StudentData }) {
   );
 }
 
-/** One star of the day's three: gold once its puzzle is solved, a pale
-    outlined star until then. Rounded points, as the design draws them. */
+/** One star of the day's three: gold once its puzzle is solved, light blue
+    until then. Rounded points, as the design draws them. */
 function DayStar({ earned, raised }: { earned: boolean; raised?: boolean }) {
   return (
     <svg
@@ -70,8 +70,9 @@ function DayStar({ earned, raised }: { earned: boolean; raised?: boolean }) {
     >
       <path
         d="M32 6.5c1.4 0 2.6.8 3.2 2l6.3 12.8 14.1 2c1.4.2 2.5 1.1 2.9 2.4.4 1.3.1 2.7-.9 3.7L47.4 39.3l2.4 14c.2 1.4-.3 2.7-1.4 3.5-1.1.8-2.6.9-3.8.3L32 50.5l-12.6 6.6c-1.2.6-2.7.5-3.8-.3-1.1-.8-1.6-2.1-1.4-3.5l2.4-14L6.4 29.4c-1-1-1.3-2.4-.9-3.7.4-1.3 1.5-2.2 2.9-2.4l14.1-2 6.3-12.8c.6-1.2 1.8-2 3.2-2z"
-        fill={earned ? "#fbbf24" : "var(--color-st-star-empty)"}
-        stroke={earned ? "#f59e0b" : "var(--color-st-star-line)"}
+        /* Classes, not var() in the attributes: Tailwind keeps a theme colour
+           only when a class uses it, and an unused one painted the star black. */
+        className={earned ? "fill-amber-400 stroke-amber-500" : "fill-st-star-empty stroke-st-star-line"}
         strokeWidth={3.2}
         strokeLinejoin="round"
       />

@@ -427,9 +427,9 @@ button:active {
    values so nothing stays light blue in dark mode. ---- */
 @theme {
   --color-st-brand: #254edb;
-  /* A daily star not yet earned: pale yellow inside a soft blue line. */
-  --color-st-star-empty: #fff4d6;
-  --color-st-star-line: #a9bcf2;
+  /* A daily star not yet earned: light blue, with a deeper blue line. */
+  --color-st-star-empty: #dbe6fd;
+  --color-st-star-line: #9db4f0;
   --color-st-brand-deep: #1d3fa8;
   --color-st-brand-ink: #0f1e54;
   --color-st-brand-soft: #eef2ff;
@@ -451,8 +451,8 @@ button:active {
 }
 [data-theme="dark"] {
   --color-st-brand: #5b7cf0;
-  --color-st-star-empty: #3a3524;
-  --color-st-star-line: #5b6fa8;
+  --color-st-star-empty: #7f9be6;
+  --color-st-star-line: #b4c6f7;
   --color-st-brand-deep: #9db2ff;
   --color-st-brand-ink: #e7edfa;
   --color-st-brand-soft: #1f2a4d;
@@ -475,8 +475,8 @@ button:active {
 @media (prefers-color-scheme: dark) {
   [data-theme="system"] {
     --color-st-brand: #5b7cf0;
-  --color-st-star-empty: #3a3524;
-  --color-st-star-line: #5b6fa8;
+  --color-st-star-empty: #7f9be6;
+  --color-st-star-line: #b4c6f7;
     --color-st-brand-deep: #9db2ff;
     --color-st-brand-ink: #e7edfa;
     --color-st-brand-soft: #1f2a4d;

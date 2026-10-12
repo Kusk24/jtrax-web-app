@@ -1166,7 +1166,7 @@
     "copy": "คัดลอก",
     "copied": "คัดลอกแล้ว",
     "ownEmojiHint": "แตะ + เพื่อพิมพ์อีโมจิของคุณเอง",
-    "earnStars": "มาเก็บ {n} ดาวกัน!",
+    "earnStars": "ทำโจทย์ประจำวันให้ครบ",
     "earnedStars": "ได้ครบ {n} ดาวแล้ว!",
     "puzzlesCompleted": "ทำแล้ว <b>{n}</b> จาก <b>{total}</b> ข้อ",
     "starsEarned": "ได้ {n} จาก {total} ดาว"

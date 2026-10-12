@@ -1166,7 +1166,7 @@
     "copy": "Copy",
     "copied": "Copied",
     "ownEmojiHint": "Tap + to type your own emoji",
-    "earnStars": "Let's earn {n} stars!",
+    "earnStars": "Complete daily challenge",
     "earnedStars": "You earned {n} stars!",
     "puzzlesCompleted": "<b>{n}</b> of <b>{total}</b> puzzles completed",
     "starsEarned": "{n} of {total} stars earned"
