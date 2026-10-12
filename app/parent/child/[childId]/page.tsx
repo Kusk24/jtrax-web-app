@@ -13,6 +13,7 @@ import { useParentData } from "@/components/parent/ParentData";
 import { ChildLichess } from "@/components/parent/ChildLichess";
 import { ChildAccount } from "@/components/parent/ChildAccount";
 import { CopyId } from "@/components/parent/CopyId";
+import { ChildCertificates } from "@/components/parent/ChildCertificates";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 
@@ -187,6 +188,10 @@ export default function ChildProfileV2({
           </div>
         )}
       </div>
+
+      {/* Below the enrolled classes: hours toward each course's certificate,
+          read-only. Hidden for a child in no certificate course. */}
+      <ChildCertificates studentId={ch.id} childKey={ch.key} refreshKey={ch.hoursAttended} />
 
       {/* Attendance history preview */}
       <div className="flex flex-col gap-3">
