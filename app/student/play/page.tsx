@@ -8,7 +8,7 @@ import { MyGames } from "@/components/game/MyGames";
 import { JoinForm } from "@/components/game/JoinForm";
 import { ChallengePanel } from "@/app/student/challenge/ChallengeScreen";
 import { SESSION_COOKIE, fetchMe } from "@/lib/session";
-import { GameModeCard } from "@/components/student/GameModeCard";
+import { GameModeCard, GameModeGroup } from "@/components/student/GameModeCard";
 import { RecentGames } from "@/components/student/RecentGames";
 import { FriendPawns } from "@/components/student/FriendPawns";
 
@@ -36,6 +36,8 @@ export default async function PlayPage() {
       {/* Draws nothing when there are none. */}
       {me.userAccountId && <MyGames myAccountId={me.userAccountId} />}
 
+      {/* One open at a time. */}
+      <GameModeGroup>
       <div className="flex flex-col gap-2">
         <GameModeCard
           id="computer"
@@ -78,6 +80,7 @@ export default async function PlayPage() {
           <JoinForm />
         </GameModeCard>
       </div>
+      </GameModeGroup>
 
       <RecentGames studentId={me.studentId} />
     </PlayShell>
