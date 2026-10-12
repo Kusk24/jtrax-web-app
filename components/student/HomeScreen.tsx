@@ -90,7 +90,7 @@ function Sparkle({ className }: { className: string }) {
 }
 
 /** The day's puzzles on Home, to the student design: a soft blue card with
-    the label, "x of 3 completed" and a line under it on the left, the ring on
+    the label, "x/3 puzzles completed" on the left, the stars on
     the right, and the button for the next puzzle. */
 export function DailyProgressCard({
   solved,
@@ -119,14 +119,11 @@ export function DailyProgressCard({
             <Clock className="size-[18px]" strokeWidth={2.4} aria-hidden />
             {t3("todaysChallenge")}
           </span>
-          <span className="mt-2.5 block text-[24px] font-extrabold leading-tight tracking-tight text-st-brand-ink sm:text-[28px]">
+          <span className="mt-2 block text-[18px] font-extrabold leading-tight tracking-tight text-st-brand-ink sm:text-[20px]">
             {done ? t3("earnedStars", { n }) : t3("earnStars", { n })}
           </span>
-          <span className="mt-2 block text-[15px] font-semibold text-pp-muted sm:text-[17px]">
+          <span className="mt-1.5 block text-[14px] font-semibold text-pp-muted sm:text-[15px]">
             {loading ? "…" : t3.rich("puzzlesCompleted", { n: earned, total: n, b: bold })}
-          </span>
-          <span className="mt-1.5 block text-[12.5px] font-medium leading-snug text-pp-muted sm:text-[13.5px]">
-            {done ? t3("dailyDoneBody") : t3("dailyBody", { n })}
           </span>
         </span>
         {/* One star per puzzle, the middle one raised, with sparkles. */}

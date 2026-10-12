@@ -1167,9 +1167,9 @@
     "copy": "Copy",
     "copied": "Copied",
     "ownEmojiHint": "Tap + to type your own emoji",
-    "earnStars": "Complete daily challenge",
+    "earnStars": "Let's play",
     "earnedStars": "You earned {n} stars!",
-    "puzzlesCompleted": "<b>{n}</b> of <b>{total}</b> puzzles completed",
+    "puzzlesCompleted": "<b>{n}</b>/<b>{total}</b> puzzles completed",
     "starsEarned": "{n} of {total} stars earned"
   }
 }
