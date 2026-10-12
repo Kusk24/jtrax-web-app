@@ -51,7 +51,12 @@ export function LoginForm() {
         </p>
       ) : state.error && (
         <p role="alert" className="text-xs font-bold text-brick">
-          {t(state.error === "missing" ? "errorMissing" : state.error === "unreachable" ? "errorUnreachable" : "errorInvalid")}
+          {t(
+            state.error === "missing" ? "errorMissing"
+              : state.error === "unreachable" ? "errorUnreachable"
+              : state.error === "archived" ? "errorArchived"
+              : "errorInvalid",
+          )}
         </p>
       )}
       <button

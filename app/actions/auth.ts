@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { API_BASE, SESSION_COOKIE, SESSION_MAX_AGE, homeFor, type BackendIdentity } from "@/lib/session";
 
-export type SignInState = { error?: "missing" | "invalid" | "unreachable" | "staff" };
+export type SignInState = { error?: "missing" | "invalid" | "unreachable" | "staff" | "archived" };
 
 export async function signIn(_prev: SignInState, formData: FormData): Promise<SignInState> {
   const email = String(formData.get("email") ?? "").trim();
@@ -20,6 +20,8 @@ export async function signIn(_prev: SignInState, formData: FormData): Promise<Si
       body: JSON.stringify({ email, password }),
       cache: "no-store",
     });
+    /* 403 is an archived student: right password, account switched off. */
+    if (res.status === 403) return { error: "archived" };
     if (!res.ok) return { error: "invalid" };
     ({ token, user } = (await res.json()) as { token: string; user: BackendIdentity });
   } catch {
