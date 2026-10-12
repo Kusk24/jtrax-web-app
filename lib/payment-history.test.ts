@@ -30,6 +30,15 @@ describe("toPaymentHistory", () => {
     expect(rows[1]).toMatchObject({ childName: "Penny", forWhat: "Beginner", paid: 10800, discount: 1200, credits: 20 });
     expect(rows[2].credits).toBe(7);
   });
+
+  it("keeps a voided payment, marked Voided", () => {
+    const rows = toPaymentHistory(
+      [{ payment_id: "pay_v", student_id: "stu_penny", enrollment_id: "enr_1", payment_date: "2026-09-01",
+         amount: 100, final_amount: 100, payment_method: "Cash", status: "Voided" }],
+      data,
+    );
+    expect(rows[0].status).toBe("Voided");
+  });
 });
 
 
