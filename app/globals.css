@@ -490,3 +490,19 @@ button:active {
     --color-st-emerald-line: #1d4a38;
   }
 }
+
+/* Printing a certificate (Download PDF): the certificate alone, on a
+   landscape page, without the portal around it. */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  body:has(.certificate-print) * { visibility: hidden; }
+  body:has(.certificate-print) .certificate-print,
+  body:has(.certificate-print) .certificate-print * { visibility: visible; }
+  body:has(.certificate-print) .certificate-print {
+    position: fixed;
+    inset: 0;
+    box-shadow: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

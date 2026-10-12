@@ -334,7 +334,20 @@
     "hoursShort": "{hours} ชม.",
     "slideOf": "{n} จาก {total}",
     "previous": "ก่อนหน้า",
-    "next": "ถัดไป"
+    "next": "ถัดไป",
+    "certificates": "ใบประกาศนียบัตร",
+    "certCourse_starters": "JCA Starters",
+    "certCourse_juniors": "JCA Juniors",
+    "certCourse_nxt": "JCA NXT",
+    "certInProgress": "กำลังเรียน",
+    "certCertified": "ได้รับใบประกาศแล้ว",
+    "certHoursOf": "{hours} / {required} ชม.",
+    "certView": "ดูใบประกาศ",
+    "certDownload": "ดาวน์โหลด PDF",
+    "certNotIssued": "ยังไม่ได้ออกใบประกาศนี้",
+    "certHeading": "ใบประกาศนียบัตร",
+    "certBody": "ได้เรียนครบ {hours} ชั่วโมงในหลักสูตร {course} และผ่านการประเมิน",
+    "certDate": "วันที่"
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",

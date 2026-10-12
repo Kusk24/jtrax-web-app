@@ -334,7 +334,20 @@
     "hoursShort": "{hours} h",
     "slideOf": "{n} of {total}",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "certificates": "Certificates",
+    "certCourse_starters": "JCA Starters",
+    "certCourse_juniors": "JCA Juniors",
+    "certCourse_nxt": "JCA NXT",
+    "certInProgress": "In Progress",
+    "certCertified": "Certified",
+    "certHoursOf": "{hours} / {required} h",
+    "certView": "View certificate",
+    "certDownload": "Download PDF",
+    "certNotIssued": "This certificate has not been issued.",
+    "certHeading": "Certificate of Completion",
+    "certBody": "has completed {hours} hours of the {course} course and passed the assessment",
+    "certDate": "Date"
   },
   "sv2": {
     "brand": "JTrax — Student",
