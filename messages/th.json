@@ -289,7 +289,6 @@
     "allChildren": "ลูกทุกคน",
     "filterChild": "ลูก",
     "filterCourse": "คอร์ส",
-    "classesJoined": "เข้าเรียนแล้ว {count} คลาส",
     "announcementLabel": "ประกาศ",
     "fromSender": "จาก {name}",
     "verifyIdFirst": "อัปโหลดบัตรเพื่อดำเนินการต่อ",
@@ -329,7 +328,9 @@
     "browserNotifHint": "แสดงการแจ้งเตือนที่นี่ แม้ไม่ได้เปิด JTrax อยู่",
     "browserNotifBlocked": "เว็บไซต์นี้ถูกบล็อกการแจ้งเตือน โปรดอนุญาตในการตั้งค่าเบราว์เซอร์ แล้วกลับมาอีกครั้ง",
     "browserNotifUnsupported": "เบราว์เซอร์นี้แสดงการแจ้งเตือนไม่ได้",
-    "browserNotifFailed": "เปิดการแจ้งเตือนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
+    "browserNotifFailed": "เปิดการแจ้งเตือนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+    "hoursAttended": "เรียนแล้ว {hours} ชั่วโมง",
+    "hoursShort": "{hours} ชม."
   },
   "sv2": {
     "brand": "JTrax — นักเรียน",

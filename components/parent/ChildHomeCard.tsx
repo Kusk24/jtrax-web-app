@@ -7,7 +7,7 @@
  */
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Flame, GraduationCap } from "lucide-react";
+import { Clock, Flame } from "lucide-react";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { creditShare, creditTone } from "@/lib/credit-tone";
 import type { ChildV2 } from "@/lib/parent-v2-data";
@@ -24,6 +24,9 @@ const LEVEL_TONE: Record<string, { band: string; text: string }> = {
   Advanced: { band: "bg-pp-purple-soft", text: "text-pp-purple" },
 };
 const DEFAULT_TONE = LEVEL_TONE.Intermediate;
+
+/** 12.5, not 12.50 or 12.4999. */
+const fmtHours = (h: number) => String(Math.round(h * 10) / 10);
 
 export function ChildHomeCard({ child, lowCreditAt }: { child: ChildV2; lowCreditAt: number }) {
   const t = useTranslations("pv2");
@@ -57,15 +60,15 @@ export function ChildHomeCard({ child, lowCreditAt }: { child: ChildV2; lowCredi
                 {child.level}
               </span>
             )}
-            {/* Classes attended so far — lib/classes-attended.ts. An icon and
-                the number, so it fits a phone's narrow card. */}
+            {/* Hours of class attended so far — lib/hours-attended.ts. An
+                icon and the number, so it fits a phone's narrow card. */}
             <span
               className="flex flex-none items-center gap-0.5 text-[10.5px] font-semibold text-pp-sub"
-              title={t("classesJoined", { count: child.attended })}
-              aria-label={t("classesJoined", { count: child.attended })}
+              title={t("hoursAttended", { hours: fmtHours(child.hoursAttended) })}
+              aria-label={t("hoursAttended", { hours: fmtHours(child.hoursAttended) })}
             >
-              <GraduationCap className="size-3.5" strokeWidth={2} aria-hidden />
-              <span aria-hidden>{child.attended}</span>
+              <Clock className="size-3.5" strokeWidth={2} aria-hidden />
+              <span aria-hidden>{t("hoursShort", { hours: fmtHours(child.hoursAttended) })}</span>
             </span>
           </div>
           {child.streak > 0 && (
