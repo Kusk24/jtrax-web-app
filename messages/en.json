@@ -1103,7 +1103,7 @@
     },
     "gamesPill": "Games",
     "puzzlesPill": "Puzzles",
-    "dailyBody": "{n} puzzles picked for your level",
+    "dailyBody": "{n} puzzles selected for your level",
     "dailyDoneBody": "All done for today — well played!",
     "theme": {
       "backRankMate": "Back Rank Mate",
@@ -1155,7 +1155,6 @@
     "streakStart": "Solve one today to start a streak",
     "puzzlesLeft": "{n, plural, one {# puzzle left} other {# puzzles left}} today",
     "allDoneToday": "All done for today!",
-    "completedOf": "{n} of {total} completed",
     "dayStreak": "{n, plural, one {# day streak} other {# day streak}}",
     "editProfile": "Edit profile",
     "avatarLabel": "Avatar",
@@ -1167,6 +1166,10 @@
     "studentIdLabel": "Student ID",
     "copy": "Copy",
     "copied": "Copied",
-    "ownEmojiHint": "Tap + to type your own emoji"
+    "ownEmojiHint": "Tap + to type your own emoji",
+    "earnStars": "Complete daily challenge",
+    "earnedStars": "You earned {n} stars!",
+    "puzzlesCompleted": "<b>{n}</b> of <b>{total}</b> puzzles completed",
+    "starsEarned": "{n} of {total} stars earned"
   }
 }

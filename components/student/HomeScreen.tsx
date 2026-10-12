@@ -59,36 +59,33 @@ export function SummaryPills({ data }: { data: StudentData }) {
   );
 }
 
-/** The day's progress as a ring, the percentage inside and a tick badge
-    once everything is done. */
-function ProgressRing({ pct }: { pct: number }) {
-  const r = 30;
-  const c = 2 * Math.PI * r;
+/** One star of the day's three: gold once its puzzle is solved, light blue
+    until then. Rounded points, as the design draws them. */
+function DayStar({ earned, raised }: { earned: boolean; raised?: boolean }) {
   return (
-    <span className="relative flex size-[74px] shrink-0 items-center justify-center" aria-hidden>
-      <svg viewBox="0 0 74 74" className="size-full -rotate-90">
-        <circle cx="37" cy="37" r={r} fill="transparent" stroke="var(--color-st-ring)" strokeWidth={6.5} />
-        {pct > 0 && (
-          <circle
-            cx="37"
-            cy="37"
-            r={r}
-            fill="transparent"
-            stroke="var(--color-st-brand)"
-            strokeWidth={6.5}
-            strokeLinecap="round"
-            strokeDasharray={`${(c * pct) / 100} ${c}`}
-            style={{ transition: "stroke-dasharray 1000ms ease-out" }}
-          />
-        )}
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-[14px] font-black tracking-tight text-st-brand-ink">{pct}%</span>
-      {pct >= 100 && (
-        <span className="absolute -bottom-1 -right-0.5 flex size-5 items-center justify-center rounded-full bg-pp-green text-white shadow-sm ring-2 ring-pp-card">
-          <Check className="size-3" strokeWidth={3} />
-        </span>
-      )}
-    </span>
+    <svg
+      viewBox="0 0 64 64"
+      className={`size-12 shrink-0 drop-shadow-[0_4px_8px_rgba(43,76,237,.12)] transition-transform duration-500 sm:size-[60px] ${raised ? "-translate-y-2" : ""} ${earned ? "scale-105" : ""}`}
+      aria-hidden
+    >
+      <path
+        d="M32 6.5c1.4 0 2.6.8 3.2 2l6.3 12.8 14.1 2c1.4.2 2.5 1.1 2.9 2.4.4 1.3.1 2.7-.9 3.7L47.4 39.3l2.4 14c.2 1.4-.3 2.7-1.4 3.5-1.1.8-2.6.9-3.8.3L32 50.5l-12.6 6.6c-1.2.6-2.7.5-3.8-.3-1.1-.8-1.6-2.1-1.4-3.5l2.4-14L6.4 29.4c-1-1-1.3-2.4-.9-3.7.4-1.3 1.5-2.2 2.9-2.4l14.1-2 6.3-12.8c.6-1.2 1.8-2 3.2-2z"
+        /* Classes, not var() in the attributes: Tailwind keeps a theme colour
+           only when a class uses it, and an unused one painted the star black. */
+        className={earned ? "fill-amber-400 stroke-amber-500" : "fill-st-star-empty stroke-st-star-line"}
+        strokeWidth={3.2}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** A small four-point sparkle. */
+function Sparkle({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={`pointer-events-none absolute fill-amber-300 ${className}`} aria-hidden>
+      <path d="M12 1.5c.5 4.9 2.6 7 7.5 7.5v1c-4.9.5-7 2.6-7.5 7.5h-1c-.5-4.9-2.6-7-7.5-7.5V9c4.9-.5 7-2.6 7.5-7.5z" />
+    </svg>
   );
 }
 
@@ -112,33 +109,48 @@ export function DailyProgressCard({
   const t3 = useTranslations("sv3");
   const n = total || 3;
   const done = total > 0 && solved >= total;
-  const pct = n > 0 ? Math.round((Math.min(solved, n) / n) * 100) : 0;
+  const earned = loading ? 0 : Math.min(solved, n);
+  const bold = (chunks: React.ReactNode) => <b className="font-extrabold text-pp-ink">{chunks}</b>;
   return (
-    <section className="relative overflow-hidden rounded-[26px] border border-st-hero-line bg-linear-to-br from-st-hero-a via-st-hero-b to-st-hero-c p-5 shadow-[0_12px_36px_-6px_rgba(43,76,237,.14),0_4px_16px_-2px_rgba(43,76,237,.06)]">
-      {/* The design's soft backdrop glow, top right. */}
-      <span className="pointer-events-none absolute -right-8 -top-8 size-36 rounded-full bg-blue-400/20 blur-2xl" aria-hidden />
-      <Link href={href} className="relative z-10 flex items-start justify-between gap-4">
+    <section className="relative overflow-hidden rounded-[26px] border border-st-hero-line bg-linear-to-br from-st-hero-a via-st-hero-b to-st-hero-c p-5 shadow-[0_12px_36px_-6px_rgba(43,76,237,.14),0_4px_16px_-2px_rgba(43,76,237,.06)] sm:p-6">
+      <Link href={href} className="relative z-10 flex items-center justify-between gap-3">
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-st-brand-deep">
-            <Clock className="size-3.5" strokeWidth={2.5} aria-hidden />
+          <span className="flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-wider text-st-brand">
+            <Clock className="size-[18px]" strokeWidth={2.4} aria-hidden />
             {t3("todaysChallenge")}
           </span>
-          <span className="mt-1 block text-[22px] font-extrabold leading-tight tracking-tight text-pp-ink">
-            {loading ? "…" : t3("completedOf", { n: solved, total: n })}
+          <span className="mt-2.5 block text-[24px] font-extrabold leading-tight tracking-tight text-st-brand-ink sm:text-[28px]">
+            {done ? t3("earnedStars", { n }) : t3("earnStars", { n })}
           </span>
-          <span className="mt-1 block pt-0.5 text-[12px] font-semibold leading-snug text-pp-muted">
+          <span className="mt-2 block text-[15px] font-semibold text-pp-muted sm:text-[17px]">
+            {loading ? "…" : t3.rich("puzzlesCompleted", { n: earned, total: n, b: bold })}
+          </span>
+          <span className="mt-1.5 block text-[12.5px] font-medium leading-snug text-pp-muted sm:text-[13.5px]">
             {done ? t3("dailyDoneBody") : t3("dailyBody", { n })}
           </span>
         </span>
-        <ProgressRing pct={loading ? 0 : pct} />
+        {/* One star per puzzle, the middle one raised, with sparkles. */}
+        <span
+          className="relative flex shrink-0 items-end gap-1.5 px-2 py-3 sm:gap-2.5"
+          role="img"
+          aria-label={t3("starsEarned", { n: earned, total: n })}
+        >
+          <span className="pointer-events-none absolute inset-0 rounded-full bg-amber-100/50 blur-2xl" aria-hidden />
+          <Sparkle className="-left-1 top-1 size-3.5" />
+          <Sparkle className="-bottom-1 left-0 size-3" />
+          <Sparkle className="-bottom-1 -right-1 size-3.5" />
+          {Array.from({ length: n }, (_, i) => (
+            <DayStar key={i} earned={i < earned} raised={n === 3 && i === 1} />
+          ))}
+        </span>
       </Link>
 
-      <div className="relative z-10 mt-4 pt-1">
+      <div className="relative z-10 mt-5">
         <button
           type="button"
           onClick={action.onClick}
           disabled={loading}
-          className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-st-brand px-4 py-3.5 text-[14px] font-bold tracking-wide text-white shadow-md shadow-st-brand/25 transition duration-150 ease-in-out hover:bg-st-brand-deep active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
+          className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-st-brand px-4 py-3.5 text-[15px] font-bold tracking-wide text-white shadow-md shadow-st-brand/25 transition duration-150 ease-in-out hover:bg-st-brand-deep active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
         >
           {done ? (
             <Check className="size-4 transition-transform group-hover:scale-110" strokeWidth={2.5} aria-hidden />
