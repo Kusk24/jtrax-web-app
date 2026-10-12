@@ -29,6 +29,7 @@ function StatusChip({ status }: { status: PaymentRecord["status"] }) {
   const tone =
     status === "Paid" ? "bg-pp-green-soft text-pp-green"
     : status === "Cancelled" ? "bg-pp-danger-soft text-pp-danger"
+    : status === "Voided" ? "bg-pp-mist text-pp-muted"
     : "bg-pp-amber-soft text-pp-amber";
   return <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tone}`}>{t(`payStatus.${status}`)}</span>;
 }

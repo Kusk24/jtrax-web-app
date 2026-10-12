@@ -457,7 +457,8 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         .filter((r) => s(r, "tournament_id") === tid && s(r, "status") !== "Rejected")
         .map((r) => {
           const rid = s(r, "tournament_registration_id");
-          const pay = payments.find((p) => s(p, "tournament_registration_id") === rid);
+          /* A voided fee is not the entry's payment. */
+          const pay = payments.find((p) => s(p, "tournament_registration_id") === rid && s(p, "status") !== "Voided");
           return {
             registrationId: rid,
             studentId: s(r, "student_id"),

@@ -254,7 +254,8 @@
     "payStatus": {
       "Paid": "ชำระแล้ว",
       "Pending": "รอชำระ",
-      "Cancelled": "ยกเลิก"
+      "Cancelled": "ยกเลิก",
+      "Voided": "ยกเลิกรายการ"
     },
     "payMethodName": {
       "Cash": "เงินสด",

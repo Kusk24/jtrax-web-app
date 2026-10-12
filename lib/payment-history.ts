@@ -22,7 +22,8 @@ export type PaymentRecord = {
   /** Credits the payment bought; 0 for a tournament fee. */
   credits: number;
   method: string;
-  status: "Paid" | "Pending" | "Cancelled";
+  /** Voided: recorded in error and kept on record — not money paid. */
+  status: "Paid" | "Pending" | "Cancelled" | "Voided";
   /** The bank or transfer reference the office wrote down, if any. */
   reference: string;
 };
