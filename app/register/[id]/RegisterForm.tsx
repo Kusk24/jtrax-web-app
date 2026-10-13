@@ -25,14 +25,15 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  BadgeCheck, Camera, Check, CreditCard, Eye, FileText, Info, Lock, Mail, MessageCircle,
-  Phone, QrCode, ScrollText, Trophy, Upload, UserRound,
+  BadgeCheck, Camera, Check, CreditCard, Eye, FileText, Info, Lock, QrCode, ScrollText,
+  Trophy, Upload, UserRound,
 } from "lucide-react";
 import {
   ageFromDOB, categoryAllows, dobTooYoung, EntryError, payForPublicEntry, registerForTournament, scanIDCard,
   type PublicCategory, type ScannedIDCard,
 } from "@/lib/registration";
 import { ACADEMY_CONTACT, type AcademyContact } from "@/lib/academy-contact";
+import { AcademyContacts } from "@/components/public/AcademyContacts";
 import { PublicCard } from "@/components/public/PublicShell";
 import { PayNow } from "./PayNow";
 
@@ -148,7 +149,11 @@ export function RegisterForm({
       setScan(null);
       setCheckId("");
       setDateOfBirth("");
-      setScanNote(err instanceof Error ? err.message : t("scanFailed"));
+      setScanNote(
+        err instanceof EntryError && err.status === 404
+          ? t("notOpenBody")
+          : err instanceof Error ? err.message : t("scanFailed"),
+      );
     } finally {
       setScanning(false);
     }
@@ -225,6 +230,9 @@ export function RegisterForm({
          for whoever is at the form. */
       if (err instanceof EntryError && err.status === 409 && /already registered/.test(err.message)) {
         setError(t("alreadyEntered"));
+      } else if (err instanceof EntryError && err.status === 404) {
+        /* Registration was closed in the console while this form was open. */
+        setError(t("notOpenBody"));
       } else {
         setError(err instanceof Error ? err.message : t("failed"));
       }
@@ -252,7 +260,7 @@ export function RegisterForm({
             <UnpaidRules earlyBirdUntil={earlyBird} closes={registrationDeadline} />
           )}
           {done.emailed && <p className="max-w-md text-[13px] text-pp-muted">{t("doneEmailed", { email })}</p>}
-          <Contacts contact={contact} />
+          <AcademyContacts contact={contact} />
         </div>
       </PublicCard>
     );
@@ -609,32 +617,6 @@ function UnpaidRules({ earlyBirdUntil, closes }: { earlyBirdUntil?: string; clos
         {earlyBirdUntil && <li>{t("unpaidEarlyBird", { date: longDate(earlyBirdUntil) })}</li>}
         {closes && <li>{t("unpaidRelease", { date: longDate(closes) })}</li>}
       </ul>
-    </div>
-  );
-}
-
-function Contacts({ contact }: { contact: AcademyContact }) {
-  const t = useTranslations("register");
-  return (
-    <div className="w-full max-w-md rounded-xl bg-[#edf4ff] px-4 py-3 text-left text-[12.5px] text-pp-ink">
-      <p className="font-semibold">{t("contactTitle")}</p>
-      <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5">
-        <Phone className="size-3.5 text-pp-blue" aria-hidden />
-        {contact.phones.map((p, i) => (
-          <span key={p}>
-            {i > 0 && " · "}
-            <a className="font-semibold text-pp-blue" href={`tel:${p.replace(/[^\d+]/g, "")}`}>{p}</a>
-          </span>
-        ))}
-      </p>
-      <p className="mt-1 flex items-center gap-1.5">
-        <Mail className="size-3.5 text-pp-blue" aria-hidden />
-        <a className="font-semibold text-pp-blue" href={`mailto:${contact.email}`}>{contact.email}</a>
-      </p>
-      <p className="mt-1 flex items-center gap-1.5">
-        <MessageCircle className="size-3.5 text-pp-blue" aria-hidden />
-        <a className="font-semibold text-pp-blue" href={contact.line} target="_blank" rel="noopener noreferrer">LINE</a>
-      </p>
     </div>
   );
 }

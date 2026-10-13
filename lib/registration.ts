@@ -293,7 +293,9 @@ async function postCard(url: string, image: File): Promise<IDCardScan> {
   const res = await fetch(url, { method: "POST", body, cache: "no-store" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error((data as { error?: string }).error ?? "could not read the card");
+    /* With its status, like an entry: a 404 is a registration closed while
+       the form was open, and the form says so in its own words. */
+    throw new EntryError(res.status, (data as { error?: string }).error ?? "could not read the card");
   }
   return data as IDCardScan;
 }

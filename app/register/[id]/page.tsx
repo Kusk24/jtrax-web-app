@@ -18,19 +18,11 @@ import { TournamentBanner } from "@/components/public/TournamentBanner";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
 import { RegisterForm } from "./RegisterForm";
-import { contactFrom, type AcademyContact } from "@/lib/academy-contact";
+import { fetchContact } from "./academy";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
 /* The academy's contact details, as the office saved them in Settings. */
-async function fetchContact(): Promise<AcademyContact> {
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/public/academy`, { next: { revalidate: 300 } });
-    return contactFrom(res.ok ? await res.json() : {});
-  } catch {
-    return contactFrom({});
-  }
-}
 
 /* Short, because the two facts most likely to change while a poster is up are
    how many places are left and whether registration is still open. */
