@@ -285,6 +285,20 @@ export type ScannedIDCard = {
 /** What a scan answers: what the card said, and the check an entry names. */
 export type IDCardScan = { fields: ScannedIDCard; checkId: string };
 
+/** A scan that failed, with why: the server's reason code ("quota",
+    "model_unavailable", …) and the scan service's own status when it answered.
+    Both are empty when the reply never came from the server — a photo nginx
+    refused answers HTML, and only the HTTP status says what happened. */
+export class ScanError extends EntryError {
+  reason: string;
+  upstream: number;
+  constructor(status: number, message: string, reason = "", upstream = 0) {
+    super(status, message);
+    this.reason = reason;
+    this.upstream = upstream;
+  }
+}
+
 async function postCard(url: string, image: File): Promise<IDCardScan> {
   const body = new FormData();
   // A phone photo is shrunk first: sent whole it is several megabytes, too
@@ -295,7 +309,8 @@ async function postCard(url: string, image: File): Promise<IDCardScan> {
   if (!res.ok) {
     /* With its status, like an entry: a 404 is a registration closed while
        the form was open, and the form says so in its own words. */
-    throw new EntryError(res.status, (data as { error?: string }).error ?? "could not read the card");
+    const why = data as { error?: string; reason?: string; status?: number };
+    throw new ScanError(res.status, why.error ?? "", why.reason ?? "", why.status ?? 0);
   }
   return data as IDCardScan;
 }

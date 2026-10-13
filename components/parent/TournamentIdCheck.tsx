@@ -10,6 +10,7 @@ import { Lock, Upload } from "lucide-react";
 import {
   ageFromDOB, categoryAllows, scanChildIDCard, type PublicCategory,
 } from "@/lib/registration";
+import { scanErrorText } from "@/lib/scan-error";
 
 export type IdCardRead = {
   studentId: string; checkId: string; dateOfBirth: string; name: string;
@@ -51,7 +52,7 @@ export function TournamentIdCheck({
     } catch (err) {
       onRead(null);
       onCategory("");
-      setFailed(err instanceof Error ? err.message : t("scanFailed"));
+      setFailed(scanErrorText(err, t));
     } finally {
       setScanning(false);
     }
