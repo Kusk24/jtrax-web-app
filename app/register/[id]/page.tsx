@@ -24,9 +24,11 @@ const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
 /* The academy's contact details, as the office saved them in Settings. */
 
-/* Short, because the two facts most likely to change while a poster is up are
-   how many places are left and whether registration is still open. */
-export const revalidate = 30;
+/* Read fresh on every visit, never from a cache: the console's edits (dates,
+   venue, fee, deadline, banner) and its Open / Close registration switch must
+   show the moment they are saved. A cached copy kept a closed event's form
+   open, and an edited venue showed the old one, for a refresh or two. */
+export const dynamic = "force-dynamic";
 
 type Payload = { tournament: PublicTournament; categories: PublicCategory[] };
 
@@ -40,9 +42,7 @@ async function fetchTournament(id: string, preview?: string): Promise<Payload | 
           `${API_BASE}/api/v1/public/tournaments/${id}/preview?preview=${encodeURIComponent(preview)}`,
           { cache: "no-store" },
         )
-      : await fetch(`${API_BASE}/api/v1/public/tournaments/${id}`, {
-          next: { revalidate },
-        });
+      : await fetch(`${API_BASE}/api/v1/public/tournaments/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as Payload;
   } catch {

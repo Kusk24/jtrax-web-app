@@ -75,6 +75,10 @@ async function forward(req: NextRequest, params: Promise<{ path: string[] }>) {
     const headers = new Headers({ "Content-Type": upstreamType });
     const disposition = upstream.headers.get("content-disposition");
     if (disposition) headers.set("Content-Disposition", disposition);
+    // The backend's word on caching, kept: a tournament's banner and
+    // regulation are checked again on every view, so a replaced one shows.
+    const cacheControl = upstream.headers.get("cache-control");
+    if (cacheControl) headers.set("Cache-Control", cacheControl);
     return new NextResponse(await upstream.arrayBuffer(), {
       status: upstream.status,
       headers,
