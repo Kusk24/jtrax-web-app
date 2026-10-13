@@ -13,7 +13,9 @@ import type { PublicTournament } from "@/lib/registration";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
-export const revalidate = 60;
+/* Fresh on every visit, like each tournament's page: a tournament opened or
+   closed in the console is listed, or not, at once. */
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Open tournaments — JCA Chess Academy",
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
 
 async function fetchOpen(): Promise<PublicTournament[]> {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/public/tournaments`, { next: { revalidate } });
+    const res = await fetch(`${API_BASE}/api/v1/public/tournaments`, { cache: "no-store" });
     if (!res.ok) return [];
     const data = (await res.json()) as { tournaments?: PublicTournament[] };
     return data.tournaments ?? [];

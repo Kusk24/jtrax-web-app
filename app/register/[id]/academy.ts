@@ -6,7 +6,7 @@ const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
     own set when the backend cannot be reached. */
 export async function fetchContact(): Promise<AcademyContact> {
   try {
-    const res = await fetch(`${API_BASE}/api/v1/public/academy`, { next: { revalidate: 300 } });
+    const res = await fetch(`${API_BASE}/api/v1/public/academy`, { cache: "no-store" });
     return contactFrom(res.ok ? await res.json() : {});
   } catch {
     return contactFrom({});
