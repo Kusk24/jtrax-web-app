@@ -11,7 +11,7 @@ import { getTranslations } from "next-intl/server";
 import { PublicShell, PublicCard } from "@/components/public/PublicShell";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { AcademyContacts } from "@/components/public/AcademyContacts";
-import { fetchContact } from "./academy";
+import { fetchContact } from "@/lib/academy-contact-server";
 
 export default async function RegistrationNotOpen() {
   const [t, contact] = await Promise.all([getTranslations("register"), fetchContact()]);
