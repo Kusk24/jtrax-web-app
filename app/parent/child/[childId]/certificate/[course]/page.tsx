@@ -11,10 +11,12 @@ import { notFound, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Download } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
-import { fetchCertificates, fmtHours, type CourseCertificate } from "@/lib/certificates";
+import { fetchCertificates, type CourseCertificate } from "@/lib/certificates";
+import { useHoursText } from "@/components/useHoursText";
 
 export default function CertificatePage({ params }: { params: Promise<{ childId: string; course: string }> }) {
   const t = useTranslations("pv2");
+  const hoursText = useHoursText();
   const locale = useLocale();
   const router = useRouter();
   const { childId, course } = use(params);
@@ -65,7 +67,7 @@ export default function CertificatePage({ params }: { params: Promise<{ childId:
         <span className="text-[11px] font-bold uppercase tracking-[.3em] text-[#2e5cb8]">{t("certHeading")}</span>
         <span className="font-pp-display text-[30px] font-bold leading-tight">{ch.name}</span>
         <span className="max-w-[520px] text-[14px] leading-relaxed">
-          {t("certBody", { course: t(`certCourse_${cert.course}`), hours: fmtHours(cert.hours_at_certification ?? cert.hours) })}
+          {t("certBody", { course: t(`certCourse_${cert.course}`), hours: hoursText(cert.hours_at_certification ?? cert.hours) })}
         </span>
         <span className="font-pp-display text-[20px] font-semibold text-[#2e5cb8]">{t(`certCourse_${cert.course}`)}</span>
         <div className="mt-2 flex w-full max-w-[520px] items-end justify-between gap-6 text-[12px]">
