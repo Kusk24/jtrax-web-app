@@ -43,6 +43,8 @@
     "emailOrId": "Email or student login username"
   },
   "common": {
+    "hoursText": "{hours} h",
+    "hoursMinutesText": "{hours} h {minutes} min",
     "hi": "Hi, {name}!",
     "viewAll": "View All",
     "done": "Done",
@@ -340,12 +342,12 @@
     "certCourse_nxt": "JCA NXT",
     "certInProgress": "In Progress",
     "certCertified": "Certified",
-    "certHoursOf": "{hours} / {required} h",
+    "certHoursOf": "{hours} / {required}",
     "certView": "View certificate",
     "certDownload": "Download PDF",
     "certNotIssued": "This certificate has not been issued.",
     "certHeading": "Certificate of Completion",
-    "certBody": "has completed {hours} hours of the {course} course and passed the assessment",
+    "certBody": "has completed {hours} of the {course} course and passed the assessment",
     "certDate": "Date"
   },
   "sv2": {

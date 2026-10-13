@@ -23,8 +23,6 @@ export async function fetchCertificates(studentId: string): Promise<StudentCerti
   return Array.isArray(data?.courses) ? data : { required_hours: 50, courses: [] };
 }
 
-/** 35.5, not 35.50 or 35.4999. */
-export const fmtHours = (h: number) => String(Math.round(h * 10) / 10);
 
 /** Share of the requirement, 0–100. */
 export const progressPct = (hours: number, required: number) =>

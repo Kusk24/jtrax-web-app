@@ -43,6 +43,8 @@
     "emailOrId": "อีเมลหรือชื่อผู้ใช้ของนักเรียน"
   },
   "common": {
+    "hoursText": "{hours} ชม.",
+    "hoursMinutesText": "{hours} ชม. {minutes} นาที",
     "hi": "สวัสดี คุณ{name}!",
     "viewAll": "ดูทั้งหมด",
     "done": "เสร็จสิ้น",
@@ -340,12 +342,12 @@
     "certCourse_nxt": "JCA NXT",
     "certInProgress": "กำลังเรียน",
     "certCertified": "ได้รับใบประกาศแล้ว",
-    "certHoursOf": "{hours} / {required} ชม.",
+    "certHoursOf": "{hours} / {required}",
     "certView": "ดูใบประกาศ",
     "certDownload": "ดาวน์โหลด PDF",
     "certNotIssued": "ยังไม่ได้ออกใบประกาศนี้",
     "certHeading": "ใบประกาศนียบัตร",
-    "certBody": "ได้เรียนครบ {hours} ชั่วโมงในหลักสูตร {course} และผ่านการประเมิน",
+    "certBody": "ได้เรียนครบ {hours} ในหลักสูตร {course} และผ่านการประเมิน",
     "certDate": "วันที่"
   },
   "sv2": {

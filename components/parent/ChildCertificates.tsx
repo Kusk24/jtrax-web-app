@@ -9,10 +9,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Award } from "lucide-react";
-import { fetchCertificates, fmtHours, progressPct, type StudentCertificates } from "@/lib/certificates";
+import { fetchCertificates, progressPct, type StudentCertificates } from "@/lib/certificates";
+import { useHoursText } from "@/components/useHoursText";
 
 export function ChildCertificates({ studentId, childKey, refreshKey }: { studentId: string; childKey: string; refreshKey: unknown }) {
   const t = useTranslations("pv2");
+  const hoursText = useHoursText();
   const [data, setData] = useState<StudentCertificates | null>(null);
 
   /* Read again when the child's attendance changes. */
@@ -56,7 +58,7 @@ export function ChildCertificates({ studentId, childKey, refreshKey }: { student
             </div>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[12px] tabular-nums text-pp-muted">
-                {t("certHoursOf", { hours: fmtHours(c.hours), required: fmtHours(required) })}
+                {t("certHoursOf", { hours: hoursText(c.hours), required: hoursText(required) })}
               </span>
               {done && (
                 <Link
