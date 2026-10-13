@@ -1,4 +1,4 @@
-import { contactFrom, type AcademyContact } from "@/lib/academy-contact";
+import { contactFrom, type AcademyContact } from "./academy-contact";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 

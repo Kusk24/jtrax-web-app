@@ -359,6 +359,10 @@ export type ArrivalEntry = {
   participantName: string;
   startDate: string;
   venue?: string;
+  venueAddress?: string;
+  venueMapUrl?: string;
+  /** The tournament has a banner, which fetchArrivalBanner reads. */
+  hasBanner?: boolean;
   status: ArrivalStatus;
   /** False once the tournament has started: the answer is then final. */
   open: boolean;
@@ -421,3 +425,21 @@ async function postArrival(entry: string, suffix: string, body: Record<string, s
 export const getArrival = (entry: string, code: string) => postArrival(entry, "", { code });
 export const answerArrival = (entry: string, code: string, answer: "Confirmed" | "NotAttending") =>
   postArrival(entry, "/answer", { code, answer });
+
+/** The tournament's banner, through the reminder link — registration has
+    usually closed by then, so the public banner address no longer serves
+    it. A local address for an <img>, or null when there is none. */
+export async function fetchArrivalBanner(entry: string, code: string): Promise<string | null> {
+  try {
+    const res = await fetch(`/api/public/arrival/${encodeURIComponent(entry)}/banner`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return URL.createObjectURL(await res.blob());
+  } catch {
+    return null;
+  }
+}

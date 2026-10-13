@@ -18,7 +18,7 @@ import { TournamentBanner } from "@/components/public/TournamentBanner";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import type { PublicCategory, PublicTournament } from "@/lib/registration";
 import { RegisterForm } from "./RegisterForm";
-import { fetchContact } from "./academy";
+import { fetchContact } from "@/lib/academy-contact-server";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
