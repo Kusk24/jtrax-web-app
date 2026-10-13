@@ -32,6 +32,7 @@ import {
   ageFromDOB, categoryAllows, dobTooYoung, EntryError, payForPublicEntry, registerForTournament, scanIDCard,
   type PublicCategory, type ScannedIDCard,
 } from "@/lib/registration";
+import { scanErrorText } from "@/lib/scan-error";
 import { ACADEMY_CONTACT, type AcademyContact } from "@/lib/academy-contact";
 import { AcademyContacts } from "@/components/public/AcademyContacts";
 import { PublicCard } from "@/components/public/PublicShell";
@@ -149,10 +150,12 @@ export function RegisterForm({
       setScan(null);
       setCheckId("");
       setDateOfBirth("");
+      /* The reason and its code, so whoever is testing can say exactly what
+         went wrong. */
       setScanNote(
         err instanceof EntryError && err.status === 404
           ? t("notOpenBody")
-          : err instanceof Error ? err.message : t("scanFailed"),
+          : scanErrorText(err, t),
       );
     } finally {
       setScanning(false);
@@ -377,7 +380,11 @@ export function RegisterForm({
             />
           </label>
           {(scanNote || scan) && (
-            <p className="w-full text-[12.5px] text-pp-sub" role="status">
+            /* scanNote is only ever a failure, and is shown as one. */
+            <p
+              className={`w-full text-[12.5px] ${scanNote ? "font-semibold text-pp-danger" : "text-pp-sub"}`}
+              role={scanNote ? "alert" : "status"}
+            >
               {scanNote ||
                 t("scanRead", {
                   name: [scan!.firstName.value, scan!.lastName.value].filter(Boolean).join(" ") || "—",
