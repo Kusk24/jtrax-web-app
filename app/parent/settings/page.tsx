@@ -22,6 +22,7 @@ import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import { BrowserPushSwitch } from "@/components/parent/BrowserPushSwitch";
+import { NotifChannelSwitches } from "@/components/parent/NotifChannelSwitches";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card";
@@ -102,7 +103,8 @@ export default function ParentSettings() {
               <p className="px-4 py-3.5 text-[13px] text-pp-muted">{t("notifNoneFromSchool")}</p>
             )}
             {prefDefs.map((p) => (
-              <div key={p.k} className="flex items-center justify-between gap-3 border-b border-pp-panel px-4 py-3.5 last:border-0">
+              <div key={p.k} className="border-b border-pp-panel last:border-0">
+              <div className="flex items-center justify-between gap-3 px-4 py-3.5">
                 <span className="min-w-0 text-sm font-semibold">{p.label}</span>
                 <button
                   onClick={() => {
@@ -124,6 +126,12 @@ export default function ParentSettings() {
                     style={{ left: prefs[p.k] ? 21 : 3 }}
                   />
                 </button>
+              </div>
+              {/* Email, phone, browser: only while the type itself is on,
+                  since a type switched off arrives nowhere. */}
+              {prefs[p.k] && (
+                <NotifChannelSwitches type={p.k} typeLabel={p.label} onError={() => setPrefError(true)} />
+              )}
               </div>
             ))}
             {prefError && (
