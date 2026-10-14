@@ -75,10 +75,16 @@ export function ResultsView({
   standings,
   rounds,
   external,
+  round,
+  onRound,
 }: {
   standings: Standing[];
   rounds: Round[];
   external: boolean;
+  /* The round to show and how to change it, when the address holds it
+     (ResultsFromUrl); left out, the view keeps its own. */
+  round?: number;
+  onRound?: (round: number) => void;
 }) {
   const t = useTranslations("results");
   const router = useRouter();
@@ -103,9 +109,11 @@ export function ResultsView({
 
   /* Newest round is the default: those are the pairings people are standing
      in front of. */
-  const [selected, setSelected] = useState(() =>
+  const [ownRound, setOwnRound] = useState(() =>
     rounds.length ? rounds[rounds.length - 1].round : 0,
   );
+  const selected = round !== undefined && rounds.some((r) => r.round === round) ? round : ownRound;
+  const setSelected = onRound ?? setOwnRound;
   const current = rounds.find((r) => r.round === selected);
 
   const q = query.trim().toLocaleLowerCase();

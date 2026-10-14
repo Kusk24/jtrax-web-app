@@ -19,6 +19,7 @@
  * and links back to the source. Unlinked events keep the console's own rounds
  * and Buchholz tiebreaks.
  */
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -28,6 +29,7 @@ import { SiteFooter } from "@/components/public/SiteFooter";
 import { Bracket, knockoutRounds } from "./Bracket";
 import { CategoryResults, type Category } from "./CategoryResults";
 import { ResultsView } from "./ResultsView";
+import { CategoryResultsFromUrl, ResultsFromUrl } from "./ResultsFromUrl";
 
 const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
@@ -161,7 +163,9 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
       <p className="mb-4 text-center text-sm text-pp-sub">{subtitle}</p>
       {categories.length > 0 ? (
         <div className="flex flex-col gap-4">
-          <CategoryResults categories={categories} />
+          <Suspense fallback={<CategoryResults categories={categories} />}>
+            <CategoryResultsFromUrl categories={categories} />
+          </Suspense>
           <p className="text-center text-xs text-pp-sub">{t("updatesAutomatically")}</p>
         </div>
       ) : (
@@ -212,7 +216,9 @@ export default async function PublicStandings({ params }: { params: Promise<{ id
         {/* Search, round picker and tables live in a client component: finding a
             player and switching rounds are interactions, and the once-a-minute
             refresh that keeps a projector honest can only run in the browser. */}
-        <ResultsView standings={standings} rounds={knockout ? [] : rounds} external={external} />
+        <Suspense fallback={<ResultsView standings={standings} rounds={knockout ? [] : rounds} external={external} />}>
+          <ResultsFromUrl standings={standings} rounds={knockout ? [] : rounds} external={external} />
+        </Suspense>
 
         <p className="text-center text-xs text-pp-sub">{t("updatesAutomatically")}</p>
       </div>
