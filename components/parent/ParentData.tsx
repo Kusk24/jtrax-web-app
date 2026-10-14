@@ -17,6 +17,7 @@ import {
   type TournamentEntryV2, type TournamentV2, mapUrlOf, regulationUrlOf,
 } from "@/lib/parent-v2-data";
 import { classesAttended } from "@/lib/classes-attended";
+import { channelPrefsFrom } from "@/lib/notification-channels";
 import { hoursAttended } from "@/lib/hours-attended";
 import { registrationState } from "@/lib/registration-open";
 import { cardStateOf, shownOnHome, type CardState } from "@/lib/tournament-card";
@@ -121,6 +122,12 @@ type ParentDataValue = {
   schoolAllows: Prefs;
   parentId: string;
   savePref: (type: NotifType, enabled: boolean) => Promise<void>;
+  /** How each type can arrive besides the bell, as the server says
+      (notify.ChannelsFor): only receipts and announcements leave the app. */
+  channelsByType: Record<string, string[]>;
+  /** The parent's per-channel choices, keyed type:channel; absent is on. */
+  channelPrefs: Record<string, boolean>;
+  saveChannelPref: (type: NotifType, channel: string, enabled: boolean) => Promise<void>;
   /** Signs a child up and answers with the new registration's id, which is
       what `payCardFee` needs to collect the entry fee. */
   register: (input: {
@@ -182,6 +189,8 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [lowCreditAt, setLowCreditAt] = useState(LOW_CREDIT_AT);
   const [prefs, setPrefs] = useState<Prefs>(NOTIF_DEFAULTS);
   const [schoolAllows, setSchoolAllows] = useState<Prefs>(NOTIF_DEFAULTS);
+  const [channelsByType, setChannelsByType] = useState<Record<string, string[]>>({});
+  const [channelPrefs, setChannelPrefs] = useState<Record<string, boolean>>({});
   const [parentId, setParentId] = useState("");
   const [annRead, setAnnRead] = useState<Set<string>>(new Set());
 
@@ -482,8 +491,12 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
        the master switch for a type. */
     const setRes = await fetch("/api/notification-settings", { cache: "no-store" });
     if (setRes.ok) {
-      const body = (await setRes.json()) as { settings?: Row[]; schoolEnabled?: Record<string, boolean> };
+      const body = (await setRes.json()) as {
+        settings?: Row[]; schoolEnabled?: Record<string, boolean>; channelsByType?: Record<string, string[]>;
+      };
       const saved = (body.settings ?? []).filter((row) => s(row, "channel") === "inapp");
+      setChannelsByType(body.channelsByType ?? {});
+      setChannelPrefs(channelPrefsFrom(body.settings ?? []));
       /* An older backend sends no school switches; everything is then
          offered, as it always was. */
       const allowed = { ...NOTIF_DEFAULTS };
@@ -521,6 +534,21 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     });
     if (!res.ok) {
       setPrefs((prev) => ({ ...prev, [type]: !enabled }));
+      throw new Error("saving preference failed");
+    }
+  }, []);
+
+  /* The same, for one way a type reaches the parent besides the bell. */
+  const saveChannelPref = useCallback(async (type: NotifType, channel: string, enabled: boolean) => {
+    const key = `${type}:${channel}`;
+    setChannelPrefs((prev) => ({ ...prev, [key]: enabled }));
+    const res = await fetch("/api/notification-settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, channel, enabled }),
+    });
+    if (!res.ok) {
+      setChannelPrefs((prev) => ({ ...prev, [key]: !enabled }));
       throw new Error("saving preference failed");
     }
   }, []);
@@ -599,10 +627,10 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     isAnnRead: (id) => annRead.has(id),
     markAnnRead,
     tournament: tour, tournamentEntries: entries, tournamentCards: cards, months, att, hist, payments: paymentHistory, todayActivity, certHours, lowCreditAt,
-    prefs, schoolAllows, parentId, savePref, register, payCardFee,
+    prefs, schoolAllows, parentId, savePref, channelsByType, channelPrefs, saveChannelPref, register, payCardFee,
   }), [childList, parent, anns, allNotifs, annRead, markNotifRead, markAnnRead,
-    tour, entries, cards, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref, register,
-    payCardFee]);
+    tour, entries, cards, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref,
+    channelsByType, channelPrefs, saveChannelPref, register, payCardFee]);
 
   /* No screen renders until the data is real. The old behaviour — sample
      children whenever the server was down — looked exactly like working
