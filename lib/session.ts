@@ -4,7 +4,10 @@
  * calls the same-origin /api proxy which attaches it server-side.
  */
 export const SESSION_COOKIE = "jtrax_session";
-export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
+// Matches the backend's hard cap (auth.SessionMax). The backend ends a session
+// idle for 14 days on its own; a shorter cookie would sign out someone still
+// using the portal, since the cookie is only written at sign-in.
+export const SESSION_MAX_AGE = 60 * 60 * 24 * 90;
 
 export const API_BASE = process.env.JTRAX_API_URL ?? "http://localhost:8790";
 
