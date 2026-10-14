@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   CalendarClock,
@@ -58,14 +58,30 @@ const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const cta =
   "cursor-pointer rounded-[14px] bg-pp-blue py-3.5 text-center text-sm font-bold text-white shadow-[0_10px_24px_rgba(46,92,184,.3)]";
 
-export default function TournamentFlow() {
+/* Read from the address, which needs a Suspense boundary around it. */
+export default function TournamentPage() {
+  return (
+    <Suspense fallback={null}>
+      <TournamentFlow />
+    </Suspense>
+  );
+}
+
+function TournamentFlow() {
   const t = useTranslations("pv2");
   const tReg = useTranslations("register");
   const router = useRouter();
   const {
-    children: childrenV2, tournament: tournamentV2, tournamentEntries,
+    children: childrenV2, tournament: nextTournament, tournamentEntries: nextEntries, tournamentsById,
     register, payCardFee,
   } = useParentData();
+  /* The tournament the card's Register was for (?id=), else the next one —
+     the page used to take the next Upcoming one whichever card was tapped,
+     with that tournament's categories. */
+  const wanted = useSearchParams().get("id") ?? "";
+  const picked = wanted ? tournamentsById[wanted] : undefined;
+  const tournamentV2 = picked?.tournament ?? nextTournament;
+  const tournamentEntries = picked?.entries ?? nextEntries;
   const [submitting, setSubmitting] = useState(false);
   /* Whatever the server said stays in the console. A parent gets one sentence
      they can act on, in their own language, beside the button. */

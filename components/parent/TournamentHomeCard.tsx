@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { CheckCircle2 } from "lucide-react";
 import { TournamentBanner } from "@/components/public/TournamentBanner";
 import type { TournamentCardV2 } from "@/components/parent/ParentData";
+import { cardHref } from "@/lib/tournament-card";
 
 const TAG_BASE =
   "absolute right-4 top-2.5 flex size-16 flex-col items-center justify-center rounded-full border-[2.5px] border-white text-center text-white shadow-[0_6px_16px_rgba(0,0,0,.35)]";
@@ -16,7 +17,7 @@ export function TournamentHomeCard({ card }: { card: TournamentCardV2 }) {
   const t = useTranslations("pv2");
   const { tag, action, registered, notRegisteredNote } = card.state;
 
-  const href = action === "viewResults" ? `/t/${card.id}` : "/parent/tournament";
+  const href = cardHref(card.id, action);
   const label =
     action === "register" ? t("registerNow") : action === "viewRegistration" ? t("viewRegistration") : t("viewResults");
 

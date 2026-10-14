@@ -85,3 +85,10 @@ export function shownOnHome<T extends { status: string; resultsPublic: boolean; 
     )
     .sort((a, b) => rank(a.status) - rank(b.status) || (rank(a.status) === 2 ? b.startISO.localeCompare(a.startISO) : a.startISO.localeCompare(b.startISO)));
 }
+
+/** Where a card's button goes: the results, or the entry page on this card's
+    own tournament — not on the next Upcoming one, which every card used to
+    open, with that tournament's categories. */
+export function cardHref(id: string, action: CardAction): string {
+  return action === "viewResults" ? `/t/${id}` : `/parent/tournament?id=${encodeURIComponent(id)}`;
+}
