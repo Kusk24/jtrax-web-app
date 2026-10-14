@@ -22,10 +22,14 @@ export function pick<T extends string>(value: string | null, allowed: readonly T
 /**
  * The query string with `key` set to `value` — or removed when it is the
  * screen's default, so the plain address stays the plain address. Returns
- * "" or "?…".
+ * "" or "?…". `drop` removes keys that only made sense with the old value —
+ * the round of the category being left.
  */
-export function withParam(search: string, key: string, value: string, fallback = ""): string {
+export function withParam(
+  search: string, key: string, value: string, fallback = "", drop: readonly string[] = [],
+): string {
   const params = new URLSearchParams(search);
+  for (const k of drop) params.delete(k);
   if (value === fallback || value === "") params.delete(key);
   else params.set(key, value);
   const qs = params.toString();
@@ -47,15 +51,15 @@ export type Move = "push" | "replace";
 export function useUrlValue(
   key: string,
   fallback = "",
-): [string, (next: string, move?: Move) => void, (previous: string) => void] {
+): [string, (next: string, move?: Move, drop?: readonly string[]) => void, (previous: string) => void] {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const value = params.get(key) ?? fallback;
   const pushed = useRef(0);
   const set = useCallback(
-    (next: string, move: Move = "push") => {
-      const href = pathname + withParam(window.location.search, key, next, fallback);
+    (next: string, move: Move = "push", drop: readonly string[] = []) => {
+      const href = pathname + withParam(window.location.search, key, next, fallback, drop);
       if (move === "push") {
         pushed.current += 1;
         router.push(href, { scroll: false });

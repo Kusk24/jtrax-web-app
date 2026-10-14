@@ -15,6 +15,8 @@ describe("withParam", () => {
     expect(withParam("?id=t1", "step", "register")).toBe("?id=t1&step=register"));
   it("replaces an existing value", () =>
     expect(withParam("?id=t1&step=register", "step", "payment")).toBe("?id=t1&step=payment"));
+  it("drops keys that belonged to the old value", () =>
+    expect(withParam("?category=U10&round=3", "category", "U12", "", ["round"])).toBe("?category=U12"));
   it("drops the default, so the plain address stays plain", () => {
     expect(withParam("?id=t1&step=register", "step", "detail", "detail")).toBe("?id=t1");
     expect(withParam("?tab=unread", "tab", "all", "all")).toBe("");
