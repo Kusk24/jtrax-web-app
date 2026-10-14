@@ -113,6 +113,9 @@ export function useSessionDraft<T>(
     try {
       stored = readDraft(window.sessionStorage.getItem(storageKey), isDraft);
     } catch {}
+    // Restored after hydration on purpose: reading storage during render
+    // would make the server's HTML and the client's first render disagree.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(stored ?? initial);
     // `initial` and `isDraft` are fixed per screen; only the key moves.
     // eslint-disable-next-line react-hooks/exhaustive-deps
