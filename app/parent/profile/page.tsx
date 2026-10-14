@@ -9,7 +9,7 @@
  */
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { BadgeCheck, ChevronRight, Mail, Pencil, Phone } from "lucide-react";
+import { BadgeCheck, ChevronRight, Mail, Phone } from "lucide-react";
 import { ChildFace } from "@/components/parent/ChildFace";
 import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
@@ -42,7 +42,6 @@ export default function ParentProfileV2() {
           <span className="mt-1 truncate text-[10.5px] text-pp-faint">{t("idLabel", { id: parentId })}</span>
           <span className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-pp-green"><BadgeCheck className="size-3" />{t("verifiedAccount")}</span>
         </span>
-        <Link href="/parent/settings" aria-label={t("navSettings")} className="flex size-9 flex-none items-center justify-center rounded-xl border border-pp-line text-pp-muted hover:bg-pp-mist"><Pencil className="size-4" /></Link>
       </div>
 
       <div className="flex flex-col gap-3">
