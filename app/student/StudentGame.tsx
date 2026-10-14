@@ -6,6 +6,7 @@
    daily set's state with Home's Daily Challenge card. */
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useUrlParam } from "@/lib/url-state";
 import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
@@ -183,7 +184,10 @@ export default function StudentGame() {
   const [listFailed, setListFailed] = useState(false);
   const [listIndex, setListIndex] = useState(0);
   /* "" for every level. */
-  const [listFilter, setListFilter] = useState<FreeTier | "">("");
+  /* The level chip lives in the address with ?screen=, so a reload keeps it. */
+  const [listFilter, setListFilterParam] = useUrlParam<FreeTier | "">(
+    "level", ["", "beginner", "intermediate", "advanced"], "");
+  const setListFilter = (k: FreeTier | "") => setListFilterParam(k, "replace");
   /* A list puzzle solved again today: said so on the board. */
   const [replay, setReplay] = useState(false);
   const [game, setGame] = useState<Chess | null>(null);
