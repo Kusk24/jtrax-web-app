@@ -35,24 +35,26 @@ export function withParam(search: string, key: string, value: string, fallback =
 export type Move = "push" | "replace";
 
 /**
- * One query parameter as state. Must render under a Suspense boundary, as
- * anything reading the search params does.
+ * One query parameter as state, as the raw string — for values whose valid set
+ * comes from data (a child, a course), which the screen checks itself. Must
+ * render under a Suspense boundary, as anything reading the search params does.
+ *
+ * The setter pushes by default; pass "replace" for filters and searches. The
+ * third value is an on-screen back arrow: it retraces entries this screen
+ * pushed since it mounted, like the browser's Back, and after a reload or a
+ * shared link steps back in place instead of leaving the site.
  */
-export function useUrlParam<T extends string>(
+export function useUrlValue(
   key: string,
-  allowed: readonly T[],
-  fallback: T,
-): [T, (next: T, move?: Move) => void, (previous: T) => void] {
+  fallback = "",
+): [string, (next: string, move?: Move) => void, (previous: string) => void] {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const value = pick(params.get(key), allowed, fallback);
-  // Entries this screen pushed since it mounted, so an on-screen back arrow
-  // can retrace them like the browser's Back — and, after a reload or a
-  // shared link, step back in place instead of leaving the site.
+  const value = params.get(key) ?? fallback;
   const pushed = useRef(0);
   const set = useCallback(
-    (next: T, move: Move = "push") => {
+    (next: string, move: Move = "push") => {
       const href = pathname + withParam(window.location.search, key, next, fallback);
       if (move === "push") {
         pushed.current += 1;
@@ -62,7 +64,7 @@ export function useUrlParam<T extends string>(
     [router, pathname, key, fallback],
   );
   const back = useCallback(
-    (previous: T) => {
+    (previous: string) => {
       if (pushed.current > 0) {
         pushed.current -= 1;
         router.back();
@@ -71,6 +73,16 @@ export function useUrlParam<T extends string>(
     [router, set],
   );
   return [value, set, back];
+}
+
+/** useUrlValue for a fixed set of values; anything else reads as `fallback`. */
+export function useUrlParam<T extends string>(
+  key: string,
+  allowed: readonly T[],
+  fallback: T,
+): [T, (next: T, move?: Move) => void, (previous: T) => void] {
+  const [raw, set, back] = useUrlValue(key, fallback);
+  return [pick(raw, allowed, fallback), set, back];
 }
 
 /** Reads a stored draft, or null for anything missing or unreadable. */
