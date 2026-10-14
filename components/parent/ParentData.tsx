@@ -101,6 +101,9 @@ type ParentDataValue = {
       place — the second attempt fails on a unique index, which used to be the
       only way back after a card was declined. */
   tournamentEntries: TournamentEntryV2[];
+  /** Every tournament the family can see, with their entries in it, by id:
+      a card's Register opens its own tournament, not the next one. */
+  tournamentsById: Record<string, { tournament: TournamentV2; entries: TournamentEntryV2[] }>;
   /** One card per tournament worth showing on the home screen, through its
       whole life: registration, the day itself, and its results. */
   tournamentCards: TournamentCardV2[];
@@ -178,6 +181,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const [anns, setAnns] = useState<AnnouncementV2[]>([]);
   const [allNotifs, setAllNotifs] = useState<InboxNotif[]>([]);
   const [tour, setTour] = useState<TournamentV2 | null>(null);
+  const [toursById, setToursById] = useState<Record<string, { tournament: TournamentV2; entries: TournamentEntryV2[] }>>({});
   const [entries, setEntries] = useState<TournamentEntryV2[]>([]);
   const [cards, setCards] = useState<TournamentCardV2[]>([]);
   const [months] = useState<MonthDef[]>(() => recentMonths());
@@ -432,12 +436,11 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
       }),
     );
 
-    /* The next tournament, or nothing. The card only exists when an event
-       does — the mock used to keep advertising Wellington 2026 forever. */
-    const trn = tournaments.find((x) => s(x, "tournament_status") === "Upcoming");
-    if (trn) {
+    /* Each tournament the family can see, with their entries in it — a
+       card's Register opens its own. */
+    const buildTour = (trn: Row): { tournament: TournamentV2; entries: TournamentEntryV2[] } => {
       const deadline = s(trn, "registration_deadline");
-      setTour({
+      const tourOf: TournamentV2 = {
         id: s(trn, "tournament_id"),
         name: s(trn, "name"),
         venue: s(trn, "venue_name"),
@@ -456,13 +459,13 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         regulationUrl: regulationUrlOf(s(trn, "tournament_id"), Boolean(trn.has_regulation), s(trn, "regulations_document_url")),
         mapUrl: mapUrlOf(s(trn, "venue_map_url"), s(trn, "venue_name"), s(trn, "venue_address")),
         startDate: s(trn, "start_date"),
-      });
+      };
       /* Which of this family's children already have a place, and whether the
          fee behind each has settled. Both lists arrive scoped to the family by
          the server, so nothing here needs to filter by parent — only by which
          tournament is being shown. */
       const tid = s(trn, "tournament_id");
-      setEntries(regs
+      const entriesOf: TournamentEntryV2[] = regs
         .filter((r) => s(r, "tournament_id") === tid && s(r, "status") !== "Rejected")
         .map((r) => {
           const rid = s(r, "tournament_registration_id");
@@ -475,7 +478,19 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
             status: s(r, "status"),
             paid: s(pay ?? {}, "status") === "Paid",
           };
-        }));
+        });
+      return { tournament: tourOf, entries: entriesOf };
+    };
+    const byId: Record<string, { tournament: TournamentV2; entries: TournamentEntryV2[] }> = {};
+    for (const x of tournaments) byId[s(x, "tournament_id")] = buildTour(x);
+    setToursById(byId);
+
+    /* The next tournament, or nothing. The card only exists when an event
+       does — the mock used to keep advertising Wellington 2026 forever. */
+    const trn = tournaments.find((x) => s(x, "tournament_status") === "Upcoming");
+    if (trn) {
+      setTour(byId[s(trn, "tournament_id")].tournament);
+      setEntries(byId[s(trn, "tournament_id")].entries);
     } else {
       setTour(null);
       setEntries([]);
@@ -626,10 +641,10 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
     },
     isAnnRead: (id) => annRead.has(id),
     markAnnRead,
-    tournament: tour, tournamentEntries: entries, tournamentCards: cards, months, att, hist, payments: paymentHistory, todayActivity, certHours, lowCreditAt,
+    tournament: tour, tournamentEntries: entries, tournamentsById: toursById, tournamentCards: cards, months, att, hist, payments: paymentHistory, todayActivity, certHours, lowCreditAt,
     prefs, schoolAllows, parentId, savePref, channelsByType, channelPrefs, saveChannelPref, register, payCardFee,
   }), [childList, parent, anns, allNotifs, annRead, markNotifRead, markAnnRead,
-    tour, entries, cards, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref,
+    tour, entries, toursById, cards, months, att, hist, paymentHistory, todayActivity, certHours, lowCreditAt, prefs, schoolAllows, parentId, savePref,
     channelsByType, channelPrefs, saveChannelPref, register, payCardFee]);
 
   /* No screen renders until the data is real. The old behaviour — sample

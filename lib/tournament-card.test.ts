@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cardStateOf, shownOnHome } from "./tournament-card";
+import { cardStateOf, shownOnHome, cardHref } from "./tournament-card";
 
 const base = { status: "Upcoming", registration: "open" as const, closesInDays: 5, resultsPublic: false, registered: false };
 
@@ -50,5 +50,15 @@ describe("which tournaments get a card", () => {
       t("quiet", "Completed", "2026-10-01", false, "2026-10-02"),
     ];
     expect(shownOnHome(list, "2026-10-06").map((x) => x.id)).toEqual(["now", "soon", "later", "done"]);
+  });
+});
+
+describe("a card's link", () => {
+  it("opens the entry page on its own tournament", () => {
+    expect(cardHref("trn_test_open", "register")).toBe("/parent/tournament?id=trn_test_open");
+    expect(cardHref("trn_cup", "viewRegistration")).toBe("/parent/tournament?id=trn_cup");
+  });
+  it("opens the results for a finished one", () => {
+    expect(cardHref("trn_fest", "viewResults")).toBe("/t/trn_fest");
   });
 });
