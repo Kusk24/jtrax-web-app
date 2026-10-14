@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   AlertTriangle, CalendarX2, Check, Clock3, DoorOpen, Megaphone, Receipt, type LucideIcon,
 } from "lucide-react";
 import { useParentData } from "@/components/parent/ParentData";
+import { useUrlParam } from "@/lib/url-state";
 
 /* One face per notification type in the backend's catalogue. A type this map
    has never heard of gets the announcement look rather than a crash — the
@@ -22,12 +23,23 @@ const TYPE_STYLE: Record<string, { icon: LucideIcon; color: string; bg: string }
 };
 const FALLBACK_STYLE = TYPE_STYLE.announcement;
 
+/* The tab is read from the address, which needs a Suspense boundary. */
 export default function ParentNotificationsV2() {
+  return (
+    <Suspense fallback={null}>
+      <Notifications />
+    </Suspense>
+  );
+}
+
+const TABS = ["all", "unread"] as const;
+
+function Notifications() {
   const t = useTranslations("pv2");
   const locale = useLocale();
   const router = useRouter();
   const { notifs, unreadNotifs, isNotifRead, markNotifRead, markAllNotifsRead } = useParentData();
-  const [tab, setTab] = useState<"all" | "unread">("all");
+  const [tab, setTab] = useUrlParam("tab", TABS, "all");
 
   const shown = notifs.filter((n) => tab === "all" || !isNotifRead(n.id));
 
