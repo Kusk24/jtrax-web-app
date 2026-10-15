@@ -141,6 +141,8 @@ type ParentDataValue = {
         (optional), and the conditions of entry. The family's contact
         details come from their record on the server. */
     nickname: string; nameTh: string; acceptTerms: boolean;
+    /** Read the privacy notice; recorded with the entry (PDPA s.23). */
+    privacyNotice: boolean;
   }) => Promise<string>;
   /** Opens (or reopens) the card checkout for a registration's entry fee and
       answers with the URL to send the parent to, or `null` when the academy
@@ -571,7 +573,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
   const register = useCallback(async (input: {
     tournamentId: string; studentId: string;
     idCheck: string; categoryId: string;
-    nickname: string; nameTh: string; acceptTerms: boolean;
+    nickname: string; nameTh: string; acceptTerms: boolean; privacyNotice: boolean;
   }) => {
     /* No name, fee or status: the server takes the name from the academy's
        records and the price from the tournament. This used to send the fee,
@@ -586,6 +588,7 @@ export function ParentDataProvider({ children: kids }: { children: ReactNode }) 
         nickname: input.nickname,
         ...(input.nameTh ? { participant_name_th: input.nameTh } : {}),
         accept_terms: input.acceptTerms,
+        privacy_notice: input.privacyNotice,
       }),
     });
     if (!res.ok) {
