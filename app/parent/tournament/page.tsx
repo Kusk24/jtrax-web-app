@@ -27,17 +27,17 @@ type Step = (typeof STEPS)[number];
    the address: it carries the child's name and date of birth. */
 type Pay = "card" | "promptpay" | "bank" | "later";
 type Draft = {
-  child: string; pay: Pay; nickname: string; nameTh: string; acceptTerms: boolean;
+  child: string; pay: Pay; nickname: string; nameTh: string; acceptTerms: boolean; privacyNotice: boolean;
   categoryId: string; idRead: IdCardRead | null;
 };
 const EMPTY_DRAFT: Draft = {
-  child: "", pay: "card", nickname: "", nameTh: "", acceptTerms: false, categoryId: "", idRead: null,
+  child: "", pay: "card", nickname: "", nameTh: "", acceptTerms: false, privacyNotice: false, categoryId: "", idRead: null,
 };
 function isDraft(v: unknown): v is Draft {
   const d = v as Draft;
   return typeof v === "object" && v !== null &&
     typeof d.child === "string" && typeof d.nickname === "string" && typeof d.nameTh === "string" &&
-    typeof d.acceptTerms === "boolean" && typeof d.categoryId === "string" &&
+    typeof d.acceptTerms === "boolean" && typeof d.privacyNotice === "boolean" && typeof d.categoryId === "string" &&
     ["card", "promptpay", "bank", "later"].includes(d.pay) &&
     (d.idRead === null || (typeof d.idRead === "object" && typeof d.idRead.studentId === "string"));
 }
@@ -119,7 +119,7 @@ function TournamentFlow() {
      file, so they are not asked for again. The ID card step holds what the
      card said, for the child it was read for, and the category that birth
      year allows. */
-  const { child, pay, nickname, nameTh, acceptTerms, idRead, categoryId } = draft;
+  const { child, pay, nickname, nameTh, acceptTerms, privacyNotice, idRead, categoryId } = draft;
   const field = <K extends keyof Draft>(key: K) => (value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
   const setChild = field("child");
@@ -127,6 +127,7 @@ function TournamentFlow() {
   const setNickname = field("nickname");
   const setNameTh = field("nameTh");
   const setAcceptTerms = field("acceptTerms");
+  const setPrivacyNotice = field("privacyNotice");
   const setIdRead = field("idRead");
   const setCategoryId = field("categoryId");
   const [categories, setCategories] = useState<PublicCategory[]>([]);
@@ -167,6 +168,8 @@ function TournamentFlow() {
         ? tReg("needNickname")
         : !acceptTerms
           ? tReg("needTerms")
+          : !privacyNotice
+            ? tReg("needPrivacy")
           : "";
   const readyToPay = missing === "";
   /* A child with a place cannot be registered again — the second attempt is
@@ -352,6 +355,24 @@ function TournamentFlow() {
                 <span className="ml-0.5 text-pp-danger" aria-hidden>*</span>
               </span>
             </label>
+            <label className="flex cursor-pointer items-start gap-2.5 pt-1 text-[13px] font-semibold text-pp-ink">
+              <input
+                type="checkbox"
+                checked={privacyNotice}
+                onChange={(e) => setPrivacyNotice(e.target.checked)}
+                className="mt-0.5 size-4 accent-pp-blue"
+              />
+              <span>
+                {tReg.rich("privacyAccept", {
+                  link: (chunks) => (
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-pp-blue underline underline-offset-2">
+                      {chunks}
+                    </a>
+                  ),
+                })}
+                <span className="ml-0.5 text-pp-danger" aria-hidden>*</span>
+              </span>
+            </label>
           </div>
         </div>
         {!readyToPay && (
@@ -463,6 +484,7 @@ function TournamentFlow() {
                 nickname: nickname.trim(),
                 nameTh: nameTh.trim(),
                 acceptTerms,
+                privacyNotice,
               });
             } catch {
               setRegisterFailed(true);
