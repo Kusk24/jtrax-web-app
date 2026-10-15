@@ -14,11 +14,33 @@ import { useParentData } from "@/components/parent/ParentData";
 import { TournamentBanner } from "@/components/public/TournamentBanner";
 import { TournamentIdCheck, type IdCardRead } from "@/components/parent/TournamentIdCheck";
 import { ageFromDOB, categoryAllows, type PublicCategory } from "@/lib/registration";
+import { useSessionDraft, useUrlParam } from "@/lib/url-state";
 
 /* "done" is a fee that has been settled; "held" is a place taken with the fee
    still owed — the screen used to show the first for both, and for the card
    path it showed it without charging anything at all. */
-type Step = "detail" | "register" | "payment" | "done" | "held";
+const STEPS = ["detail", "register", "payment", "done", "held"] as const;
+type Step = (typeof STEPS)[number];
+
+/* What the parent has typed and chosen, kept for this tab so a reload or Back
+   returns them to the step they were on with it all still filled in. Never in
+   the address: it carries the child's name and date of birth. */
+type Pay = "card" | "promptpay" | "bank" | "later";
+type Draft = {
+  child: string; pay: Pay; nickname: string; nameTh: string; acceptTerms: boolean;
+  categoryId: string; idRead: IdCardRead | null;
+};
+const EMPTY_DRAFT: Draft = {
+  child: "", pay: "card", nickname: "", nameTh: "", acceptTerms: false, categoryId: "", idRead: null,
+};
+function isDraft(v: unknown): v is Draft {
+  const d = v as Draft;
+  return typeof v === "object" && v !== null &&
+    typeof d.child === "string" && typeof d.nickname === "string" && typeof d.nameTh === "string" &&
+    typeof d.acceptTerms === "boolean" && typeof d.categoryId === "string" &&
+    ["card", "promptpay", "bank", "later"].includes(d.pay) &&
+    (d.idRead === null || (typeof d.idRead === "object" && typeof d.idRead.studentId === "string"));
+}
 
 /* The public form's conditions of entry, by message key. */
 const TERMS = ["termsRegistration", "termsRefund", "termsChanges", "termsConduct", "termsLiability"] as const;
@@ -90,21 +112,31 @@ function TournamentFlow() {
      parent: one says the child has no place, the other says the child has a
      place and the fee is still owed. */
   const [payFailed, setPayFailed] = useState(false);
-  const [step, setStep] = useState<Step>("detail");
-  const [child, setChild] = useState(childrenV2[0]?.key ?? "");
-  const [pay, setPay] = useState<"card" | "promptpay" | "bank" | "later">("card");
-  /* What the public form asks too. The family's contact details are on
-     file, so they are not asked for again. */
-  const [nickname, setNickname] = useState("");
-  const [nameTh, setNameTh] = useState("");
-  const [acceptTerms, setAcceptTerms] = useState(false);
-
-  /* The ID card step: what the card said, for the child it was read for,
-     and the category that birth year allows. */
-  const [idRead, setIdRead] = useState<IdCardRead | null>(null);
-  const [categoryId, setCategoryId] = useState("");
-  const [categories, setCategories] = useState<PublicCategory[]>([]);
+  const [step, setStep, stepBack] = useUrlParam("step", STEPS, "detail");
   const tournamentId = tournamentV2?.id ?? "";
+  const [draft, setDraft] = useSessionDraft(`jtrax:tournament-entry:${tournamentId}`, EMPTY_DRAFT, isDraft);
+  /* What the public form asks too. The family's contact details are on
+     file, so they are not asked for again. The ID card step holds what the
+     card said, for the child it was read for, and the category that birth
+     year allows. */
+  const { child, pay, nickname, nameTh, acceptTerms, idRead, categoryId } = draft;
+  const field = <K extends keyof Draft>(key: K) => (value: Draft[K]) =>
+    setDraft((d) => ({ ...d, [key]: value }));
+  const setChild = field("child");
+  const setPay = field("pay");
+  const setNickname = field("nickname");
+  const setNameTh = field("nameTh");
+  const setAcceptTerms = field("acceptTerms");
+  const setIdRead = field("idRead");
+  const setCategoryId = field("categoryId");
+  const [categories, setCategories] = useState<PublicCategory[]>([]);
+  /* The entry exists from here: the result replaces the payment step in
+     history, so Back cannot offer to pay again, and the form is emptied for
+     the next child — keeping only who and how, which the result names. */
+  const finish = (result: "done" | "held") => {
+    setDraft((d) => ({ ...EMPTY_DRAFT, child: d.child, pay: d.pay }));
+    setStep(result, "replace");
+  };
   useEffect(() => {
     if (!tournamentId) return;
     let live = true;
@@ -142,6 +174,13 @@ function TournamentFlow() {
      used to hit. They get the fee button instead. */
   const entered = new Set(tournamentEntries.map((e) => e.studentId));
   const available = childrenV2.filter((c) => !entered.has(c.key));
+  /* The address can name a step this family cannot be on — a reload after
+     the tab's draft was lost, a link opened in a new tab — so the screen
+     shows the furthest step that still makes sense rather than a broken one. */
+  const shown: Step =
+    step === "payment" && !readyToPay ? "register"
+      : step === "register" && (available.length === 0 || tournamentV2?.registration !== "open") ? "detail"
+        : step;
 
   /* No event open — nothing to register for. The home screen only links here
      while a tournament exists, but the URL can always be typed. */
@@ -156,8 +195,8 @@ function TournamentFlow() {
     );
   }
 
-  if (step === "done" || step === "held") {
-    const settled = step === "done";
+  if (shown === "done" || shown === "held") {
+    const settled = shown === "done";
     const paidLater = pay === "later";
     return (
       <div className="mx-auto flex min-h-[70dvh] w-full max-w-[620px] flex-col items-center justify-center gap-4 px-5 text-center">
@@ -188,10 +227,10 @@ function TournamentFlow() {
     );
   }
 
-  if (step === "register") {
+  if (shown === "register") {
     return (
       <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
-        <BackHeader title={t("registration")} onBack={() => setStep("detail")} />
+        <BackHeader title={t("registration")} onBack={() => stepBack("detail")} />
         <div className="flex flex-col gap-2">
           <span className={label}>{t("selectChild")}</span>
           <div className="flex flex-col gap-2.5">
@@ -331,10 +370,10 @@ function TournamentFlow() {
     );
   }
 
-  if (step === "payment") {
+  if (shown === "payment") {
     return (
       <div className="mx-auto flex w-full max-w-[620px] flex-col gap-4">
-        <BackHeader title={t("payment")} onBack={() => setStep("register")} />
+        <BackHeader title={t("payment")} onBack={() => stepBack("register")} />
         <div className={`${card} flex flex-col gap-3.5`}>
           <div className="flex flex-col gap-0.5">
             <span className="text-[10.5px] font-bold uppercase tracking-[.1em] text-pp-faint">
@@ -436,7 +475,7 @@ function TournamentFlow() {
                online — which is what the screen now says instead of claiming
                a payment went through. */
             if (pay !== "card") {
-              setStep("held");
+              finish("held");
               setSubmitting(false);
               return;
             }
@@ -445,7 +484,7 @@ function TournamentFlow() {
               if (!url) {
                 // Card payments are not switched on: the place is held and the
                 // desk takes the fee.
-                setStep("held");
+                finish("held");
                 setSubmitting(false);
                 return;
               }
@@ -614,7 +653,7 @@ function TournamentFlow() {
       ) : available.length > 0 ? (
         <button
           onClick={() => {
-            setChild(available[0].key);
+            if (!available.some((c) => c.key === child)) setChild(available[0].key);
             setStep("register");
           }}
           className={cta}

@@ -22,10 +22,23 @@ export type Category = {
   standings: ViewProps["standings"];
 };
 
-export function CategoryResults({ categories }: { categories: Category[] }) {
+export function CategoryResults({
+  categories, category, onCategory, round, onRound,
+}: {
+  categories: Category[];
+  /* The category and round when the address holds them (ResultsFromUrl);
+     left out, the tabs keep their own. */
+  category?: string;
+  onCategory?: (name: string) => void;
+  round?: number;
+  onRound?: (round: number) => void;
+}) {
   const t = useTranslations("results");
   const locale = useLocale();
-  const [picked, setPicked] = useState(0);
+  const [ownPicked, setOwnPicked] = useState(0);
+  const fromUrl = categories.findIndex((c) => c.name === category);
+  const picked = fromUrl >= 0 ? fromUrl : ownPicked;
+  const setPicked = (i: number) => (onCategory ? onCategory(categories[i].name) : setOwnPicked(i));
   const current = categories[Math.min(picked, categories.length - 1)];
 
   return (
@@ -78,7 +91,7 @@ export function CategoryResults({ categories }: { categories: Category[] }) {
       </PublicCard>
 
       {/* Keyed by category: a search typed in one belongs to that one. */}
-      <ResultsView key={current.name} standings={current.standings} rounds={current.rounds} external />
+      <ResultsView key={current.name} standings={current.standings} rounds={current.rounds} external round={round} onRound={onRound} />
     </div>
   );
 }

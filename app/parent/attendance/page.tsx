@@ -1,7 +1,7 @@
 "use client";
 
 import { CreditLine } from "@/components/parent/AttendanceRow";
-import { useState } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { CURRENT, type ChildKey } from "@/lib/parent-v2-data";
@@ -11,15 +11,35 @@ import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { CourseFilter, CreditsUsed, coursesOf, usedCredits } from "@/components/parent/CourseFilter";
 import { FilterPicker } from "@/components/parent/FilterPicker";
 import { Users } from "lucide-react";
+import { useUrlValue } from "@/lib/url-state";
 
 const WD_KEYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 
+/* The filters are read from the address, which needs a Suspense boundary. */
 export default function ParentAttendanceV2() {
+  return (
+    <Suspense fallback={null}>
+      <Attendance />
+    </Suspense>
+  );
+}
+
+function Attendance() {
   const t = useTranslations("pv2");
   const { children: childrenV2, att: ATT, hist: histV2, months } = useParentData();
-  const [filter, setFilter] = useState<"all" | ChildKey>("all");
-  const [month, setMonth] = useState(CURRENT);
-  const [course, setCourse] = useState("");
+  /* Which child, month and course are showing live in the address, so a
+     reload or Back keeps them. Each is checked against the family's data:
+     an address naming another child or a month out of range shows the
+     default instead. */
+  const [childParam, setChildParam] = useUrlValue("child", "all");
+  const [monthParam, setMonthParam] = useUrlValue("month", String(CURRENT));
+  const [course, setCourseParam] = useUrlValue("course");
+  const filter: "all" | ChildKey = childrenV2.some((c) => c.key === childParam) ? (childParam as ChildKey) : "all";
+  const asked = Number(monthParam);
+  const month = Number.isInteger(asked) && asked >= 0 && asked < months.length ? asked : CURRENT;
+  const setFilter = (k: "all" | ChildKey) => setChildParam(k, "replace");
+  const setMonth = (step: (m: number) => number) => setMonthParam(String(step(month)), "replace");
+  const setCourse = (c: string) => setCourseParam(c, "replace");
 
   const M = months[month];
   /* The rows the child chip allows, then the course: the picker offers only
