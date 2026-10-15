@@ -73,6 +73,8 @@ export type RegisterInput = {
       without it rather than defaulting it: a record that can mean "we assumed
       yes" answers nothing three weeks later. */
   acceptTerms: boolean;
+  /** Read the privacy notice (PDPA s.23); the server refuses an entry without it. */
+  privacyNotice: boolean;
   /** As a Thai ID card prints it; a passport holder has none. */
   nameTh?: string;
   documentType?: "thai-id" | "passport";
@@ -173,6 +175,7 @@ export async function registerForTournament(
   if (input.nickname) body.set("nickname", input.nickname);
   if (input.age) body.set("age", String(input.age));
   body.set("acceptTerms", input.acceptTerms ? "true" : "false");
+  body.set("privacyNotice", input.privacyNotice ? "true" : "false");
   if (input.nameTh) body.set("nameTh", input.nameTh);
   if (input.documentType) body.set("documentType", input.documentType);
   if (input.scannedName) body.set("scannedName", input.scannedName);

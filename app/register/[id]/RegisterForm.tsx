@@ -87,6 +87,7 @@ export function RegisterForm({
   const t = useTranslations("register");
 
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [privacyNotice, setPrivacyNotice] = useState(false);
   const [docType, setDocType] = useState<DocType>("thai-id");
   const [name, setName] = useState("");
   const [nameTh, setNameTh] = useState("");
@@ -166,6 +167,7 @@ export function RegisterForm({
      can name what is missing; the server checks the rest. */
   function missing(): string {
     if (!acceptTerms) return t("needTerms");
+    if (!privacyNotice) return t("needPrivacy");
     if (!checkId) return t("needIdCard");
     if (name.trim().length < 2) return t("needName");
     if (!dateOfBirth) return t("needDob");
@@ -202,6 +204,7 @@ export function RegisterForm({
         nickname,
         age: age || undefined,
         acceptTerms,
+        privacyNotice,
         nameTh: docType === "thai-id" ? nameTh.trim() : undefined,
         documentType: docType,
         scannedName: scan ? [scan.firstName.value, scan.lastName.value].filter(Boolean).join(" ") : undefined,
@@ -293,6 +296,24 @@ export function RegisterForm({
           />
           <span className="text-[13.5px] text-pp-ink">
             {t("termsAccept")} <span className="text-pp-danger" aria-hidden>*</span>
+          </span>
+        </label>
+        <label className="mt-3 flex cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            className="size-5 shrink-0 cursor-pointer accent-pp-blue"
+            checked={privacyNotice}
+            onChange={(e) => setPrivacyNotice(e.target.checked)}
+          />
+          <span className="text-[13.5px] text-pp-ink">
+            {t.rich("privacyAccept", {
+              link: (chunks) => (
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-pp-blue underline underline-offset-2">
+                  {chunks}
+                </a>
+              ),
+            })}{" "}
+            <span className="text-pp-danger" aria-hidden>*</span>
           </span>
         </label>
       </Section>
