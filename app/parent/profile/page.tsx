@@ -15,6 +15,7 @@ import { useParentData } from "@/components/parent/ParentData";
 import { ParentPageHeader } from "@/components/parent/ParentPageHeader";
 import { ParentAvatar } from "@/components/parent/ParentAvatar";
 import { PaymentHistory } from "@/components/parent/PaymentHistory";
+import { MyData } from "@/components/parent/MyData";
 
 const label = "text-[11.5px] font-bold uppercase tracking-[.14em] text-pp-sub";
 const panel = "overflow-hidden rounded-xl border-[1.5px] border-pp-line bg-pp-card";
@@ -86,6 +87,8 @@ export default function ParentProfileV2() {
       </div>
 
       <PaymentHistory payments={payments} />
+
+      <MyData />
     </div>
   );
 }
