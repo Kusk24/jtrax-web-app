@@ -871,7 +871,9 @@
     "entryCancelled": "Registration closed on {date} without payment, so this place was released.",
     "entryCancelledNoDate": "Registration closed without payment, so this place was released.",
     "alreadyEntered": "This player is already registered for this tournament. To enter another child, use their own name and date of birth.",
-    "dobTooYoung": "The date of birth must be at least 1 year ago. Check the card, or upload a clearer photo."
+    "dobTooYoung": "The date of birth must be at least 1 year ago. Check the card, or upload a clearer photo.",
+    "privacyAccept": "I am the player's parent or guardian (or the player, aged 20 or over), and I have read the <link>privacy notice</link>.",
+    "needPrivacy": "Please confirm you have read the privacy notice."
   },
   "results": {
     "categories": "Categories",
@@ -1065,7 +1067,8 @@
     "rights": "© {year} {name}. All rights reserved.",
     "needHelp": "Need help?",
     "chatWithUs": "Chat with us",
-    "instagram": "Instagram"
+    "instagram": "Instagram",
+    "privacy": "Privacy notice"
   },
   "arrival": {
     "confirmedTitle": "Confirmed — see you there! Good luck, {name}!",
@@ -1199,5 +1202,27 @@
     "earnedStars": "You earned {n} stars!",
     "puzzlesCompleted": "<b>{n}</b>/<b>{total}</b> puzzles completed",
     "starsEarned": "{n} of {total} stars earned"
+  },
+  "privacy": {
+    "title": "Privacy notice",
+    "draft": "Draft — awaiting the academy's approval. The wording may change before it is final.",
+    "version": "Version {version}",
+    "intro": "JCA Chess Academy (\"the academy\") collects and uses personal data about students, their parents or guardians, and players who enter our tournaments. This notice explains what we collect, why, who we share it with, how long we keep it, and your rights under Thailand's Personal Data Protection Act B.E. 2562 (PDPA).",
+    "whatTitle": "What we collect",
+    "what": "Names (in English and Thai), nickname, date of birth, school and branch; parents' names, phone numbers, email addresses and LINE IDs; class attendance, credits and payments; tournament entries and results; chess activity such as puzzles, games and ratings; and, only if you choose to give them, medical notes for tournament day. When you scan an ID card or passport, we read the name and date of birth from it and do not keep the photo.",
+    "whyTitle": "Why we use it",
+    "why": "To run classes and tournaments you have signed up for (our contract with you); to take and record payments, as accounting law requires (legal obligation); to keep players safe on tournament day (medical notes, with your explicit consent); and to send you announcements and reminders you can switch off in Settings (your consent, or our legitimate interest in running the academy).",
+    "childrenTitle": "Children",
+    "children": "Most of the people in our records are children. A parent or guardian gives their personal data and acts for them. A child under 10 cannot give consent on their own; where we rely on consent, we ask the parent or guardian.",
+    "sharingTitle": "Who we share it with",
+    "sharing": "We do not sell personal data. Service providers process it for us under our instructions: Amazon Web Services (our server and backups, in Singapore), Google (reading scanned forms and ID cards; app notifications), Stripe (card payments), LINE (messages), our email provider, and Lichess (only if you link a Lichess account). Some of them are outside Thailand; we use them only with appropriate safeguards. Tournament names and results are published on the results page.",
+    "keepTitle": "How long we keep it",
+    "keep": "For as long as a student is with the academy, and afterwards only as long as there is a reason to: payment records for as long as accounting law requires, other records until they are no longer needed. Sign-in sessions, reset links and ID-card reads are deleted automatically once spent.",
+    "rightsTitle": "Your rights",
+    "rights": "You can ask to see the data we hold about you or your child, to get a copy, to have it corrected, to have it deleted or anonymised, to object to or restrict its use, and to withdraw consent at any time (this does not affect what was done before). You can also complain to the Personal Data Protection Committee (PDPC).",
+    "securityTitle": "How we protect it",
+    "security": "Passwords are stored only as salted hashes, connections are encrypted, each family can see only its own records, and staff access is limited by role. If a breach puts your data at risk, we will tell the PDPC within 72 hours and tell you without delay.",
+    "contactTitle": "Contact us",
+    "contact": "To use any of these rights or ask a question, contact the academy:"
   }
 }

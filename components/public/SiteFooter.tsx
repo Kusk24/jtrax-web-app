@@ -124,6 +124,9 @@ export async function SiteFooter() {
         )}
 
         {visit && <p className="max-w-md whitespace-pre-line text-xs leading-relaxed">{visit}</p>}
+        <a href="/privacy" className={`text-xs ${link}`}>
+          {t("privacy")}
+        </a>
         <p className="text-[11px]">{t("rights", { year: new Date().getFullYear(), name })}</p>
       </div>
     </footer>
